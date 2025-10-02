@@ -4,6 +4,7 @@
   "type": "module",
   "dependencies": {
     "@hono/node-server": "^1.19.5",
+    "@neondatabase/serverless": "^1.0.2",
     "bcrypt": "^6.0.0",
     "dotenv": "^17.2.3",
     "drizzle-orm": "^0.44.5",
