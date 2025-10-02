@@ -1,4 +1,10 @@
-import { integer, pgTable, timestamp, uuid, varchar } from "drizzle-orm/pg-core";
+import {
+  integer,
+  pgTable,
+  timestamp,
+  uuid,
+  varchar,
+} from "drizzle-orm/pg-core";
 import { orderTickets } from "./order-tickets.ts";
 
 export const payments = pgTable("payments", {
