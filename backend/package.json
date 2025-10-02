@@ -4,11 +4,16 @@
   "type": "module",
   "dependencies": {
     "@hono/node-server": "^1.19.5",
+    "dotenv": "^17.2.3",
+    "drizzle-orm": "^0.44.5",
     "hono": "^4.9.9",
-    "tsx": "^4.20.6",
+    "pg": "^8.16.3",
     "typescript": "^5.9.3"
   },
   "devDependencies": {
-    "@types/node": "^24.6.2"
+    "@types/node": "^24.6.2",
+    "@types/pg": "^8.15.5",
+    "drizzle-kit": "^0.31.5",
+    "tsx": "^4.20.6"
   }
 }
