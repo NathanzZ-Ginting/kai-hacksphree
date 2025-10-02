@@ -16,6 +16,7 @@ const Services = () => {
       description:
         "Layanan transportasi penumpang yang nyaman dan terpercaya untuk perjalanan Anda",
       features: ["Fasilitas Utama", "Promo", "Jelajah Nusantara"],
+      
     },
     {
       icon: "image",

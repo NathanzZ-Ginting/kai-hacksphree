@@ -1,6 +1,8 @@
 import { Hono } from 'hono'
 import { serve } from '@hono/node-server'
 import client from 'prom-client'
+import authRoute from './modules/authentication/routes/auth-route.ts'
+import { logger } from 'hono/logger'
 
 // Buat app Hono
 const app = new Hono()
@@ -22,6 +24,9 @@ app.use('*', async (c, next) => {
   httpRequestCounter.labels(c.req.method, c.req.path, res.status.toString()).inc()
 })
 
+// Logger middleware
+app.use("*", logger())
+
 // Endpoint /metrics
 app.get('/metrics', async (c) => {
   const metrics = await register.metrics()
@@ -32,6 +37,9 @@ app.get('/metrics', async (c) => {
 })
 
 // --- Routes ---
+app.route("/api/v1/auth", authRoute)
+
+// Route default
 app.get('/', (c) => c.text('Hello from Hono + TypeScript 🚀'))
 
 app.get('/api/hello', (c) => c.json({ message: 'Hello Hackathon!' }))

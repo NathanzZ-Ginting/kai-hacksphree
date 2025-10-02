@@ -1,14 +1,11 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import {
-  Menu,
-  X,
-  ChevronDown,
-  Train,
-  Truck,
-  Building,
-  Plane,
-} from "lucide-react";
+import { Menu, X, ChevronDown } from "lucide-react";
+
+// Import images
+import penumpangIcon from "/assets/images/services/angkutan_penumpang.jpg";
+import barangIcon from "/assets/images/services/angkutan_barang.jpg";
+import asetIcon from "/assets/images/services/pengusahaan_aset.jpg";
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -20,28 +17,25 @@ const Header = () => {
 
   const servicesItems = [
     {
-      name: "Layanan Penumpang",
+      name: "Angkutan Penumpang",
       href: "/services/passenger",
-      icon: Train,
-      description: "Kereta penumpang berbagai kelas",
+      image: penumpangIcon,
+      description: "Layanan transportasi penumpang yang nyaman dan terpercaya",
+      features: ["Fasilitas Utama", "Promo", "Jelajah Nusantara"],
     },
     {
-      name: "Logistik & Kargo",
+      name: "Angkutan Barang",
       href: "/services/logistics",
-      icon: Truck,
-      description: "Pengiriman barang dan logistik",
+      image: barangIcon,
+      description: "Solusi pengiriman barang yang efisien dan aman",
+      features: ["Angkutan Retail", "Angkutan Korporat"],
     },
     {
-      name: "Pengelolaan Properti",
+      name: "Pengusahaan Aset",
       href: "/services/property",
-      icon: Building,
-      description: "Pengembangan properti stasiun",
-    },
-    {
-      name: "Bandara & Travel",
-      href: "/services/airport",
-      icon: Plane,
-      description: "Konektivitas bandara & travel",
+      image: asetIcon,
+      description: "Optimalisasi pemanfaatan aset properti",
+      features: ["Area Kontrol", "Space Iklan", "Bangunan Dinas"],
     },
   ];
 
@@ -130,7 +124,7 @@ const Header = () => {
           <div className="flex items-center space-x-2">
             <a href="/">
               <img
-                src="assets/images/logos/logo-KAI.png"
+                src="/assets/images/logos/logo-KAI.png"
                 alt="logo KAI"
                 className="h-14"
               />
@@ -166,10 +160,10 @@ const Header = () => {
                 {item.hasDropdown && isServicesDropdownOpen && (
                   <div
                     ref={dropdownRef}
-                    className="absolute top-full left-0 mt-2 w-80 bg-white rounded-2xl shadow-2xl border border-gray-100 overflow-hidden animate-in fade-in-50 zoom-in-95"
+                    className="absolute top-full left-0 mt-2 w-96 bg-white rounded-2xl shadow-2xl border border-gray-100 overflow-hidden animate-in fade-in-50 zoom-in-95"
                   >
                     <div className="p-4">
-                      <div className="mb-2">
+                      <div className="mb-4">
                         <h3 className="font-semibold text-gray-900 text-lg">
                           Layanan KAI
                         </h3>
@@ -178,7 +172,7 @@ const Header = () => {
                         </p>
                       </div>
 
-                      <div className="space-y-2">
+                      <div className="space-y-3">
                         {servicesItems.map((service) => (
                           <button
                             key={service.name}
@@ -189,24 +183,16 @@ const Header = () => {
                                 : "hover:border-orange-200"
                             }`}
                           >
-                            <div
-                              className={`p-2 rounded-lg group-hover:bg-orange-100 transition-colors ${
-                                location.pathname === service.href
-                                  ? "bg-orange-100"
-                                  : "bg-gray-100"
-                              }`}
-                            >
-                              <service.icon
-                                className={`h-5 w-5 ${
-                                  location.pathname === service.href
-                                    ? "text-orange-600"
-                                    : "text-gray-600"
-                                }`}
+                            <div className="flex-shrink-0">
+                              <img
+                                src={service.image}
+                                alt={service.name}
+                                className="w-12 h-12 rounded-lg object-cover"
                               />
                             </div>
-                            <div className="flex-1">
+                            <div className="flex-1 min-w-0">
                               <div
-                                className={`font-medium group-hover:text-orange-600 transition-colors ${
+                                className={`font-semibold group-hover:text-orange-600 transition-colors ${
                                   location.pathname === service.href
                                     ? "text-orange-600"
                                     : "text-gray-900"
@@ -214,8 +200,25 @@ const Header = () => {
                               >
                                 {service.name}
                               </div>
-                              <div className="text-sm text-gray-500 mt-1">
+                              <div className="text-sm text-gray-500 mt-1 line-clamp-2">
                                 {service.description}
+                              </div>
+                              <div className="flex flex-wrap gap-1 mt-2">
+                                {service.features
+                                  .slice(0, 2)
+                                  .map((feature, index) => (
+                                    <span
+                                      key={index}
+                                      className="inline-block px-2 py-1 text-xs bg-gray-100 text-gray-600 rounded-md"
+                                    >
+                                      {feature}
+                                    </span>
+                                  ))}
+                                {service.features.length > 2 && (
+                                  <span className="inline-block px-2 py-1 text-xs bg-gray-100 text-gray-600 rounded-md">
+                                    +{service.features.length - 2}
+                                  </span>
+                                )}
                               </div>
                             </div>
                           </button>
@@ -301,11 +304,11 @@ const Header = () => {
                     )}
                   </button>
 
-                  {/* Mobile Services Dropdown - Diperbarui */}
+                  {/* Mobile Services Dropdown */}
                   {item.hasDropdown && isServicesDropdownOpen && (
-                    <div className="mt-2 bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
+                    <div className="mt-3 bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
                       <div className="p-4">
-                        <div className="mb-3">
+                        <div className="mb-4">
                           <h3 className="font-semibold text-gray-900 text-base">
                             Layanan KAI
                           </h3>
@@ -314,7 +317,7 @@ const Header = () => {
                           </p>
                         </div>
 
-                        <div className="space-y-2">
+                        <div className="space-y-3">
                           {servicesItems.map((service) => (
                             <button
                               key={service.name}
@@ -325,24 +328,16 @@ const Header = () => {
                                   : "hover:border-orange-200"
                               }`}
                             >
-                              <div
-                                className={`p-2 rounded-lg group-hover:bg-orange-100 transition-colors ${
-                                  location.pathname === service.href
-                                    ? "bg-orange-100"
-                                    : "bg-gray-100"
-                                }`}
-                              >
-                                <service.icon
-                                  className={`h-4 w-4 ${
-                                    location.pathname === service.href
-                                      ? "text-orange-600"
-                                      : "text-gray-600"
-                                  }`}
+                              <div className="flex-shrink-0">
+                                <img
+                                  src={service.image}
+                                  alt={service.name}
+                                  className="w-10 h-10 rounded-lg object-cover"
                                 />
                               </div>
-                              <div className="flex-1">
+                              <div className="flex-1 min-w-0">
                                 <div
-                                  className={`font-medium group-hover:text-orange-600 transition-colors ${
+                                  className={`font-semibold group-hover:text-orange-600 transition-colors ${
                                     location.pathname === service.href
                                       ? "text-orange-600"
                                       : "text-gray-900"
@@ -350,18 +345,35 @@ const Header = () => {
                                 >
                                   {service.name}
                                 </div>
-                                <div className="text-xs text-gray-500 mt-1">
+                                <div className="text-sm text-gray-500 mt-1 line-clamp-2">
                                   {service.description}
+                                </div>
+                                <div className="flex flex-wrap gap-1 mt-2">
+                                  {service.features
+                                    .slice(0, 1)
+                                    .map((feature, index) => (
+                                      <span
+                                        key={index}
+                                        className="inline-block px-2 py-1 text-xs bg-gray-100 text-gray-600 rounded-md"
+                                      >
+                                        {feature}
+                                      </span>
+                                    ))}
+                                  {service.features.length > 1 && (
+                                    <span className="inline-block px-2 py-1 text-xs bg-gray-100 text-gray-600 rounded-md">
+                                      +{service.features.length - 1}
+                                    </span>
+                                  )}
                                 </div>
                               </div>
                             </button>
                           ))}
                         </div>
 
-                        <div className="mt-3 pt-3 border-t border-gray-200">
+                        <div className="mt-4 pt-4 border-t border-gray-200">
                           <button
                             onClick={() => handleServiceClick("/services")}
-                            className="w-full text-center text-orange-600 hover:text-orange-700 font-medium text-sm py-2"
+                            className="w-full text-center text-orange-600 hover:text-orange-700 font-medium text-sm py-2 transition-colors"
                           >
                             Lihat Semua Layanan →
                           </button>

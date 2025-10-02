@@ -23,12 +23,8 @@ export const createUser = async (newUser: User): Promise<User> => {
   return NewUser[0] as User
 }
 
-export const updateUser = async (uuid: string, user: User): Promise<User> => {
-  var updatedUser = await db.update(users).set({
-    'name': user.name,
-    'email': user.email,
-    'phoneNumber': user.phoneNumber
-  }).where(eq(users.uuid, uuid)).returning()
+export const updateUser = async (uuid: string, user: User)=> {
+  var updatedUser = await db.update(users).set(user).where(eq(users.uuid, uuid)).returning()
 
-  return updatedUser[0] as User
+  return updatedUser[0]
 }

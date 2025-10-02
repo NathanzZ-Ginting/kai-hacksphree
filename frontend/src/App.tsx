@@ -9,7 +9,6 @@ import ServicesPage from "./pages/ServicesPage";
 import PassengerServicePage from "./pages/services/PassengerServicePage";
 import LogisticsServicePage from "./pages/services/LogisticsServicePage";
 import PropertyServicePage from "./pages/services/PropertyServicePage";
-import AirportServicePage from "./pages/services/AirportServicePage";
 import NewsPage from "./pages/NewsPage";
 import HelpPage from "./pages/HelpPage";
 import BookingPage from "./pages/BookingPage";
@@ -36,10 +35,6 @@ function App() {
               <Route
                 path="/services/property"
                 element={<PropertyServicePage />}
-              />
-              <Route
-                path="/services/airport"
-                element={<AirportServicePage />}
               />
               <Route path="/news" element={<NewsPage />} />
               <Route path="/help" element={<HelpPage />} />
