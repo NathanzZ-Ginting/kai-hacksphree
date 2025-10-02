@@ -1,11 +1,23 @@
+import 'dotenv/config'
 import { Hono } from 'hono'
 import { serve } from '@hono/node-server'
 import client from 'prom-client'
 import authRoute from './modules/authentication/routes/auth-route.ts'
 import { logger } from 'hono/logger'
+import { cors } from 'hono/cors'
 
 // Buat app Hono
 const app = new Hono()
+
+// Add CORS middleware
+app.use('*', cors({
+  origin: ['http://localhost:5173', '*'],  // Allow frontend origin and any other origins for testing
+  allowHeaders: ['Content-Type', 'Authorization'],
+  allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  exposeHeaders: ['Content-Length'],
+  maxAge: 600,
+  credentials: true,
+}))
 
 // --- Prometheus Metrics Setup ---
 const register = client.register
