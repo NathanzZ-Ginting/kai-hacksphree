@@ -83,10 +83,12 @@ const Header = () => {
     setIsMenuOpen(false);
   };
 
-  const handleNavClick = (href: string, hasDropdown = false) => {
-    if (hasDropdown) {
+  const handleNavClick = (href: string, hasDropdown = false, isMobile = false) => {
+    if (hasDropdown && !isMobile) {
+      // Desktop: toggle dropdown
       setIsServicesDropdownOpen(!isServicesDropdownOpen);
     } else {
+      // Mobile atau non-dropdown: navigate ke halaman
       navigate(href);
       setIsMenuOpen(false);
       setIsServicesDropdownOpen(false);
@@ -114,7 +116,7 @@ const Header = () => {
     <header
       className={`fixed top-0 z-50 transition-all duration-300 w-full ${
         isScrolled
-          ? "bg-white shadow-md backdrop-blur-sm bg-white/95"
+          ? "bg-white/95 shadow-md backdrop-blur-sm"
           : "bg-transparent"
       }`}
     >
@@ -296,7 +298,7 @@ const Header = () => {
               {navItems.map((item) => (
                 <div key={item.name}>
                   <button
-                    onClick={() => handleNavClick(item.href, item.hasDropdown)}
+                    onClick={() => handleNavClick(item.href, item.hasDropdown, true)}
                     className={`w-full text-left px-3 py-2 text-base font-medium rounded-lg transition-colors flex items-center justify-between ${
                       isActive(item.href) ||
                       (item.hasDropdown && isServicesActive)
@@ -307,83 +309,10 @@ const Header = () => {
                     }`}
                   >
                     <span>{item.name}</span>
-                    {item.hasDropdown && (
-                      <ChevronDown
-                        className={`h-4 w-4 transition-transform ${
-                          isServicesDropdownOpen ? "rotate-180" : ""
-                        }`}
-                      />
-                    )}
+                    {/* Tidak perlu dropdown arrow di mobile karena langsung navigate */}
                   </button>
 
-                  {/* Mobile Services Dropdown */}
-                  {item.hasDropdown && isServicesDropdownOpen && (
-                    <div className="mt-3 bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
-                      <div className="p-4">
-                        <div className="mb-4">
-                          <h3 className="font-semibold text-gray-900 text-base">
-                            Layanan KAI
-                          </h3>
-                          <p className="text-sm text-gray-500 mt-1">
-                            Pilih jenis layanan yang Anda butuhkan
-                          </p>
-                        </div>
-
-                        <div className="space-y-3">
-                          {servicesItems.map((service) => (
-                            <button
-                              key={service.name}
-                              onClick={() => handleServiceClick(service.href)}
-                              className={`w-full flex items-start space-x-3 p-3 rounded-lg text-left transition-all hover:bg-orange-50 group ${
-                                location.pathname === service.href
-                                  ? "bg-orange-50 border border-orange-200"
-                                  : "hover:border-orange-200"
-                              }`}
-                            >
-                              <div className="flex-shrink-0">
-                                <img
-                                  src={service.image}
-                                  alt={service.name}
-                                  className="w-10 h-10 rounded-lg object-cover"
-                                />
-                              </div>
-                              <div className="flex-1 min-w-0">
-                                <div
-                                  className={`font-semibold group-hover:text-orange-600 transition-colors ${
-                                    location.pathname === service.href
-                                      ? "text-orange-600"
-                                      : "text-gray-900"
-                                  }`}
-                                >
-                                  {service.name}
-                                </div>
-                                <div className="text-sm text-gray-500 mt-1 line-clamp-2">
-                                  {service.description}
-                                </div>
-                                <div className="flex flex-wrap gap-1 mt-2">
-                                  {service.features
-                                    .slice(0, 1)
-                                    .map((feature, index) => (
-                                      <span
-                                        key={index}
-                                        className="inline-block px-2 py-1 text-xs bg-gray-100 text-gray-600 rounded-md"
-                                      >
-                                        {feature}
-                                      </span>
-                                    ))}
-                                  {service.features.length > 1 && (
-                                    <span className="inline-block px-2 py-1 text-xs bg-gray-100 text-gray-600 rounded-md">
-                                      +{service.features.length - 1}
-                                    </span>
-                                  )}
-                                </div>
-                              </div>
-                            </button>
-                          ))}
-                        </div>
-                      </div>
-                    </div>
-                  )}
+                  {/* Mobile langsung navigate ke /services, tidak ada dropdown */}
                 </div>
               ))}
               <div className="pt-4 space-y-2">
