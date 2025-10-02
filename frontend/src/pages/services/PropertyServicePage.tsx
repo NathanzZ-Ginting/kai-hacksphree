@@ -63,10 +63,19 @@ const PropertyServicePage = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50 pt-16">
-      {/* Hero Section */}
-      <section className="bg-gradient-to-r from-green-600 to-green-800 text-white py-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-gray-50">
+      {/* Hero Section dengan Background Image */}
+      <section
+        className="relative h-[26rem] flex items-center text-white bg-cover bg-center bg-no-repeat"
+        style={{
+          backgroundImage:
+            'url("/assets/images/banners/banner-angkutan-penumpang.jpg")',
+        }}
+      >
+        {/* Overlay gelap */}
+        <div className="absolute inset-0 bg-black/60"></div>
+
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
             <h1 className="text-4xl md:text-5xl font-bold mb-6">
               Pengelolaan Properti
