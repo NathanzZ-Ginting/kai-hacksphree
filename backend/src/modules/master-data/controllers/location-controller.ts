@@ -1,7 +1,7 @@
 import { Hono } from "hono";
 import { fetchCategory, fetchCategoryByUuid } from "../services/category-service.ts";
 import { ErrorsRes, SuccessRes } from "../../../common/utils/api-response.ts";
-import { fetchLocation, fetchLocationByUuid } from "../services/location-service.ts";
+import { fetchLocation, fetchLocationByCity, fetchLocationByUuid } from "../services/location-service.ts";
 
 const locationController = new Hono()
 
@@ -44,5 +44,28 @@ locationController.get("/:uuid", async (c) => {
     );
   }
 })
+
+
+locationController.get("/:city", async (c) => {
+  if (!c.req.param("city")) {
+    return c.json(SuccessRes("Required city"), 400);
+  }
+
+  try {
+    const city = c.req.param("city");
+    const result = await fetchLocationByCity(city);
+
+    if (!result.success) {
+      return c.json(ErrorsRes(result.message), 500);
+    }
+
+    return c.json(SuccessRes(result.message, result.data));
+  } catch (error) {
+    return c.json(
+      ErrorsRes("Unknown error occurred, please try again", error!),
+      500
+    );
+  }
+});
 
 export default locationController

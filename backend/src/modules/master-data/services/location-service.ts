@@ -8,6 +8,7 @@ import {
 import {
   createLocation,
   getAllLocations,
+  getLocationByCity,
   getLocationByUuid,
 } from "../../../common/repositories/locations-repository.ts";
 
@@ -68,6 +69,31 @@ const fetchLocationByUuid = async (uuid: string): Promise<locationResult> => {
   }
 };
 
+const fetchLocationByCity = async (city: string): Promise<locationResult> => {
+  try {
+    const loc = await getLocationByCity(city);
+
+    if (!loc) {
+      return {
+        success: false,
+        message: `Location dengan city ${city} tidak ditemukan!`,
+      };
+    }
+
+    return {
+      success: true,
+      message: "City ditemukan!",
+      data: loc as Location,
+    };
+  } catch (error) {
+    return {
+      success: false,
+      message: "Terjadi kesalahan!",
+      errors: { [0]: error },
+    };
+  }
+};
+
 const addLocation = async (loc: Location): Promise<locationResult> => {
   try {
     const newLoc = await createLocation(loc);
@@ -86,4 +112,4 @@ const addLocation = async (loc: Location): Promise<locationResult> => {
   }
 };
 
-export { fetchLocation, fetchLocationByUuid, addLocation };
+export { fetchLocation, fetchLocationByUuid, fetchLocationByCity,addLocation };
