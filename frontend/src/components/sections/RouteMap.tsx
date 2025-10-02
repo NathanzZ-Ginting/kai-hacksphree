@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { MapPin, Clock, Train, ArrowRightLeft } from "lucide-react";
 import StationDropdown from "../ui/StationDropdown";
+import TrainMap from "../ui/TrainMap";
 
 const RouteMap = () => {
   const [startStation, setStartStation] = useState<string>("");
@@ -9,62 +10,289 @@ const RouteMap = () => {
   // Data stasiun yang lebih lengkap
   const stations = {
     jabodetabek: [
-      { id: "GMR", name: "Gambir", city: "Jakarta Pusat" },
-      { id: "BTL", name: "Batu Ceper", city: "Tangerang" },
-      { id: "SUD", name: "Sudirman", city: "Jakarta Pusat" },
-      { id: "BNG", name: "Bogor", city: "Bogor" },
-      { id: "BKS", name: "Bekasi", city: "Bekasi" },
-      { id: "TNG", name: "Tangerang", city: "Tangerang" },
-      { id: "DPK", name: "Depok", city: "Depok" },
-      { id: "CKR", name: "Cikarang", city: "Bekasi" },
-      { id: "TBS", name: "Tebet", city: "Jakarta Selatan" },
-      { id: "MGB", name: "Manggarai", city: "Jakarta Selatan" },
-      { id: "JNG", name: "Jatinegara", city: "Jakarta Timur" },
-      { id: "PSE", name: "Pasar Senen", city: "Jakarta Pusat" },
-      { id: "KPB", name: "Kampung Bandan", city: "Jakarta Utara" },
+      {
+        id: "GMR",
+        name: "Gambir",
+        city: "Jakarta Pusat",
+        lat: -6.1767,
+        lng: 106.8305,
+      },
+      {
+        id: "SUD",
+        name: "Sudirman",
+        city: "Jakarta Pusat",
+        lat: -6.2017,
+        lng: 106.8225,
+      },
+      {
+        id: "BNG",
+        name: "Bogor",
+        city: "Bogor",
+        lat: -6.595,
+        lng: 106.8166,
+      },
+      {
+        id: "BKS",
+        name: "Bekasi",
+        city: "Bekasi",
+        lat: -6.2383,
+        lng: 106.9756,
+      },
+      {
+        id: "DPK",
+        name: "Depok",
+        city: "Depok",
+        lat: -6.4025,
+        lng: 106.7942,
+      },
+      {
+        id: "CKR",
+        name: "Cikarang",
+        city: "Bekasi",
+        lat: -6.2567,
+        lng: 107.1722,
+      },
+      {
+        id: "TBS",
+        name: "Tebet",
+        city: "Jakarta Selatan",
+        lat: -6.2316,
+        lng: 106.8507,
+      },
+      {
+        id: "MGB",
+        name: "Manggarai",
+        city: "Jakarta Selatan",
+        lat: -6.2088,
+        lng: 106.8506,
+      },
+      {
+        id: "JNG",
+        name: "Jatinegara",
+        city: "Jakarta Timur",
+        lat: -6.2146,
+        lng: 106.8707,
+      },
     ],
     jawa: [
-      { id: "GMR", name: "Gambir", city: "Jakarta Pusat" },
-      { id: "BD", name: "Bandung", city: "Bandung" },
-      { id: "YK", name: "Yogyakarta", city: "Yogyakarta" },
-      { id: "SLO", name: "Solo Balapan", city: "Surakarta" },
-      { id: "SLO2", name: "Solo Jebres", city: "Surakarta" },
-      { id: "SMG", name: "Semarang Tawang", city: "Semarang" },
-      { id: "SMC", name: "Semarang Poncol", city: "Semarang" },
-      { id: "SBY", name: "Surabaya Gubeng", city: "Surabaya" },
-      { id: "SBI", name: "Surabaya Pasar Turi", city: "Surabaya" },
-      { id: "MLG", name: "Malang", city: "Malang" },
-      { id: "JBR", name: "Jember", city: "Jember" },
-      { id: "BWI", name: "Banyuwangi", city: "Banyuwangi" },
-      { id: "CRB", name: "Cirebon", city: "Cirebon" },
-      { id: "PWR", name: "Purwokerto", city: "Purwokerto" },
-      { id: "TGL", name: "Tegal", city: "Tegal" },
-      { id: "PWK", name: "Pekalongan", city: "Pekalongan" },
+      {
+        id: "BD",
+        name: "Bandung",
+        city: "Bandung",
+        lat: -6.9147,
+        lng: 107.6098,
+      },
+      {
+        id: "YK",
+        name: "Yogyakarta",
+        city: "Yogyakarta",
+        lat: -7.7891,
+        lng: 110.3613,
+      },
+      {
+        id: "SLO",
+        name: "Solo Balapan",
+        city: "Surakarta",
+        lat: -7.556,
+        lng: 110.831,
+      },
+      {
+        id: "SMG",
+        name: "Semarang Tawang",
+        city: "Semarang",
+        lat: -6.9667,
+        lng: 110.428,
+      },
+      {
+        id: "SBY",
+        name: "Surabaya Gubeng",
+        city: "Surabaya",
+        lat: -7.2654,
+        lng: 112.7521,
+      },
+      {
+        id: "SBI",
+        name: "Surabaya Pasar Turi",
+        city: "Surabaya",
+        lat: -7.2452,
+        lng: 112.7418,
+      },
+      {
+        id: "MLG",
+        name: "Malang",
+        city: "Malang",
+        lat: -7.9666,
+        lng: 112.6326,
+      },
+      {
+        id: "JBR",
+        name: "Jember",
+        city: "Jember",
+        lat: -8.1845,
+        lng: 113.7031,
+      },
+      {
+        id: "BWI",
+        name: "Banyuwangi",
+        city: "Banyuwangi",
+        lat: -8.2191,
+        lng: 114.3691,
+      },
+      {
+        id: "CRB",
+        name: "Cirebon",
+        city: "Cirebon",
+        lat: -6.7059,
+        lng: 108.557,
+      },
+      {
+        id: "PWR",
+        name: "Purwokerto",
+        city: "Purwokerto",
+        lat: -7.4281,
+        lng: 109.2436,
+      },
+      {
+        id: "TGL",
+        name: "Tegal",
+        city: "Tegal",
+        lat: -6.8694,
+        lng: 109.1402,
+      },
+      {
+        id: "PWK",
+        name: "Pekalongan",
+        city: "Pekalongan",
+        lat: -6.8883,
+        lng: 109.6753,
+      },
     ],
     sumatera: [
-      { id: "MDN", name: "Medan", city: "Medan" },
-      { id: "PBM", name: "Pematang Siantar", city: "Pematang Siantar" },
-      { id: "PKL", name: "Padang", city: "Padang" },
-      { id: "PLG", name: "Palembang", city: "Palembang" },
-      { id: "LMP", name: "Lampung", city: "Lampung" },
-      { id: "BKL", name: "Bengkulu", city: "Bengkulu" },
-      { id: "JMB", name: "Jambi", city: "Jambi" },
-      { id: "BDB", name: "Bandar Lampung", city: "Bandar Lampung" },
+      {
+        id: "MDN",
+        name: "Medan",
+        city: "Medan",
+        lat: 3.5952,
+        lng: 98.6722,
+      },
+      {
+        id: "PBM",
+        name: "Pematang Siantar",
+        city: "Pematang Siantar",
+        lat: 2.96,
+        lng: 99.06,
+      },
+      {
+        id: "PKL",
+        name: "Padang",
+        city: "Padang",
+        lat: -0.9492,
+        lng: 100.3543,
+      },
+      {
+        id: "PLG",
+        name: "Palembang",
+        city: "Palembang",
+        lat: -2.9911,
+        lng: 104.7567,
+      },
+      {
+        id: "LMP",
+        name: "Lampung",
+        city: "Lampung",
+        lat: -5.45,
+        lng: 105.2667,
+      },
+      {
+        id: "BKL",
+        name: "Bengkulu",
+        city: "Bengkulu",
+        lat: -3.7956,
+        lng: 102.2592,
+      },
+      {
+        id: "JMB",
+        name: "Jambi",
+        city: "Jambi",
+        lat: -1.59,
+        lng: 103.61,
+      },
+      {
+        id: "BDB",
+        name: "Bandar Lampung",
+        city: "Bandar Lampung",
+        lat: -5.3971,
+        lng: 105.2662,
+      },
     ],
     bali: [
-      { id: "DPS", name: "Denpasar", city: "Denpasar" },
-      { id: "SGR", name: "Singaraja", city: "Singaraja" },
+      {
+        id: "DPS",
+        name: "Denpasar",
+        city: "Denpasar",
+        lat: -8.6705,
+        lng: 115.2126,
+      },
+      {
+        id: "SGR",
+        name: "Singaraja",
+        city: "Singaraja",
+        lat: -8.112,
+        lng: 115.0882,
+      },
     ],
     kalimantan: [
-      { id: "BJM", name: "Banjarmasin", city: "Banjarmasin" },
-      { id: "PNK", name: "Pontianak", city: "Pontianak" },
-      { id: "SMR", name: "Samarinda", city: "Samarinda" },
-      { id: "BAL", name: "Balikpapan", city: "Balikpapan" },
+      {
+        id: "BJM",
+        name: "Banjarmasin",
+        city: "Banjarmasin",
+        lat: -3.3186,
+        lng: 114.5944,
+      },
+      {
+        id: "PNK",
+        name: "Pontianak",
+        city: "Pontianak",
+        lat: -0.0226,
+        lng: 109.3425,
+      },
+      {
+        id: "SMR",
+        name: "Samarinda",
+        city: "Samarinda",
+        lat: -0.5022,
+        lng: 117.1538,
+      },
+      {
+        id: "BAL",
+        name: "Balikpapan",
+        city: "Balikpapan",
+        lat: -1.242,
+        lng: 116.8942,
+      },
     ],
     sulawesi: [
-      { id: "UPG", name: "Makassar", city: "Makassar" },
-      { id: "MDC", name: "Manado", city: "Manado" },
-      { id: "PARE", name: "Parepare", city: "Parepare" },
+      {
+        id: "UPG",
+        name: "Makassar",
+        city: "Makassar",
+        lat: -5.1477,
+        lng: 119.4327,
+      },
+      {
+        id: "MDC",
+        name: "Manado",
+        city: "Manado",
+        lat: 1.4748,
+        lng: 124.8421,
+      },
+      {
+        id: "PARE",
+        name: "Parepare",
+        city: "Parepare",
+        lat: -4.0167,
+        lng: 119.6236,
+      },
     ],
   };
 
@@ -288,28 +516,23 @@ const RouteMap = () => {
 
           <div className="bg-white rounded-2xl shadow-sm p-8">
             <h3 className="text-2xl font-bold mb-6 text-gray-800">Peta Rute</h3>
-            <div className="bg-gray-100 rounded-xl h-96 flex items-center justify-center">
-              <div className="text-center text-gray-500">
-                <MapPin className="h-12 w-12 mx-auto mb-4" />
-                {startStation && endStation ? (
-                  <>
-                    <p>
-                      Peta Rute{" "}
-                      {allStations.find((s) => s.id === startStation)?.name} →{" "}
-                      {allStations.find((s) => s.id === endStation)?.name}
-                    </p>
-                    <p className="text-sm">
-                      ({availableRoutes.length} rute tersedia)
-                    </p>
-                  </>
-                ) : (
-                  <>
-                    <p>Peta Interaktif Rute Kereta</p>
-                    <p className="text-sm">Pilih stasiun untuk melihat rute</p>
-                  </>
-                )}
+            {startStation && endStation ? (
+              <TrainMap
+                startStation={allStations.find((s) => s.id === startStation)}
+                endStation={allStations.find((s) => s.id === endStation)}
+                routeStations={
+                  availableRoutes[0]
+                    ? (availableRoutes[0].route
+                        .map((id) => allStations.find((s) => s.id === id))
+                        .filter(Boolean) as any[])
+                    : []
+                }
+              />
+            ) : (
+              <div className="bg-gray-100 rounded-xl h-96 flex items-center justify-center text-gray-500">
+                Pilih stasiun untuk melihat rute
               </div>
-            </div>
+            )}
           </div>
         </div>
       </div>
