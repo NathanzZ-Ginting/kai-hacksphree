@@ -64,7 +64,7 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: linear-gradient(180deg, #D4AF37, #B8860B);
+  background: linear-gradient(180deg, #d4af37, #b8860b);
   border-radius: 10px;
 }
 
@@ -83,4 +83,65 @@ body {
 .chatbot-scrollbar::-webkit-scrollbar-thumb {
   background: rgba(100, 100, 100, 0.6);
   border-radius: 10px;
+}
+
+.prose {
+  line-height: 1.75;
+}
+
+.prose h2 {
+  font-size: 1.5em;
+  font-weight: bold;
+  margin-top: 2em;
+  margin-bottom: 1em;
+  color: #1f2937;
+}
+
+.prose h3 {
+  font-size: 1.25em;
+  font-weight: 600;
+  margin-top: 1.6em;
+  margin-bottom: 0.8em;
+  color: #374151;
+}
+
+.prose h4 {
+  font-size: 1.1em;
+  font-weight: 600;
+  margin-top: 1.4em;
+  margin-bottom: 0.6em;
+  color: #4b5563;
+}
+
+.prose p {
+  margin-bottom: 1.25em;
+  color: #4b5563;
+}
+
+.prose ul {
+  margin-bottom: 1.25em;
+  padding-left: 1.625em;
+}
+
+.prose li {
+  margin-bottom: 0.5em;
+  color: #4b5563;
+}
+
+.prose strong {
+  font-weight: 600;
+  color: #374151;
+}
+
+.prose .tips {
+  background-color: #f0f9ff;
+  border-left: 4px solid #38bdf8;
+  padding: 1.5em;
+  margin: 1.5em 0;
+  border-radius: 0 8px 8px 0;
+}
+
+.prose .tips h4 {
+  margin-top: 0;
+  color: #0369a1;
 }

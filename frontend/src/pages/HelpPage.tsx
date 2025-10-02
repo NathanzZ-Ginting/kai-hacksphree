@@ -14,10 +14,12 @@ import {
   Star,
 } from "lucide-react";
 import ChatBot from "../components/ui/ChatBot";
+import { useNavigate } from "react-router-dom";
 
 const HelpPage = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [isChatBotOpen, setIsChatBotOpen] = useState(false);
+  const navigate = useNavigate();
 
   const contactMethods = [
     {
@@ -133,9 +135,12 @@ const HelpPage = () => {
   ];
 
   const handleContactSupport = () => {
-    // Logic untuk menghubungi customer service
     console.log("Redirect to customer service");
     setIsChatBotOpen(false);
+  };
+
+  const handleArticleClick = (articleId: string) => {
+    navigate(`/article/${articleId}`);
   };
 
   return (
@@ -156,34 +161,6 @@ const HelpPage = () => {
             Temukan solusi cepat untuk setiap pertanyaan dan kendala perjalanan
             Anda
           </p>
-
-          {/* Search Bar */}
-          <div className="max-w-2xl mx-auto">
-            <div className="relative">
-              <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-6 w-6 text-gray-400" />
-              <input
-                type="text"
-                placeholder="Cari solusi, pertanyaan, atau masalah..."
-                className="w-full pl-12 pr-4 py-4 text-lg border-0 rounded-xl bg-white bg-opacity-95 text-gray-900 placeholder-gray-500 focus:ring-2 focus:ring-purple-300 focus:bg-white transition-all duration-300"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
-            </div>
-            <div className="mt-4 flex flex-wrap justify-center gap-2">
-              <span className="text-purple-200 text-sm">Coba cari:</span>
-              {["pembatalan tiket", "cara bayar", "ubah jadwal", "refund"].map(
-                (term, idx) => (
-                  <button
-                    key={idx}
-                    onClick={() => setSearchTerm(term)}
-                    className="text-purple-200 hover:text-white text-sm bg-white bg-opacity-10 px-3 py-1 rounded-full transition-colors"
-                  >
-                    {term}
-                  </button>
-                )
-              )}
-            </div>
-          </div>
         </div>
       </section>
 
@@ -239,7 +216,8 @@ const HelpPage = () => {
             {popularArticles.map((article, index) => (
               <div
                 key={index}
-                className="bg-white rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow border border-gray-200"
+                className="bg-white rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow border border-gray-200 cursor-pointer"
+                onClick={() => handleArticleClick((index + 1).toString())}
               >
                 <div className="flex items-start justify-between mb-3">
                   <span className="bg-purple-100 text-purple-800 text-sm px-3 py-1 rounded-full font-medium">
