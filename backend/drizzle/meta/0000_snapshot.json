@@ -1,5 +1,5 @@
 {
-  "id": "9fef9afd-3ceb-482d-8214-67a2d036e166",
+  "id": "d1d96935-c091-4a6e-9384-831242e16b93",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -622,6 +622,12 @@
         "status": {
           "name": "status",
           "type": "varchar(50)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "numberOfPassanger": {
+          "name": "numberOfPassanger",
+          "type": "integer",
           "primaryKey": false,
           "notNull": false
         },

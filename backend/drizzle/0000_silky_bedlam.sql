@@ -72,6 +72,7 @@ CREATE TABLE "order_tickets" (
 	"user_id" uuid,
 	"invoice_number" varchar(100) NOT NULL,
 	"status" varchar(50),
+	"numberOfPassanger" integer,
 	"order_date" timestamp NOT NULL,
 	"total_price" integer,
 	"created_at" timestamp DEFAULT now(),
