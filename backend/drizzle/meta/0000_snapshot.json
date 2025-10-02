@@ -1,5 +1,5 @@
 {
-  "id": "99bcdc4f-c2d8-49c8-9fa2-2c679f7eb30c",
+  "id": "da15385a-15f9-46ea-b867-43652140f526",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -38,6 +38,12 @@
           "type": "varchar(255)",
           "primaryKey": false,
           "notNull": true
+        },
+        "token": {
+          "name": "token",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": false
         },
         "phone_number": {
           "name": "phone_number",
@@ -113,7 +119,9 @@
         "users_email_unique": {
           "name": "users_email_unique",
           "nullsNotDistinct": false,
-          "columns": ["email"]
+          "columns": [
+            "email"
+          ]
         }
       },
       "policies": {},
@@ -193,7 +201,6 @@
           "notNull": true,
           "default": "gen_random_uuid()"
         },
-        },
         "city": {
           "name": "city",
           "type": "varchar(255)",
@@ -232,7 +239,6 @@
           "notNull": false,
           "default": "now()"
         }
-      },
       },
       "indexes": {
         "city_idx": {
@@ -338,8 +344,12 @@
           "name": "stations_location_id_locations_uuid_fk",
           "tableFrom": "stations",
           "tableTo": "locations",
-          "columnsFrom": ["location_id"],
-          "columnsTo": ["uuid"],
+          "columnsFrom": [
+            "location_id"
+          ],
+          "columnsTo": [
+            "uuid"
+          ],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -400,8 +410,12 @@
           "name": "trains_category_id_categories_uuid_fk",
           "tableFrom": "trains",
           "tableTo": "categories",
-          "columnsFrom": ["category_id"],
-          "columnsTo": ["uuid"],
+          "columnsFrom": [
+            "category_id"
+          ],
+          "columnsTo": [
+            "uuid"
+          ],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -474,8 +488,12 @@
           "name": "schedules_train_id_trains_uuid_fk",
           "tableFrom": "schedules",
           "tableTo": "trains",
-          "columnsFrom": ["train_id"],
-          "columnsTo": ["uuid"],
+          "columnsFrom": [
+            "train_id"
+          ],
+          "columnsTo": [
+            "uuid"
+          ],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -483,8 +501,12 @@
           "name": "schedules_origin_station_id_locations_uuid_fk",
           "tableFrom": "schedules",
           "tableTo": "locations",
-          "columnsFrom": ["origin_station_id"],
-          "columnsTo": ["uuid"],
+          "columnsFrom": [
+            "origin_station_id"
+          ],
+          "columnsTo": [
+            "uuid"
+          ],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -492,8 +514,12 @@
           "name": "schedules_destination_station_id_locations_uuid_fk",
           "tableFrom": "schedules",
           "tableTo": "locations",
-          "columnsFrom": ["destination_station_id"],
-          "columnsTo": ["uuid"],
+          "columnsFrom": [
+            "destination_station_id"
+          ],
+          "columnsTo": [
+            "uuid"
+          ],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -554,8 +580,12 @@
           "name": "tickets_schedule_id_schedules_uuid_fk",
           "tableFrom": "tickets",
           "tableTo": "schedules",
-          "columnsFrom": ["schedule_id"],
-          "columnsTo": ["uuid"],
+          "columnsFrom": [
+            "schedule_id"
+          ],
+          "columnsTo": [
+            "uuid"
+          ],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -628,8 +658,12 @@
           "name": "order_tickets_user_id_users_uuid_fk",
           "tableFrom": "order_tickets",
           "tableTo": "users",
-          "columnsFrom": ["user_id"],
-          "columnsTo": ["uuid"],
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "uuid"
+          ],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -702,8 +736,12 @@
           "name": "order_details_order_id_order_tickets_uuid_fk",
           "tableFrom": "order_details",
           "tableTo": "order_tickets",
-          "columnsFrom": ["order_id"],
-          "columnsTo": ["uuid"],
+          "columnsFrom": [
+            "order_id"
+          ],
+          "columnsTo": [
+            "uuid"
+          ],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -711,8 +749,12 @@
           "name": "order_details_ticket_id_tickets_uuid_fk",
           "tableFrom": "order_details",
           "tableTo": "tickets",
-          "columnsFrom": ["ticket_id"],
-          "columnsTo": ["uuid"],
+          "columnsFrom": [
+            "ticket_id"
+          ],
+          "columnsTo": [
+            "uuid"
+          ],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -785,8 +827,12 @@
           "name": "payments_order_id_order_tickets_uuid_fk",
           "tableFrom": "payments",
           "tableTo": "order_tickets",
-          "columnsFrom": ["order_id"],
-          "columnsTo": ["uuid"],
+          "columnsFrom": [
+            "order_id"
+          ],
+          "columnsTo": [
+            "uuid"
+          ],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -847,8 +893,12 @@
           "name": "timeline_order_id_order_tickets_uuid_fk",
           "tableFrom": "timeline",
           "tableTo": "order_tickets",
-          "columnsFrom": ["order_id"],
-          "columnsTo": ["uuid"],
+          "columnsFrom": [
+            "order_id"
+          ],
+          "columnsTo": [
+            "uuid"
+          ],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
