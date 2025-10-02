@@ -5,7 +5,7 @@ import { Menu, X, ChevronDown, User, LogOut, Settings } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 
 // Import images
-import penumpangIcon from "/assets/images/services/angkutan_penumpang.jpg";
+import penumpangIcon from "/assets/images/services/angkutan_penumpang.jpg"; 
 import barangIcon from "/assets/images/services/angkutan_barang.jpg";
 import asetIcon from "/assets/images/services/pengusahaan_aset.jpg";
 
