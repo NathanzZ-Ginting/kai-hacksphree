@@ -1,35 +1,56 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+// App.tsx - Update Routes
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { BookingProvider } from "./context/BookingContext";
+import Header from "./components/layout/Header";
+import Footer from "./components/layout/Footer";
+import HomePage from "./pages/HomePage";
+import AboutPage from "./pages/AboutPage";
+import ServicesPage from "./pages/ServicesPage";
+import PassengerServicePage from "./pages/services/PassengerServicePage";
+import LogisticsServicePage from "./pages/services/LogisticsServicePage";
+import PropertyServicePage from "./pages/services/PropertyServicePage";
+import AirportServicePage from "./pages/services/AirportServicePage";
+import NewsPage from "./pages/NewsPage";
+import HelpPage from "./pages/HelpPage";
+import BookingPage from "./pages/BookingPage";
 
 function App() {
-  const [count, setCount] = useState(0)
-
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    <BookingProvider>
+      <Router>
+        <div className="min-h-screen bg-white">
+          <Header />
+          <main>
+            <Routes>
+              <Route path="/" element={<HomePage />} />
+              <Route path="/about" element={<AboutPage />} />
+              <Route path="/services" element={<ServicesPage />} />
+              <Route
+                path="/services/passenger"
+                element={<PassengerServicePage />}
+              />
+              <Route
+                path="/services/logistics"
+                element={<LogisticsServicePage />}
+              />
+              <Route
+                path="/services/property"
+                element={<PropertyServicePage />}
+              />
+              <Route
+                path="/services/airport"
+                element={<AirportServicePage />}
+              />
+              <Route path="/news" element={<NewsPage />} />
+              <Route path="/help" element={<HelpPage />} />
+              <Route path="/booking" element={<BookingPage />} />
+            </Routes>
+          </main>
+          <Footer />
+        </div>
+      </Router>
+    </BookingProvider>
+  );
 }
 
-export default App
+export default App;
