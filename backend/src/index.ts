@@ -5,6 +5,8 @@ import client from 'prom-client'
 import authRoute from './modules/authentication/routes/auth-route.ts'
 import { logger } from 'hono/logger'
 import { cors } from 'hono/cors'
+import orderRoute from './modules/ticketing/routes/orderRoutes.ts'
+import masterDataRoute from './modules/master-data/routes/masterDataRoute.ts'
 
 // Buat app Hono
 const app = new Hono()
@@ -50,6 +52,8 @@ app.get('/metrics', async (c) => {
 
 // --- Routes ---
 app.route("/api/v1/auth", authRoute)
+app.route("/api/v1/order", orderRoute)
+app.route("/api/v1/master-data", masterDataRoute)
 
 // Route default
 app.get('/', (c) => c.text('Hello from Hono + TypeScript 🚀'))

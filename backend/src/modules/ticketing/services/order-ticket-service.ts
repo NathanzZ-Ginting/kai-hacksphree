@@ -1,106 +1,123 @@
-// import midtransClient from "midtrans-client";
-// import "dotenv/config";
-// import { createOrderTicket } from "../../../common/repositories/order-tickets-repository.ts";
-// import { randomInt } from "crypto";
-// import { getUserByUuid } from "../../../common/repositories/users-repository.ts";
-// import { createOrderDetail } from "../../../common/repositories/order-details-repository.ts";
+import midtransClient from "midtrans-client";
+import "dotenv/config";
+import { createOrderTicket } from "../../../common/repositories/order-tickets-repository.ts";
+import { randomInt } from "crypto";
+import { getUserByUuid } from "../../../common/repositories/users-repository.ts";
+import { createOrderDetail } from "../../../common/repositories/order-details-repository.ts";
 
-// interface orderService {
-//   success: boolean;
-//   message: string;
-//   data?: object;
-//   errors?: object;
-// }
+interface OrderService {
+  success: boolean;
+  message: string;
+  data?: object;
+  errors?: object;
+}
 
-// export const createOrder = async (
-//   userUuid: string,
-//   ticketUuid: string,
-//   totalPasangger: number,
-//   totalPrice: number
-// ): Promise<orderService> => {
-//   const serverKey = process.env.SERVER_KEY;
-//   const clientKey = process.env.CLIENT_KEY;
+export const createOrder = async (
+  userUuid: string,
+  ticketUuid: string,
+  totalPasangger: number,
+  totalPrice: number,
+  typePasangger: ("dewasa" | "anak-anak")[],
+  seatNumbers: string[]
+): Promise<OrderService> => {
+  const serverKey = process.env.SERVER_KEY;
+  const clientKey = process.env.CLIENT_KEY;
 
-//   if (!serverKey || !clientKey) {
-//     return {
-//       success: false,
-//       message: "Tidak dapat menghubungkan ke midtrans!",
-//     };
-//   }
+  if (!serverKey || !clientKey) {
+    return {
+      success: false,
+      message: "Tidak dapat menghubungkan ke Midtrans!",
+    };
+  }
 
-//   let snap = new midtransClient.Snap({
-//     isProduction: false,
-//     serverKey: serverKey,
-//     clientKey: clientKey,
-//   });
+  // Validasi panjang array
+  if (
+    typePasangger.length !== totalPasangger ||
+    seatNumbers.length !== totalPasangger
+  ) {
+    return {
+      success: false,
+      message:
+        "Jumlah typePasangger atau seatNumbers tidak sesuai totalPasangger",
+    };
+  }
 
-//   const now = new Date();
-//   var invcNumber = "ord-" + now.getDate() + randomInt(99999);
+  const snap = new midtransClient.Snap({
+    isProduction: false,
+    serverKey,
+    clientKey,
+  });
 
-//   const user = await getUserByUuid(userUuid)
+  const now = new Date();
+  const invcNumber = "ord-" + now.getDate() + randomInt(99999);
 
-//   var data = {
-//     userId: user.uuid,
-//     invoiceNumber: invcNumber,
-//     status: "pending",
-//     numberOfPassanger: totalPasangger,
-//     orderDate: now, 
-//     totalPrice: totalPrice,
-//   };
+  const user = await getUserByUuid(userUuid);
+  if (!user) {
+    return { success: false, message: "User tidak ditemukan" };
+  }
 
-//   try {
-//     var order = await createOrderTicket(data);
+  const orderData = {
+    userId: user.uuid,
+    invoiceNumber: invcNumber,
+    status: "pending",
+    numberOfPassanger: totalPasangger,
+    orderDate: now,
+    totalPrice: totalPrice,
+    createdAt: now,
+    updatedAt: now,
+  };
 
-//     if (!order) {
-//       return {
-//         success: false,
-//         message: "Gagal membuat order ticket",
-//       };
-//     }
+  try {
+    const order = await createOrderTicket(orderData);
 
-//     for(let i = 0; i < data.numberOfPassanger; i++){
+    if (!order) {
+      return { success: false, message: "Gagal membuat order ticket" };
+    }
 
-//          var dataDetail = {
-//            orderId: order.uuid,
-//            ticketId: ticketUuid,
-//            status: "pending",
-//            numberOfPassanger: totalPasangger,
-//            orderDate: now,
-//            totalPrice: totalPrice,
-//          };
+    // Loop untuk membuat order_details per penumpang
+    for (let i = 0; i < totalPasangger; i++) {
+      const dataDetail = {
+        orderId: order.uuid,
+        ticketId: ticketUuid,
+        passengerType: typePasangger[i] as "dewasa" | "anak-anak",
+        seatNumber: seatNumbers[i] as string,
+        createdAt: now,
+        updatedAt: now,
+      };
 
-//         var details = await createOrderDetail()
-//     }
+      await createOrderDetail(dataDetail);
+    }
 
-//     const parameter = {
-//       transaction_details: {
-//         order_id: order.invoiceNumber,
-//         gross_amount: totalPrice,
-//       },
-//       customer_details: {
-//         first_name: user.name,
-//         email: user.email
-//       }
-//     };
+    // Prepare Midtrans transaction
+    const parameter = {
+      transaction_details: {
+        order_id: order.invoiceNumber,
+        gross_amount: totalPrice,
+      },
+      customer_details: {
+        first_name: user.name,
+        email: user.email,
+      },
+    };
 
-//     const transaction = await snap.createTransaction(parameter);
+    const transaction = await snap.createTransaction(parameter);
 
-//     return {
-//       success: true,
-//       message: "Order berhasil dibuat",
-//       data: {
-//         snapRedirectUrl: transaction.redirect_url,
-//       },
-//     };
-//   } catch (error) {
-//     console.error("Error creating order:", error);
-//     return {
-//       success: false,
-//       message: "Terjadi kesalahan saat membuat order",
-//       errors:
-//         error instanceof Error
-//           ? { message: error.message }
-//           : { message: "Unknown error" },
-//     };
-//   }
-// };
+    return {
+      success: true,
+      message: "Order berhasil dibuat",
+      data: {
+        snapRedirectUrl: transaction.redirect_url,
+      },
+    };
+  } catch (error) {
+    console.error("Error creating order:", error);
+    return {
+      success: false,
+      message: "Terjadi kesalahan saat membuat order",
+      errors:
+        error instanceof Error
+          ? { message: error.message }
+          : { message: "Unknown error" },
+    };
+  }
+};

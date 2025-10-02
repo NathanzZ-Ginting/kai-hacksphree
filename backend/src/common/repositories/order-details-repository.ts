@@ -9,7 +9,7 @@ export const getAllOrderDetails = async (): Promise<OrderDetail[]> => {
     .select()
     .from(orderDetails)
     .orderBy(desc(orderDetails.createdAt));
-  return collection as OrderDetail[];
+  return collection as unknown as OrderDetail[];
 };
 
 // Get order detail by UUID
@@ -21,7 +21,7 @@ export const getDetailOrderByUuid = async (
     .from(orderDetails)
     .where(eq(orderDetails.uuid, uuid))
     .limit(1);
-  return (orderDetail[0] as OrderDetail) || null;
+  return (orderDetail[0] as unknown as OrderDetail) || null;
 };
 
 // Get order details by order ID
@@ -33,7 +33,7 @@ export const getOrderDetailsByOrderId = async (
     .from(orderDetails)
     .where(eq(orderDetails.orderId, orderId))
     .orderBy(desc(orderDetails.createdAt));
-  return collection as OrderDetail[];
+  return collection as unknown as OrderDetail[];
 };
 
 // Get order details by ticket ID
@@ -45,31 +45,7 @@ export const getOrderDetailsByTicketId = async (
     .from(orderDetails)
     .where(eq(orderDetails.ticketId, ticketId))
     .orderBy(desc(orderDetails.createdAt));
-  return collection as OrderDetail[];
-};
-
-// Get order details by passenger name
-export const getOrderDetailsByPassengerName = async (
-  passengerName: string
-): Promise<OrderDetail[]> => {
-  const collection = await db
-    .select()
-    .from(orderDetails)
-    .where(like(orderDetails.passengerName, `%${passengerName}%`))
-    .orderBy(desc(orderDetails.createdAt));
-  return collection as OrderDetail[];
-};
-
-// Get order details by passenger type
-export const getOrderDetailsByPassengerType = async (
-  passengerType: string
-): Promise<OrderDetail[]> => {
-  const collection = await db
-    .select()
-    .from(orderDetails)
-    .where(eq(orderDetails.passengerType, passengerType))
-    .orderBy(desc(orderDetails.createdAt));
-  return collection as OrderDetail[];
+  return collection as unknown as OrderDetail[];
 };
 
 // Get order details by seat number
@@ -81,37 +57,7 @@ export const getOrderDetailsBySeatNumber = async (
     .from(orderDetails)
     .where(eq(orderDetails.seatNumber, seatNumber))
     .orderBy(desc(orderDetails.createdAt));
-  return collection as OrderDetail[];
-};
-
-// Search order details by passenger name
-export const searchOrderDetailsByPassengerName = async (
-  passengerName: string
-): Promise<OrderDetail[]> => {
-  const collection = await db
-    .select()
-    .from(orderDetails)
-    .where(like(orderDetails.passengerName, `%${passengerName}%`))
-    .orderBy(desc(orderDetails.createdAt));
-  return collection as OrderDetail[];
-};
-
-// Get order details by order ID and passenger type
-export const getOrderDetailsByOrderIdAndPassengerType = async (
-  orderId: string,
-  passengerType: string
-): Promise<OrderDetail[]> => {
-  const collection = await db
-    .select()
-    .from(orderDetails)
-    .where(
-      and(
-        eq(orderDetails.orderId, orderId),
-        eq(orderDetails.passengerType, passengerType)
-      )
-    )
-    .orderBy(desc(orderDetails.createdAt));
-  return collection as OrderDetail[];
+  return collection as unknown as OrderDetail[];
 };
 
 // Create new order detail
@@ -122,7 +68,7 @@ export const createOrderDetail = async (
     .insert(orderDetails)
     .values(newOrderDetail as any)
     .returning();
-  return createdOrderDetail[0] as OrderDetail;
+  return createdOrderDetail[0] as unknown as OrderDetail;
 };
 
 // Create multiple order details
@@ -133,7 +79,7 @@ export const createMultipleOrderDetails = async (
     .insert(orderDetails)
     .values(newOrderDetails as any)
     .returning();
-  return createdOrderDetails as OrderDetail[];
+  return createdOrderDetails as unknown as OrderDetail[];
 };
 
 // Update order detail
@@ -146,27 +92,14 @@ export const updateOrderDetail = async (
     .set({
       ...orderDetailData,
       updatedAt: new Date(),
-    })
+    } as any)
     .where(eq(orderDetails.uuid, uuid))
     .returning();
-  return (updatedOrderDetail[0] as OrderDetail) || null;
+  return (updatedOrderDetail[0] as unknown as OrderDetail) || null;
 };
 
-// Update order detail passenger name
-export const updateOrderDetailPassengerName = async (
-  uuid: string,
-  passengerName: string
-): Promise<OrderDetail | null> => {
-  const updatedOrderDetail = await db
-    .update(orderDetails)
-    .set({
-      passengerName: passengerName,
-      updatedAt: new Date(),
-    })
-    .where(eq(orderDetails.uuid, uuid))
-    .returning();
-  return (updatedOrderDetail[0] as OrderDetail) || null;
-};
+// Note: passengerName field doesn't exist in the database schema
+// This function has been removed
 
 // Update order detail seat number
 export const updateOrderDetailSeatNumber = async (
@@ -181,7 +114,7 @@ export const updateOrderDetailSeatNumber = async (
     })
     .where(eq(orderDetails.uuid, uuid))
     .returning();
-  return (updatedOrderDetail[0] as OrderDetail) || null;
+  return (updatedOrderDetail[0] as unknown as OrderDetail) || null;
 };
 
 // Delete order detail
@@ -208,7 +141,7 @@ export const deleteOrderDetailsByOrderId = async (
 export const getOrderDetailsWithPagination = async (
   page: number = 1,
   pageSize: number = 10,
-  orderBy: "date_asc" | "date_desc" | "name_asc" | "name_desc" = "date_desc"
+  orderBy: "date_asc" | "date_desc" = "date_desc"
 ): Promise<OrderDetail[]> => {
   const offset = (page - 1) * pageSize;
 
@@ -220,12 +153,6 @@ export const getOrderDetailsWithPagination = async (
     case "date_desc":
       orderByClause = desc(orderDetails.createdAt);
       break;
-    case "name_asc":
-      orderByClause = asc(orderDetails.passengerName);
-      break;
-    case "name_desc":
-      orderByClause = desc(orderDetails.passengerName);
-      break;
     default:
       orderByClause = desc(orderDetails.createdAt);
   }
@@ -236,7 +163,7 @@ export const getOrderDetailsWithPagination = async (
     .orderBy(orderByClause)
     .limit(pageSize)
     .offset(offset);
-  return collection as OrderDetail[];
+  return collection as unknown as OrderDetail[];
 };
 
 // Count total order details
@@ -258,7 +185,7 @@ export const countOrderDetailsByOrderId = async (
 
 // Count order details by passenger type
 export const countOrderDetailsByPassengerType = async (
-  passengerType: string
+  passengerType: "dewasa" | "anak-anak"
 ): Promise<number> => {
   const result = await db
     .select()
@@ -276,7 +203,7 @@ export const getOrderDetailsByMultipleOrderIds = async (
     .from(orderDetails)
     .where(and(...orderIds.map((id) => eq(orderDetails.orderId, id))))
     .orderBy(desc(orderDetails.createdAt));
-  return collection as OrderDetail[];
+  return collection as unknown as OrderDetail[];
 };
 
 // Check if seat number is available for a specific ticket

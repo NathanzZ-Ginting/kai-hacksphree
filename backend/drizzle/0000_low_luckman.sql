@@ -1,3 +1,4 @@
+CREATE TYPE "public"."passenger_type" AS ENUM('dewasa', 'anak-anak');--> statement-breakpoint
 CREATE TABLE "users" (
 	"uuid" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"name" varchar(255),
@@ -83,8 +84,7 @@ CREATE TABLE "order_details" (
 	"uuid" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"order_id" uuid,
 	"ticket_id" uuid,
-	"passenger_name" varchar(255),
-	"passenger_type" varchar(50),
+	"passenger_type" "passenger_type",
 	"seat_number" varchar(50),
 	"created_at" timestamp DEFAULT now(),
 	"updated_at" timestamp DEFAULT now()

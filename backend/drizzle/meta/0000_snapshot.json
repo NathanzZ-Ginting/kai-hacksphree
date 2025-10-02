@@ -1,5 +1,5 @@
 {
-  "id": "d1d96935-c091-4a6e-9384-831242e16b93",
+  "id": "459a735c-a2fc-4d75-82c3-936b18131629",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -703,15 +703,10 @@
           "primaryKey": false,
           "notNull": false
         },
-        "passenger_name": {
-          "name": "passenger_name",
-          "type": "varchar(255)",
-          "primaryKey": false,
-          "notNull": false
-        },
         "passenger_type": {
           "name": "passenger_type",
-          "type": "varchar(50)",
+          "type": "passenger_type",
+          "typeSchema": "public",
           "primaryKey": false,
           "notNull": false
         },
@@ -916,7 +911,16 @@
       "isRLSEnabled": false
     }
   },
-  "enums": {},
+  "enums": {
+    "public.passenger_type": {
+      "name": "passenger_type",
+      "schema": "public",
+      "values": [
+        "dewasa",
+        "anak-anak"
+      ]
+    }
+  },
   "schemas": {},
   "sequences": {},
   "roles": {},

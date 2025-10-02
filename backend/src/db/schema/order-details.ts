@@ -1,6 +1,8 @@
-import { pgTable, timestamp, uuid, varchar } from "drizzle-orm/pg-core";
+import { pgEnum, pgTable, timestamp, uuid, varchar } from "drizzle-orm/pg-core";
 import { orderTickets } from "./order-tickets.ts";
 import { tickets } from "./tickets.ts";
+
+export const pasanggerType = pgEnum("passenger_type", ['dewasa','anak-anak'])
 
 export const orderDetails = pgTable("order_details", {
   uuid: uuid("uuid").defaultRandom().primaryKey(),
@@ -10,8 +12,7 @@ export const orderDetails = pgTable("order_details", {
   ticketId: uuid("ticket_id").references(() => tickets.uuid, {
     onDelete: "cascade",
   }),
-  passengerName: varchar("passenger_name", { length: 255 }),
-  passengerType: varchar("passenger_type", { length: 50 }),
+  passengerType: pasanggerType("passenger_type"),
   seatNumber: varchar("seat_number", { length: 50 }),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
