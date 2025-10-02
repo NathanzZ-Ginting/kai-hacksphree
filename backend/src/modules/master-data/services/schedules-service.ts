@@ -1,4 +1,3 @@
-import { success } from "zod";
 import { Schedule } from "../../../common/interface/schedules-interface.ts";
 import {
   createSchedule,

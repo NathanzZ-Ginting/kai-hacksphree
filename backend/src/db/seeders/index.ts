@@ -15,23 +15,23 @@ async function runSeeders() {
     await seedUsers();
     console.log("✅ Users seeded");
 
-    // await seedCategories();
-    // console.log("✅ Categories seeded");
+    await seedCategories();
+    console.log("✅ Categories seeded");
 
-    // await seedLocations();
-    // console.log("✅ Locations seeded");
+    await seedLocations();
+    console.log("✅ Locations seeded");
 
-    // await seedStations();
-    // console.log("✅ Stations seeded");
+    await seedStations();
+    console.log("✅ Stations seeded");
 
-    // await seedTrains();
-    // console.log("✅ Trains seeded");
+    await seedTrains();
+    console.log("✅ Trains seeded");
 
-    // await seedSchedules();
-    // console.log("✅ Schedules seeded");
+    await seedSchedules();
+    console.log("✅ Schedules seeded");
 
-    // await seedTickets();
-    // console.log("✅ Tickets seeded");
+    await seedTickets();
+    console.log("✅ Tickets seeded");
 
     console.log("🎉 Database seeding completed successfully!");
   } catch (error) {

@@ -3,8 +3,7 @@ export interface OrderDetail {
   uuid: string;
   orderId?: string;
   ticketId?: string;
-  passengerName?: string;
-  passengerType?: string;
+  passengerType?: "dewasa" | "anak-anak";
   seatNumber?: string;
   createdAt: Date;
   updatedAt: Date;
