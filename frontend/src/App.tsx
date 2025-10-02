@@ -13,40 +13,45 @@ import NewsPage from "./pages/NewsPage";
 import HelpPage from "./pages/HelpPage";
 import BookingPage from "./pages/BookingPage";
 import ArticleDetailPage from "./pages/ArticleDetailPage";
+import LoginPage from "./pages/auth/LoginPage";
+import { AuthProvider } from "./context/AuthContext";
 
 function App() {
   return (
-    <BookingProvider>
-      <Router>
-        <div className="min-h-screen bg-white">
-          <Header />
-          <main>
-            <Routes>
-              <Route path="/" element={<HomePage />} />
-              <Route path="/about" element={<AboutPage />} />
-              <Route path="/services" element={<ServicesPage />} />
-              <Route
-                path="/services/passenger"
-                element={<PassengerServicePage />}
-              />
-              <Route
-                path="/services/logistics"
-                element={<LogisticsServicePage />}
-              />
-              <Route
-                path="/services/property"
-                element={<PropertyServicePage />}
-              />
-              <Route path="/news" element={<NewsPage />} />
-              <Route path="/help" element={<HelpPage />} />
-              <Route path="/article/:id" element={<ArticleDetailPage />} />
-              <Route path="/booking" element={<BookingPage />} />
-            </Routes>
-          </main>
-          <Footer />
-        </div>
-      </Router>
-    </BookingProvider>
+    <AuthProvider>
+      <BookingProvider>
+        <Router>
+          <div className="min-h-screen bg-white">
+            <Header />
+            <main>
+              <Routes>
+                <Route path="/login" element={<LoginPage />} />
+                <Route path="/" element={<HomePage />} />
+                <Route path="/about" element={<AboutPage />} />
+                <Route path="/services" element={<ServicesPage />} />
+                <Route
+                  path="/services/passenger"
+                  element={<PassengerServicePage />}
+                />
+                <Route
+                  path="/services/logistics"
+                  element={<LogisticsServicePage />}
+                />
+                <Route
+                  path="/services/property"
+                  element={<PropertyServicePage />}
+                />
+                <Route path="/news" element={<NewsPage />} />
+                <Route path="/help" element={<HelpPage />} />
+                <Route path="/article/:id" element={<ArticleDetailPage />} />
+                <Route path="/booking" element={<BookingPage />} />
+              </Routes>
+            </main>
+            <Footer />
+          </div>
+        </Router>
+      </BookingProvider>
+    </AuthProvider>
   );
 }
 

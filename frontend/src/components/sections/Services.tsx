@@ -1,5 +1,5 @@
 import { User } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { href, useNavigate } from "react-router-dom";
 
 import penumpangIcon from "/assets/images/services/angkutan_penumpang.jpg";
 import barangIcon from "/assets/images/services/angkutan_barang.jpg";
@@ -16,7 +16,7 @@ const Services = () => {
       description:
         "Layanan transportasi penumpang yang nyaman dan terpercaya untuk perjalanan Anda",
       features: ["Fasilitas Utama", "Promo", "Jelajah Nusantara"],
-      
+      href: "/services/passenger",
     },
     {
       icon: "image",
@@ -25,6 +25,7 @@ const Services = () => {
       description:
         "Solusi pengiriman barang yang efisien dan aman untuk berbagai kebutuhan",
       features: ["Angkutan Retail", "Angkutan Korporat"],
+      href: "/services/logistics",
     },
     {
       icon: "image",
@@ -33,11 +34,12 @@ const Services = () => {
       description:
         "Optimalisasi pemanfaatan aset properti untuk nilai tambah maksimal",
       features: ["Area Kontrol", "Space Iklan", "Bangunan Dinas"],
+      href: "/services/property",
     },
   ];
 
-  const handleServiceClick = () => {
-    navigate("/services");
+  const handleServiceClick = (href: string) => {
+    navigate(href);
   };
 
   return (
@@ -91,7 +93,7 @@ const Services = () => {
 
               <div className="absolute bottom-0 left-0 right-0 p-6 bg-white transform translate-y-full group-hover:translate-y-0 transition-transform duration-300 cursor-pointer">
                 <button
-                  onClick={handleServiceClick}
+                  onClick={() => handleServiceClick(service.href)}
                   className="w-full bg-red-500 hover:bg-red-600 text-white py-3 px-4 rounded-lg font-medium transition-colors duration-200 cursor-pointer"
                 >
                   Selengkapnya
