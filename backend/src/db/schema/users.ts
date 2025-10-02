@@ -6,6 +6,7 @@ export const users = pgTable("users", {
   age: integer("age"),
   email: varchar("email", { length: 255 }).notNull().unique(),
   password: varchar("password", { length: 255 }).notNull(),
+  token: varchar("token"),
   phoneNumber: varchar("phone_number", { length: 20 }),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),

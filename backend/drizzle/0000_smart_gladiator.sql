@@ -4,6 +4,7 @@ CREATE TABLE "users" (
 	"age" integer,
 	"email" varchar(255) NOT NULL,
 	"password" varchar(255) NOT NULL,
+	"token" varchar,
 	"phone_number" varchar(20),
 	"created_at" timestamp DEFAULT now(),
 	"updated_at" timestamp DEFAULT now(),
