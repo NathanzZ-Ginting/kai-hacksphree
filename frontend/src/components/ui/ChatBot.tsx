@@ -227,14 +227,14 @@ const ChatBot = ({
               <div className="flex items-center space-x-2">
                 <button
                   onClick={clearChat}
-                  className="text-purple-200 hover:text-white transition-colors text-sm px-3 py-1 rounded hover:bg-white hover:bg-opacity-10"
+                  className="text-purple-200 hover:text-white transition-colors text-sm px-3 py-1 rounded cursor-pointer"
                   title="Bersihkan percakapan"
                 >
                   Clear
                 </button>
                 <button
                   onClick={onClose}
-                  className="text-purple-200 hover:text-white transition-colors p-2 rounded-full hover:bg-opacity-10"
+                  className="text-purple-200 hover:text-white transition-colors p-2 rounded-full hover:bg-opacity-10 cursor-pointer"
                   title="Tutup chatbot"
                 >
                   <X className="h-5 w-5" />
@@ -397,14 +397,14 @@ const ChatBot = ({
               <div className="flex items-center space-x-2">
                 <button
                   onClick={clearChat}
-                  className="text-purple-200 hover:text-white transition-colors text-sm px-2 py-1 rounded hover:bg-white hover:bg-opacity-10"
+                  className="text-purple-200 hover:text-white transition-colors text-sm px-2 py-1 rounded cursor-pointer"
                   title="Bersihkan percakapan"
                 >
                   Clear
                 </button>
                 <button
                   onClick={onClose}
-                  className="text-purple-200 hover:text-white transition-colors p-1 rounded-full hover:bg-white hover:bg-opacity-10"
+                  className="text-purple-200 hover:text-white transition-colors p-1 rounded-full hover:bg-white hover:bg-opacity-10 cursor-pointer"
                   title="Tutup chatbot"
                 >
                   <X className="h-5 w-5" />
