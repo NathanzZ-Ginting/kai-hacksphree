@@ -12,6 +12,7 @@ export const orderTickets = pgTable("order_tickets", {
   userId: uuid("user_id").references(() => users.uuid, { onDelete: "cascade" }),
   invoiceNumber: varchar("invoice_number", { length: 100 }).notNull(),
   status: varchar("status", { length: 50 }),
+  numberOfPassanger: integer("numberOfPassanger"),
   orderDate: timestamp("order_date").notNull(),
   totalPrice: integer("total_price"),
   createdAt: timestamp("created_at").defaultNow(),

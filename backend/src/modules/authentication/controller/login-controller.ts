@@ -36,7 +36,7 @@ LoginController.post("/", async (c) => {
 
   await updateUser(user.uuid, {...user, token: token})
 
-  return c.json(SuccessRes(result.message, {token: token}))
+  return c.json(SuccessRes(result.message, {user: result.data,token: token}))
 });
 
 export default LoginController

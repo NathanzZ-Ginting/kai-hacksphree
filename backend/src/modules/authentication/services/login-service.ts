@@ -3,7 +3,8 @@ import bcrypt from 'bcrypt'
 
 interface LoginResult {
     success: boolean,
-    message: string
+    message: string,
+    data?: object
 }
 
 export const LoginService = async (email: string, password: string): Promise<LoginResult> => {
@@ -27,6 +28,7 @@ export const LoginService = async (email: string, password: string): Promise<Log
 
     return {
         success: true,
-        message: "Login berhasil " + user.name
-    }
+        message: "Login berhasil " + user.name,
+        data: user
+    } as LoginResult
 }
