@@ -5,7 +5,7 @@
     "outDir": "./dist",
 
     /* Environment Settings */
-    "target": "ES2020",                 // cukup aman untuk Node modern
+    "target": "ES2020",                 // cukup aman untugk Node modern
     "module": "nodenext",               // biar support ESM
     "moduleResolution": "nodenext",
     "lib": ["esnext"],
