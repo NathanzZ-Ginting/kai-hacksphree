@@ -23,6 +23,6 @@
     "dev": "tsx watch src/index.ts",
     "start": "node dist/index.js",
     "build": "tsc",
-    "seed": "tsx src/seeders/seed.ts"
+    "seed": "tsx src/db/seed.ts"
   }
 }

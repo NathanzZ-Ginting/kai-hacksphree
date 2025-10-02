@@ -25,6 +25,5 @@ export const createUser = async (newUser: User): Promise<User> => {
 
 export const updateUser = async (uuid: string, user: User)=> {
   var updatedUser = await db.update(users).set(user).where(eq(users.uuid, uuid)).returning()
-
   return updatedUser[0]
 }
