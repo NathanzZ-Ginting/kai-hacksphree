@@ -126,7 +126,7 @@ const Header = () => {
               <img
                 src="/assets/images/logos/logo-KAI.png"
                 alt="logo KAI"
-                className="h-14"
+                className="lg:h-14 h-10"
               />
             </a>
           </div>

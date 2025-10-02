@@ -31,7 +31,7 @@ const Hero = () => {
   }, [bannerImages.length]);
 
   return (
-    <section className="relative h-screen overflow-hidden">
+    <section className="relative lg:h-screen overflow-hidden h-[200px]">
       {/* Background Slides */}
       <div className="relative h-full w-full">
         {bannerImages.map((banner, index) => (
@@ -53,12 +53,12 @@ const Hero = () => {
       </div>
 
       {/* Slide Indicators */}
-      <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 z-20 flex space-x-3">
+      <div className="absolute lg:bottom-8 bottom-5 left-1/2 transform -translate-x-1/2 z-20 flex space-x-3">
         {bannerImages.map((_, index) => (
           <button
             key={index}
             onClick={() => setCurrentSlide(index)}
-            className={`w-3 h-3 rounded-full transition-all duration-300 ${
+            className={`lg:w-3 lg:h-3 w-2 h-2 rounded-full transition-all duration-300 ${
               index === currentSlide
                 ? "bg-white scale-125"
                 : "bg-white/50 hover:bg-white/80"
