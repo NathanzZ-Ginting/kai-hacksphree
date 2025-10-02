@@ -1,4 +1,3 @@
-// pages/HelpPage.tsx
 import { useState } from "react";
 import {
   Search,
@@ -7,101 +6,18 @@ import {
   Mail,
   FileText,
   Download,
-  Clock,
   Users,
   Ticket,
-  X,
+  Bot,
+  ArrowRight,
+  CheckCircle,
+  Star,
 } from "lucide-react";
+import ChatBot from "../components/ui/ChatBot";
 
 const HelpPage = () => {
-  const [activeCategory, setActiveCategory] = useState("tiket");
   const [searchTerm, setSearchTerm] = useState("");
-  const [openItems, setOpenItems] = useState<number[]>([]);
-
-  const categories = {
-    tiket: {
-      name: "Tiket & Pemesanan",
-      icon: "🎫",
-      description:
-        "Pertanyaan seputar pemesanan tiket, pembayaran, dan konfirmasi",
-    },
-    pembatalan: {
-      name: "Pembatalan & Refund",
-      icon: "🔄",
-      description: "Prosedur pembatalan tiket dan pengembalian dana",
-    },
-    perjalanan: {
-      name: "Perjalanan & Keberangkatan",
-      icon: "🚆",
-      description: "Informasi keberangkatan, kedatangan, dan fasilitas kereta",
-    },
-    kebijakan: {
-      name: "Kebijakan & Ketentuan",
-      icon: "📋",
-      description: "Syarat dan ketentuan layanan KAI",
-    },
-    teknis: {
-      name: "Masalah Teknis",
-      icon: "🔧",
-      description: "Kendala teknis website dan aplikasi",
-    },
-  };
-
-  const faqs = [
-    // Tiket & Pemesanan
-    {
-      id: 1,
-      question: "Bagaimana cara memesan tiket kereta online?",
-      answer:
-        "Anda dapat memesan tiket melalui website KAI atau aplikasi mobile KAI Access. Pilih stasiun asal dan tujuan, tanggal keberangkatan, jumlah penumpang, lalu ikuti proses pembayaran. Setelah pembayaran berhasil, e-ticket akan dikirim ke email Anda.",
-      category: "tiket",
-    },
-    {
-      id: 2,
-      question: "Apa saja metode pembayaran yang diterima?",
-      answer:
-        "KAI menerima berbagai metode pembayaran termasuk transfer bank (BCA, Mandiri, BNI, BRI), kartu kredit/debit (Visa, MasterCard), e-wallet (GoPay, OVO, Dana, LinkAja), dan pembayaran di minimarket (Alfamart, Indomaret).",
-      category: "tiket",
-    },
-    {
-      id: 3,
-      question: "Berapa batas waktu pembayaran setelah memesan tiket?",
-      answer:
-        "Batas waktu pembayaran adalah 2 jam setelah pemesanan untuk pembayaran online, dan 24 jam untuk pembayaran via minimarket. Jika melebihi batas waktu, pemesanan akan dibatalkan otomatis.",
-      category: "tiket",
-    },
-    // Pembatalan & Refund
-    {
-      id: 4,
-      question: "Bagaimana prosedur pembatalan tiket?",
-      answer:
-        "Pembatalan dapat dilakukan melalui website atau aplikasi sebelum waktu keberangkatan. Login ke akun Anda, pilih tiket yang ingin dibatalkan, dan ikuti proses pembatalan. Biaya pembatalan tergantung pada waktu pembatalan dan jenis tiket.",
-      category: "pembatalan",
-    },
-    {
-      id: 5,
-      question: "Berapa lama proses refund berlangsung?",
-      answer:
-        "Proses refund biasanya memakan waktu 7-14 hari kerja tergantung metode pembayaran yang digunakan. Untuk kartu kredit, refund akan dikembalikan ke kartu yang sama. Untuk transfer bank, dana akan dikembalikan ke rekening Anda.",
-      category: "pembatalan",
-    },
-    // Perjalanan & Keberangkatan
-    {
-      id: 6,
-      question:
-        "Berapa jam sebelum keberangkatan saya harus datang ke stasiun?",
-      answer:
-        "Disarankan datang 1-2 jam sebelum keberangkatan untuk proses check-in dan pemeriksaan tiket. Untuk kereta bandara dan kereta jarak jauh, disarankan datang lebih awal.",
-      category: "perjalanan",
-    },
-    {
-      id: 7,
-      question: "Apa saja barang yang tidak boleh dibawa ke dalam kereta?",
-      answer:
-        "Barang yang dilarang antara lain: senjata tajam, bahan mudah terbakar, bahan kimia berbahaya, narkoba, dan barang ilegal lainnya. Untuk barang berharga, disarankan untuk selalu dijaga.",
-      category: "perjalanan",
-    },
-  ];
+  const [isChatBotOpen, setIsChatBotOpen] = useState(false);
 
   const contactMethods = [
     {
@@ -111,14 +27,16 @@ const HelpPage = () => {
       contact: "121",
       subtitle: "Gratis dari telepon rumah dan HP",
       action: "Hubungi Sekarang",
+      color: "from-blue-500 to-blue-600",
     },
     {
       icon: MessageCircle,
       title: "Live Chat",
       description: "Chat dengan customer service",
-      contact: "Tersedia 08.00 - 22.00 WIB",
+      contact: "08.00 - 22.00 WIB",
       subtitle: "Respon cepat via chat",
       action: "Mulai Chat",
+      color: "from-green-500 to-green-600",
     },
     {
       icon: Mail,
@@ -127,6 +45,7 @@ const HelpPage = () => {
       contact: "customer@kai.id",
       subtitle: "Respon dalam 24 jam",
       action: "Kirim Email",
+      color: "from-orange-500 to-orange-600",
     },
   ];
 
@@ -135,81 +54,149 @@ const HelpPage = () => {
       icon: FileText,
       title: "Syarat & Ketentuan",
       description: "Ketentuan penggunaan layanan KAI",
+      link: "#",
     },
     {
       icon: Download,
       title: "Download Aplikasi",
       description: "Dapatkan aplikasi KAI Access",
+      link: "#",
     },
     {
       icon: Users,
       title: "Status Keberangkatan",
       description: "Cek jadwal kereta real-time",
+      link: "#",
     },
     {
       icon: Ticket,
       title: "Cek Tiket",
       description: "Verifikasi tiket Anda",
+      link: "#",
     },
   ];
 
-  const toggleItem = (id: number) => {
-    setOpenItems((prev) =>
-      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
-    );
+  const popularArticles = [
+    {
+      title: "Cara Memesan Tiket Kereta Online",
+      category: "Pemesanan",
+      reads: "12.4K",
+    },
+    {
+      title: "Panduan Pembatalan dan Refund Tiket",
+      category: "Pembatalan",
+      reads: "8.7K",
+    },
+    {
+      title: "Syarat dan Ketentuan Pembayaran",
+      category: "Pembayaran",
+      reads: "15.2K",
+    },
+    {
+      title: "Cek Status Keberangkatan Kereta",
+      category: "Informasi",
+      reads: "23.1K",
+    },
+  ];
+
+  const quickQuestions = [
+    {
+      question: "🛒 Cara memesan tiket kereta online?",
+      answer:
+        "Untuk memesan tiket kereta online:\n\n1. Buka website KAI atau aplikasi KAI Access\n2. Pilih stasiun asal dan tujuan\n3. Pilih tanggal keberangkatan\n4. Tentukan jumlah penumpang\n5. Pilih kelas kereta\n6. Lakukan pembayaran\n7. E-ticket akan dikirim ke email Anda\n\nButuh bantuan lebih lanjut?",
+    },
+    {
+      question: "💳 Metode pembayaran yang tersedia?",
+      answer:
+        "KAI menerima berbagai metode pembayaran:\n\n• Transfer Bank (BCA, Mandiri, BNI, BRI)\n• Kartu Kredit/Debit (Visa, MasterCard)\n• E-Wallet (GoPay, OVO, Dana, LinkAja)\n• Minimarket (Alfamart, Indomaret)\n\nBatas waktu pembayaran: 2 jam untuk online, 24 jam untuk minimarket.",
+    },
+    {
+      question: "❌ Cara membatalkan tiket?",
+      answer:
+        "Prosedur pembatalan tiket:\n\n1. Login ke akun KAI Access\n2. Pilih tiket yang ingin dibatalkan\n3. Ikuti proses pembatalan\n4. Konfirmasi pembatalan\n\nBiaya pembatalan tergantung waktu pembatalan. Refund membutuhkan 7-14 hari kerja.",
+    },
+    {
+      question: "⏰ Waktu datang ke stasiun?",
+      answer:
+        "Disarankan datang 1-2 jam sebelum keberangkatan untuk:\n\n• Check-in tiket\n• Pemeriksaan keamanan\n• Menemukan peron\n• Boarding yang nyaman\n\nUntuk kereta bandara dan jarak jauh, disarankan datang lebih awal.",
+    },
+    {
+      question: "🎒 Barang yang dilarang?",
+      answer:
+        "Barang yang tidak boleh dibawa:\n\n• Senjata tajam dan api\n• Bahan mudah terbakar\n• Bahan kimia berbahaya\n• Narkoba dan zat terlarang\n• Barang ilegal lainnya\n\nBarang berharga harap dijaga selama perjalanan.",
+    },
+    {
+      question: "📱 Download aplikasi KAI?",
+      answer:
+        "Download KAI Access di:\n\n• Play Store: 'KAI Access'\n• App Store: 'KAI Access'\n\nFitur aplikasi:\n• Pesan tiket\n• Cek jadwal\n• Pembatalan tiket\n• Notifikasi real-time\n• E-ticket digital",
+    },
+  ];
+
+  const handleContactSupport = () => {
+    // Logic untuk menghubungi customer service
+    console.log("Redirect to customer service");
+    setIsChatBotOpen(false);
   };
 
-  const filteredFaqs = faqs.filter(
-    (faq) =>
-      faq.category === activeCategory &&
-      faq.question.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
       {/* Hero Section */}
-      <section className="bg-gradient-to-r from-purple-600 to-purple-800 text-white py-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h1 className="text-4xl md:text-5xl font-bold mb-6">Pusat Bantuan</h1>
-          <p className="text-xl md:text-2xl opacity-90 max-w-3xl mx-auto">
-            Temukan solusi untuk pertanyaan dan kendala Anda
+      <section className="relative bg-gradient-to-r from-purple-600 via-purple-700 to-purple-800 text-white py-20 overflow-hidden">
+        <div className="absolute inset-0 bg-black opacity-10"></div>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
+          <div className="flex justify-center mb-4">
+            <div className="bg-white bg-opacity-20 rounded-full p-3">
+              <Bot className="h-8 w-8 text-gray-800" />
+            </div>
+          </div>
+          <h1 className="text-4xl md:text-5xl font-bold mb-6">
+            Pusat Bantuan KAI
+          </h1>
+          <p className="text-xl md:text-2xl opacity-90 max-w-3xl mx-auto mb-8">
+            Temukan solusi cepat untuk setiap pertanyaan dan kendala perjalanan
+            Anda
           </p>
-        </div>
-      </section>
 
-      {/* Quick Help Section */}
-      <section className="py-16 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          {/* Search */}
-          <div className="max-w-2xl mx-auto mb-12">
+          {/* Search Bar */}
+          <div className="max-w-2xl mx-auto">
             <div className="relative">
               <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-6 w-6 text-gray-400" />
               <input
                 type="text"
-                placeholder="Cari pertanyaan atau masalah..."
-                className="w-full pl-12 pr-4 py-4 text-lg border border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                placeholder="Cari solusi, pertanyaan, atau masalah..."
+                className="w-full pl-12 pr-4 py-4 text-lg border-0 rounded-xl bg-white bg-opacity-95 text-gray-900 placeholder-gray-500 focus:ring-2 focus:ring-purple-300 focus:bg-white transition-all duration-300"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
             </div>
+            <div className="mt-4 flex flex-wrap justify-center gap-2">
+              <span className="text-purple-200 text-sm">Coba cari:</span>
+              {["pembatalan tiket", "cara bayar", "ubah jadwal", "refund"].map(
+                (term, idx) => (
+                  <button
+                    key={idx}
+                    onClick={() => setSearchTerm(term)}
+                    className="text-purple-200 hover:text-white text-sm bg-white bg-opacity-10 px-3 py-1 rounded-full transition-colors"
+                  >
+                    {term}
+                  </button>
+                )
+              )}
+            </div>
           </div>
+        </div>
+      </section>
 
-          {/* Quick Links */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
-            {quickLinks.map((link, index) => (
-              <div
-                key={index}
-                className="bg-white border border-gray-200 rounded-xl p-6 text-center hover:shadow-md transition-shadow cursor-pointer group"
-              >
-                <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mx-auto mb-4 group-hover:bg-purple-600 group-hover:text-white transition-colors">
-                  <link.icon className="h-6 w-6" />
-                </div>
-                <h3 className="font-semibold text-gray-900 mb-2">
-                  {link.title}
-                </h3>
-                <p className="text-sm text-gray-600">{link.description}</p>
-              </div>
-            ))}
+      {/* Quick Actions Section */}
+      <section className="py-16 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold text-gray-900 mb-4">
+              Butuh Bantuan Cepat?
+            </h2>
+            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+              Pilih cara yang paling nyaman untuk menghubungi kami
+            </p>
           </div>
 
           {/* Contact Methods */}
@@ -217,24 +204,92 @@ const HelpPage = () => {
             {contactMethods.map((method, index) => (
               <div
                 key={index}
-                className="bg-purple-50 rounded-2xl p-6 text-center border border-purple-100"
+                className={`bg-gradient-to-br ${method.color} text-white rounded-2xl p-6 text-center transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl`}
               >
-                <div className="w-16 h-16 bg-purple-600 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <method.icon className="h-8 w-8 text-white" />
+                <div className="w-16 h-16 bg-white bg-opacity-20 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <method.icon className="h-8 w-8 text-gray-700" />
                 </div>
-                <h3 className="text-xl font-bold text-gray-900 mb-2">
-                  {method.title}
-                </h3>
-                <p className="text-gray-600 mb-3">{method.description}</p>
-                <div className="text-2xl font-bold text-purple-600 mb-2">
-                  {method.contact}
-                </div>
-                <p className="text-sm text-gray-500 mb-4">{method.subtitle}</p>
-                <button className="w-full bg-purple-600 text-white py-3 rounded-lg hover:bg-purple-700 transition-colors font-medium">
+                <h3 className="text-xl font-bold mb-2">{method.title}</h3>
+                <p className="opacity-90 mb-3">{method.description}</p>
+                <div className="text-2xl font-bold mb-2">{method.contact}</div>
+                <p className="text-sm opacity-80 mb-4">{method.subtitle}</p>
+                <button className="w-full bg-white text-gray-900 py-3 rounded-lg hover:bg-gray-100 transition-colors font-medium flex items-center justify-center">
                   {method.action}
+                  <ArrowRight className="h-4 w-4 ml-2" />
                 </button>
               </div>
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Popular Articles */}
+      <section className="py-16 bg-gray-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold text-gray-900 mb-4">
+              Artikel Populer
+            </h2>
+            <p className="text-xl text-gray-600">
+              Solusi yang paling sering dicari oleh pelanggan kami
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {popularArticles.map((article, index) => (
+              <div
+                key={index}
+                className="bg-white rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow border border-gray-200"
+              >
+                <div className="flex items-start justify-between mb-3">
+                  <span className="bg-purple-100 text-purple-800 text-sm px-3 py-1 rounded-full font-medium">
+                    {article.category}
+                  </span>
+                  <div className="flex items-center text-gray-500 text-sm">
+                    <Star className="h-4 w-4 mr-1 fill-yellow-400 text-yellow-400" />
+                    {article.reads}
+                  </div>
+                </div>
+                <h3 className="font-semibold text-gray-900 mb-3 text-lg">
+                  {article.title}
+                </h3>
+                <button className="text-purple-600 hover:text-purple-700 font-medium flex items-center text-sm">
+                  Baca selengkapnya
+                  <ArrowRight className="h-4 w-4 ml-1" />
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* AI Assistant CTA */}
+      <section className="py-16 bg-white">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <div className="bg-gradient-to-r from-purple-50 to-indigo-50 rounded-3xl p-8 md:p-12 border border-purple-100">
+            <div className="w-20 h-20 bg-purple-600 rounded-full flex items-center justify-center mx-auto mb-6">
+              <Bot className="h-10 w-10 text-white" />
+            </div>
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+              Coba KAI Assistant
+            </h2>
+            <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
+              Dapatkan jawaban instan 24/7 dengan AI assistant kami. Cepat,
+              akurat, dan siap membantu kapan saja.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+              <button
+                onClick={() => setIsChatBotOpen(true)}
+                className="bg-purple-600 text-white px-8 py-4 rounded-lg hover:bg-purple-700 transition-colors font-medium flex items-center justify-center text-lg shadow-lg hover:shadow-xl cursor-pointer"
+              >
+                <Bot className="h-6 w-6 mr-3" />
+                Tanya KAI Assistant
+              </button>
+              <div className="flex items-center text-gray-600">
+                <CheckCircle className="h-5 w-5 text-green-500 mr-2" />
+                <span className="text-sm">Gratis • 24/7 • Instant</span>
+              </div>
+            </div>
           </div>
         </div>
       </section>
@@ -243,7 +298,7 @@ const HelpPage = () => {
       <section className="py-16 bg-gray-50">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+            <h2 className="text-3xl font-bold text-gray-900 mb-4">
               Pertanyaan Umum
             </h2>
             <p className="text-xl text-gray-600">
@@ -251,105 +306,50 @@ const HelpPage = () => {
             </p>
           </div>
 
-          {/* Category Tabs */}
-          <div className="flex flex-wrap justify-center gap-3 mb-8">
-            {Object.entries(categories).map(([key, category]) => (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {quickQuestions.map((q, index) => (
               <button
-                key={key}
-                onClick={() => setActiveCategory(key)}
-                className={`flex items-center px-6 py-3 rounded-lg font-medium transition-colors ${
-                  activeCategory === key
-                    ? "bg-purple-600 text-white"
-                    : "bg-white text-gray-700 hover:bg-gray-100 border border-gray-200"
-                }`}
+                key={index}
+                onClick={() => setIsChatBotOpen(true)}
+                className="bg-white rounded-xl p-6 shadow-sm border border-gray-200 hover:border-purple-200 transition-colors cursor-pointer group text-left"
               >
-                <span className="mr-2 text-lg">{category.icon}</span>
-                {category.name}
+                <div className="flex items-start space-x-3">
+                  <div className="text-2xl flex-shrink-0">
+                    {q.question.split(" ")[0]}
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-gray-900 mb-2 group-hover:text-purple-600 transition-colors">
+                      {q.question.substring(q.question.indexOf(" ") + 1)}
+                    </h3>
+                    <p className="text-sm text-gray-600 line-clamp-2">
+                      {q.answer.split("\n")[0]}
+                    </p>
+                  </div>
+                </div>
               </button>
             ))}
           </div>
-
-          {/* Category Description */}
-          <div className="text-center mb-8">
-            <p className="text-gray-600">
-              {
-                categories[activeCategory as keyof typeof categories]
-                  .description
-              }
-            </p>
-          </div>
-
-          {/* FAQ List */}
-          <div className="space-y-4">
-            {filteredFaqs.map((faq) => (
-              <div
-                key={faq.id}
-                className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden"
-              >
-                <button
-                  onClick={() => toggleItem(faq.id)}
-                  className="w-full px-6 py-4 text-left flex items-center justify-between hover:bg-gray-50 transition-colors"
-                >
-                  <span className="font-semibold text-gray-900 pr-4 text-lg">
-                    {faq.question}
-                  </span>
-                  {openItems.includes(faq.id) ? (
-                    <div className="w-6 h-6 bg-purple-100 rounded-full flex items-center justify-center flex-shrink-0">
-                      <div className="w-2 h-0.5 bg-purple-600"></div>
-                    </div>
-                  ) : (
-                    <div className="w-6 h-6 bg-purple-100 rounded-full flex items-center justify-center flex-shrink-0">
-                      <div className="w-2 h-2 border-r-2 border-b-2 border-purple-600 transform rotate-45 translate-y-[-1px]"></div>
-                    </div>
-                  )}
-                </button>
-
-                {openItems.includes(faq.id) && (
-                  <div className="px-6 pb-4">
-                    <p className="text-gray-600 leading-relaxed">
-                      {faq.answer}
-                    </p>
-                  </div>
-                )}
-              </div>
-            ))}
-          </div>
-
-          {filteredFaqs.length === 0 && (
-            <div className="text-center py-12">
-              <Search className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                Tidak ada pertanyaan ditemukan
-              </h3>
-              <p className="text-gray-600">
-                Coba ubah kata kunci pencarian atau pilih kategori lain
-              </p>
-            </div>
-          )}
         </div>
       </section>
 
-      {/* Still Need Help Section */}
-      <section className="py-16 bg-white">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-3xl font-bold text-gray-900 mb-4">
-            Masih Butuh Bantuan?
-          </h2>
-          <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
-            Tim customer service kami siap membantu Anda dengan senang hati
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <button className="bg-purple-600 text-white px-8 py-3 rounded-lg hover:bg-purple-700 transition-colors font-medium flex items-center justify-center">
-              <MessageCircle className="h-5 w-5 mr-2" />
-              Mulai Live Chat
-            </button>
-            <button className="border border-purple-600 text-purple-600 px-8 py-3 rounded-lg hover:bg-purple-50 transition-colors font-medium flex items-center justify-center">
-              <Phone className="h-5 w-5 mr-2" />
-              Hubungi Call Center
-            </button>
-          </div>
-        </div>
-      </section>
+      {/* ChatBot */}
+      <ChatBot
+        quickQuestions={quickQuestions}
+        onContactSupport={handleContactSupport}
+        isOpen={isChatBotOpen}
+        onClose={() => setIsChatBotOpen(false)}
+      />
+
+      {/* Floating Chat Button */}
+      {!isChatBotOpen && (
+        <button
+          onClick={() => setIsChatBotOpen(true)}
+          className="fixed bottom-6 right-6 z-40 bg-purple-600 text-white p-4 rounded-full shadow-lg hover:bg-purple-700 transition-all duration-300 flex items-center space-x-2 hover:animate-none"
+        >
+          <Bot className="h-6 w-6" />
+          <span className="font-medium">AI Assistant</span>
+        </button>
+      )}
     </div>
   );
 };

@@ -172,7 +172,7 @@ const PassengerServicePage = () => {
                 className="bg-white rounded-xl md:rounded-2xl shadow-lg overflow-hidden"
               >
                 <div className="flex flex-col lg:flex-row">
-                  <div className="lg:w-1/3 bg-gray-200 min-h-full flex items-center justify-center">
+                  <div className="lg:w-1/3 bg-gray-200 min-h-full p-20 flex items-center justify-center">
                     <Users className="h-12 w-12 text-gray-400" />
                   </div>
 

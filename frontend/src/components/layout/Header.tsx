@@ -232,22 +232,34 @@ const Header = () => {
           </nav>
 
           {/* CTA Buttons */}
-          <div className="hidden md:flex items-center space-x-4">
-            <button
-              className={`px-4 py-2 text-sm font-medium transition-colors ${
-                isScrolled
-                  ? "text-gray-700 hover:text-orange-600"
-                  : "text-white hover:text-orange-300"
-              }`}
-            >
-              Login
-            </button>
+          <div className="hidden md:flex items-center space-x-3">
             <button
               className="bg-orange-600 text-white px-6 py-2 rounded-lg hover:bg-orange-700 transition-colors text-sm font-medium"
               onClick={handleOrderTicket}
             >
               Pesan Tiket
             </button>
+            <div className="flex items-center">
+              <button
+                className={`px-4 py-2 text-sm font-medium transition-colors ${
+                  isScrolled
+                    ? "text-gray-700 hover:text-orange-600"
+                    : "text-white hover:text-orange-300"
+                }`}
+              >
+                Login
+              </button>
+              <div className="w-px h-6 bg-gray-200"></div>
+              <button
+                className={`px-4 py-2 text-sm font-medium transition-colors ${
+                  isScrolled
+                    ? "text-gray-700 hover:text-orange-600"
+                    : "text-white hover:text-orange-300"
+                }`}
+              >
+                Register
+              </button>
+            </div>
           </div>
 
           {/* Mobile menu button */}
@@ -369,15 +381,6 @@ const Header = () => {
                             </button>
                           ))}
                         </div>
-
-                        <div className="mt-4 pt-4 border-t border-gray-200">
-                          <button
-                            onClick={() => handleServiceClick("/services")}
-                            className="w-full text-center text-orange-600 hover:text-orange-700 font-medium text-sm py-2 transition-colors"
-                          >
-                            Lihat Semua Layanan →
-                          </button>
-                        </div>
                       </div>
                     </div>
                   )}
@@ -385,20 +388,31 @@ const Header = () => {
               ))}
               <div className="pt-4 space-y-2">
                 <button
-                  className={`w-full px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                    isScrolled
-                      ? "text-gray-700 border border-gray-300 hover:bg-gray-50"
-                      : "text-white border border-white/50 hover:bg-white/20"
-                  }`}
-                >
-                  Login
-                </button>
-                <button
                   className="w-full bg-orange-600 text-white px-4 py-2 rounded-lg hover:bg-orange-700 transition-colors text-sm font-medium"
                   onClick={handleOrderTicket}
                 >
                   Pesan Tiket
                 </button>
+                <div className="flex items-center space-x-2">
+                  <button
+                    className={`w-full px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                      isScrolled
+                        ? "text-gray-700 border border-gray-300 hover:bg-gray-50"
+                        : "text-white border border-white/50 hover:bg-white/20"
+                    }`}
+                  >
+                    Login
+                  </button>
+                  <button
+                    className={`w-full px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                      isScrolled
+                        ? "text-gray-700 border border-gray-300 hover:bg-gray-50"
+                        : "text-white border border-white/50 hover:bg-white/20"
+                    }`}
+                  >
+                    Register
+                  </button>
+                </div>
               </div>
             </div>
           </div>

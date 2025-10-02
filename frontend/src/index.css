@@ -67,3 +67,20 @@ body {
   background: linear-gradient(180deg, #D4AF37, #B8860B);
   border-radius: 10px;
 }
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.chatbot-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.chatbot-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.chatbot-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(100, 100, 100, 0.6);
+  border-radius: 10px;
+}
