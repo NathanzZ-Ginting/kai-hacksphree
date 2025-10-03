@@ -22,7 +22,6 @@ OrderTicketController.post("/", async (c) => {
       return c.json(ErrorsRes("Mohon masukan data terlebih dahulu!"), 400);
     }
 
-    // Validasi dasar array
     if (
       !Array.isArray(typePasangger) ||
       !Array.isArray(seatNumbers) ||

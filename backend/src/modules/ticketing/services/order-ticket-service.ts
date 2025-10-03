@@ -88,7 +88,6 @@ export const createOrder = async (
       await createOrderDetail(dataDetail);
     }
 
-    // Prepare Midtrans transaction
     const parameter = {
       transaction_details: {
         order_id: order.invoiceNumber,
@@ -97,6 +96,11 @@ export const createOrder = async (
       customer_details: {
         first_name: user.name,
         email: user.email,
+      },
+      callbacks: {
+        finish: `http://localhost:5173/order/success?order_id=${order.invoiceNumber}`,
+        error: `http://localhost:5173/order/failed?order_id=${order.invoiceNumber}`,
+        pending: `http://localhost:5173/order/pending?order_id=${order.invoiceNumber}`,
       },
     };
 
