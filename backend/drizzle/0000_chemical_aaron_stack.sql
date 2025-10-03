@@ -1,4 +1,3 @@
-CREATE TYPE "public"."passenger_type" AS ENUM('dewasa', 'anak-anak');--> statement-breakpoint
 CREATE TABLE "users" (
 	"uuid" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"name" varchar(255),
@@ -48,6 +47,14 @@ CREATE TABLE "trains" (
 	"updated_at" timestamp DEFAULT now()
 );
 --> statement-breakpoint
+CREATE TABLE "train_seats" (
+	"uuid" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"train_id" uuid NOT NULL,
+	"name_seat" varchar(100) NOT NULL,
+	"created_at" timestamp DEFAULT now(),
+	"updated_at" timestamp DEFAULT now()
+);
+--> statement-breakpoint
 CREATE TABLE "schedules" (
 	"uuid" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"train_id" uuid,
@@ -84,7 +91,7 @@ CREATE TABLE "order_details" (
 	"uuid" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"order_id" uuid,
 	"ticket_id" uuid,
-	"passenger_type" "passenger_type",
+	"passengerType" varchar,
 	"seat_number" varchar(50),
 	"created_at" timestamp DEFAULT now(),
 	"updated_at" timestamp DEFAULT now()
@@ -112,9 +119,10 @@ CREATE TABLE "timeline" (
 --> statement-breakpoint
 ALTER TABLE "stations" ADD CONSTRAINT "stations_location_id_locations_uuid_fk" FOREIGN KEY ("location_id") REFERENCES "public"."locations"("uuid") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "trains" ADD CONSTRAINT "trains_category_id_categories_uuid_fk" FOREIGN KEY ("category_id") REFERENCES "public"."categories"("uuid") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "train_seats" ADD CONSTRAINT "train_seats_train_id_trains_uuid_fk" FOREIGN KEY ("train_id") REFERENCES "public"."trains"("uuid") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "schedules" ADD CONSTRAINT "schedules_train_id_trains_uuid_fk" FOREIGN KEY ("train_id") REFERENCES "public"."trains"("uuid") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "schedules" ADD CONSTRAINT "schedules_origin_station_id_locations_uuid_fk" FOREIGN KEY ("origin_station_id") REFERENCES "public"."locations"("uuid") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "schedules" ADD CONSTRAINT "schedules_destination_station_id_locations_uuid_fk" FOREIGN KEY ("destination_station_id") REFERENCES "public"."locations"("uuid") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "schedules" ADD CONSTRAINT "schedules_origin_station_id_stations_uuid_fk" FOREIGN KEY ("origin_station_id") REFERENCES "public"."stations"("uuid") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "schedules" ADD CONSTRAINT "schedules_destination_station_id_stations_uuid_fk" FOREIGN KEY ("destination_station_id") REFERENCES "public"."stations"("uuid") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "tickets" ADD CONSTRAINT "tickets_schedule_id_schedules_uuid_fk" FOREIGN KEY ("schedule_id") REFERENCES "public"."schedules"("uuid") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "order_tickets" ADD CONSTRAINT "order_tickets_user_id_users_uuid_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("uuid") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "order_details" ADD CONSTRAINT "order_details_order_id_order_tickets_uuid_fk" FOREIGN KEY ("order_id") REFERENCES "public"."order_tickets"("uuid") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint

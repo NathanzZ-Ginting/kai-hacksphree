@@ -1,3 +1,5 @@
+import { Schedule } from "./schedules-interface.ts";
+
 // Ticket interfaces
 export interface Ticket {
   uuid: string;
@@ -6,4 +8,5 @@ export interface Ticket {
   tax?: number;
   createdAt: Date;
   updatedAt: Date;
+  schedule?: Schedule;
 }

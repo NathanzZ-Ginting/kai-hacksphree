@@ -1,5 +1,5 @@
 {
-  "id": "459a735c-a2fc-4d75-82c3-936b18131629",
+  "id": "09e9e89c-9881-4bef-b2bc-3589db13c7e6",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -426,6 +426,66 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
+    "public.train_seats": {
+      "name": "train_seats",
+      "schema": "",
+      "columns": {
+        "uuid": {
+          "name": "uuid",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "train_id": {
+          "name": "train_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "name_seat": {
+          "name": "name_seat",
+          "type": "varchar(100)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "train_seats_train_id_trains_uuid_fk": {
+          "name": "train_seats_train_id_trains_uuid_fk",
+          "tableFrom": "train_seats",
+          "tableTo": "trains",
+          "columnsFrom": [
+            "train_id"
+          ],
+          "columnsTo": [
+            "uuid"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
     "public.schedules": {
       "name": "schedules",
       "schema": "",
@@ -497,10 +557,10 @@
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
-        "schedules_origin_station_id_locations_uuid_fk": {
-          "name": "schedules_origin_station_id_locations_uuid_fk",
+        "schedules_origin_station_id_stations_uuid_fk": {
+          "name": "schedules_origin_station_id_stations_uuid_fk",
           "tableFrom": "schedules",
-          "tableTo": "locations",
+          "tableTo": "stations",
           "columnsFrom": [
             "origin_station_id"
           ],
@@ -510,10 +570,10 @@
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
-        "schedules_destination_station_id_locations_uuid_fk": {
-          "name": "schedules_destination_station_id_locations_uuid_fk",
+        "schedules_destination_station_id_stations_uuid_fk": {
+          "name": "schedules_destination_station_id_stations_uuid_fk",
           "tableFrom": "schedules",
-          "tableTo": "locations",
+          "tableTo": "stations",
           "columnsFrom": [
             "destination_station_id"
           ],
@@ -703,10 +763,9 @@
           "primaryKey": false,
           "notNull": false
         },
-        "passenger_type": {
-          "name": "passenger_type",
-          "type": "passenger_type",
-          "typeSchema": "public",
+        "passengerType": {
+          "name": "passengerType",
+          "type": "varchar",
           "primaryKey": false,
           "notNull": false
         },
@@ -911,16 +970,7 @@
       "isRLSEnabled": false
     }
   },
-  "enums": {
-    "public.passenger_type": {
-      "name": "passenger_type",
-      "schema": "public",
-      "values": [
-        "dewasa",
-        "anak-anak"
-      ]
-    }
-  },
+  "enums": {},
   "schemas": {},
   "sequences": {},
   "roles": {},
