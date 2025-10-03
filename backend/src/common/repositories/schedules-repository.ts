@@ -1,6 +1,7 @@
-import { eq, and, gte, lte, desc, asc } from "drizzle-orm";
+import { eq, and, or, gte, lte, desc, asc, ilike } from "drizzle-orm";
+import { alias } from "drizzle-orm/pg-core";
 import { db } from "../../db/index.ts";
-import { schedules } from "../../db/schema.ts";
+import { schedules, stations } from "../../db/schema.ts";
 import { Schedule } from "../interface/schedules-interface.ts";
 
 // Get all schedules
@@ -78,49 +79,68 @@ export const getSchedulesByRoute = async (
   return collection as Schedule[];
 };
 
-// Get schedules by date range
-export const getSchedulesByDateRange = async (
-  startDate: Date,
-  endDate: Date
+// Search schedules by station names (origin and destination)
+export const getSchedulesByStationNames = async (
+  originStationName: string,
+  destinationStationName: string
 ): Promise<Schedule[]> => {
-  const collection = await db
-    .select()
-    .from(schedules)
-    .where(
-      and(
-        gte(schedules.departureTime, startDate),
-        lte(schedules.departureTime, endDate)
+  try {
+    console.log(
+      `Repository: Searching schedules from "${originStationName}" to "${destinationStationName}"`
+    );
+
+    const originStation = alias(stations, "origin_station");
+    const destinationStation = alias(stations, "destination_station");
+
+    const collection = await db
+      .select({
+        uuid: schedules.uuid,
+        originStationId: schedules.originStationId,
+        destinationStationId: schedules.destinationStationId,
+        trainId: schedules.trainId,
+        departureTime: schedules.departureTime,
+        arrivalTime: schedules.arrivalTime,
+        createdAt: schedules.createdAt,
+        updatedAt: schedules.updatedAt,
+      })
+      .from(schedules)
+      .innerJoin(
+        originStation,
+        eq(schedules.originStationId, originStation.uuid)
       )
-    )
-    .orderBy(asc(schedules.departureTime));
-  return collection as Schedule[];
+      .innerJoin(
+        destinationStation,
+        eq(schedules.destinationStationId, destinationStation.uuid)
+      )
+      .where(
+        and(
+          ilike(originStation.name, `%${originStationName}%`),
+          ilike(destinationStation.name, `%${destinationStationName}%`)
+        )
+      )
+      .orderBy(asc(schedules.departureTime));
+
+    console.log(`Repository: Found ${collection.length} schedules`);
+    return collection as unknown as Schedule[];
+  } catch (error) {
+    console.error("Error in getSchedulesByStationNames:", error);
+    throw error;
+  }
 };
 
-// Search schedules by route and date
-export const searchSchedules = async (
-  originStationId: string,
-  destinationStationId: string,
-  departureDate: Date
-): Promise<Schedule[]> => {
-  const startOfDay = new Date(departureDate);
-  startOfDay.setHours(0, 0, 0, 0);
-
-  const endOfDay = new Date(departureDate);
-  endOfDay.setHours(23, 59, 59, 999);
-
-  const collection = await db
-    .select()
-    .from(schedules)
-    .where(
-      and(
-        eq(schedules.originStationId, originStationId),
-        eq(schedules.destinationStationId, destinationStationId),
-        gte(schedules.departureTime, startOfDay),
-        lte(schedules.departureTime, endOfDay)
-      )
-    )
-    .orderBy(asc(schedules.departureTime));
-  return collection as Schedule[];
+// Debug function: Get all stations to check available station names
+export const getAllStationsForDebug = async () => {
+  try {
+    const allStations = await db.select().from(stations);
+    console.log(
+      "Available stations:",
+      allStations.map((s) => s.name)
+    );
+    return allStations;
+  } catch (error) {
+    console.error("Error getting stations:", error);
+    throw error;
+  }
 };
 
 // Create new schedule
@@ -156,17 +176,29 @@ export const deleteSchedule = async (uuid: string): Promise<boolean> => {
   return deletedSchedule.length > 0;
 };
 
-// Get schedules with pagination
-export const getSchedulesWithPagination = async (
-  page: number = 1,
-  pageSize: number = 10
+export const filterByOriginAndDestination = async (
+  originStationId: string, 
+  destinationStationId: string
 ): Promise<Schedule[]> => {
-  const offset = (page - 1) * pageSize;
-  const collection = await db
-    .select()
-    .from(schedules)
-    .orderBy(asc(schedules.departureTime))
-    .limit(pageSize)
-    .offset(offset);
-  return collection as Schedule[];
+  try {
+    console.log(`Repository: Filtering schedules from "${originStationId}" to "${destinationStationId}"`);
+    
+    const collection = await db
+      .select()
+      .from(schedules)
+      .where(
+        and(
+          eq(schedules.originStationId, originStationId),
+          eq(schedules.destinationStationId, destinationStationId)
+        )
+      )
+      .orderBy(asc(schedules.departureTime));
+
+    console.log(`Repository: Found ${collection.length} schedules`);
+    return collection as Schedule[];
+    
+  } catch (error) {
+    console.error('Error in filterByOriginAndDestination:', error);
+    throw error;
+  }
 };

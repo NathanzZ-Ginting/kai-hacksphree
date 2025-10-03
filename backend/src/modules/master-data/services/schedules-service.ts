@@ -1,8 +1,12 @@
 import { Schedule } from "../../../common/interface/schedules-interface.ts";
 import {
   createSchedule,
+  filterByOriginAndDestination,
   getAllSchedules,
   getScheduleByUuid,
+  getSchedulesByDestinationStation,
+  getSchedulesByRoute,
+  getSchedulesByStationNames,
 } from "../../../common/repositories/schedules-repository.ts";
 
 interface schedulesResult {
@@ -62,6 +66,47 @@ const fetchScheduleByUuid = async (uuid: string): Promise<schedulesResult> => {
   }
 };
 
+const fetchScheduleByStation = async (
+  origin: string,
+  destination: string
+): Promise<schedulesResult> => {
+  try {
+    // Validate input parameters
+    if (!origin || !destination) {
+      return {
+        success: false,
+        message: "Origin dan destination stasiun harus diisi!",
+      };
+    }
+
+    // Use the new function that searches by station names
+    const schedule = await filterByOriginAndDestination(
+      origin,
+      destination
+    );
+
+    if (!schedule || schedule.length < 1) {
+      return {
+        success: false,
+        message: `Tidak ada jadwal keberangkatan dari stasiun ${origin} ke stasiun ${destination}`,
+      };
+    }
+
+    return {
+      success: true,
+      message: "Jadwal ditemukan!",
+      data: schedule as Schedule[],
+    };
+  } catch (error) {
+    console.error("Error in fetchScheduleByStation:", error);
+    return {
+      success: false,
+      message: "Terjadi kesalahan saat mencari jadwal!",
+      errors: { [0]: error },
+    };
+  }
+};
+
 const addSchedule = async (schedule: Schedule): Promise<schedulesResult> => {
   try {
     const newSchedule = await createSchedule(schedule);
@@ -80,4 +125,9 @@ const addSchedule = async (schedule: Schedule): Promise<schedulesResult> => {
   }
 };
 
-export {fetchSchedule, fetchScheduleByUuid, addSchedule}
+export {
+  fetchSchedule,
+  fetchScheduleByStation,
+  fetchScheduleByUuid,
+  addSchedule,
+};
