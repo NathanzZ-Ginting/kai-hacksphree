@@ -72,24 +72,6 @@ export const searchOrderTicketsByInvoiceNumber = async (
   return collection as OrderTicket[];
 };
 
-// Get order tickets by price range
-export const getOrderTicketsByPriceRange = async (
-  minPrice: number,
-  maxPrice: number
-): Promise<OrderTicket[]> => {
-  const collection = await db
-    .select()
-    .from(orderTickets)
-    .where(
-      and(
-        gte(orderTickets.totalPrice, minPrice),
-        lte(orderTickets.totalPrice, maxPrice)
-      )
-    )
-    .orderBy(desc(orderTickets.orderDate));
-  return collection as OrderTicket[];
-};
-
 // Create new order ticket
 export const createOrderTicket = async (
   newOrderTicket: Omit<OrderTicket, "uuid" | "createdAt" | "updatedAt">
@@ -110,22 +92,6 @@ export const updateOrderTicket = async (
     .update(orderTickets)
     .set({
       ...orderTicketData,
-      updatedAt: new Date(),
-    })
-    .where(eq(orderTickets.uuid, uuid))
-    .returning();
-  return (updatedOrderTicket[0] as OrderTicket) || null;
-};
-
-// Update order ticket status
-export const updateOrderTicketStatus = async (
-  uuid: string,
-  status: string
-): Promise<OrderTicket | null> => {
-  const updatedOrderTicket = await db
-    .update(orderTickets)
-    .set({
-      status: status,
       updatedAt: new Date(),
     })
     .where(eq(orderTickets.uuid, uuid))
@@ -175,49 +141,4 @@ export const getOrderTicketsWithPagination = async (
     .limit(pageSize)
     .offset(offset);
   return collection as OrderTicket[];
-};
-
-// Count total order tickets
-export const countOrderTickets = async (): Promise<number> => {
-  const result = await db.select().from(orderTickets);
-  return result.length;
-};
-
-// Count order tickets by status
-export const countOrderTicketsByStatus = async (
-  status: string
-): Promise<number> => {
-  const result = await db
-    .select()
-    .from(orderTickets)
-    .where(eq(orderTickets.status, status));
-  return result.length;
-};
-
-// Get total revenue
-export const getTotalRevenue = async (): Promise<number> => {
-  const result = await db
-    .select()
-    .from(orderTickets)
-    .where(eq(orderTickets.status, "paid"));
-
-  return result.reduce((total, order) => total + (order.totalPrice || 0), 0);
-};
-
-// Get revenue by date range
-export const getRevenueByDateRange = async (
-  startDate: Date,
-  endDate: Date
-): Promise<number> => {
-  const result = await db
-    .select()
-    .from(orderTickets)
-    .where(
-      and(
-        eq(orderTickets.status, "paid"),
-        between(orderTickets.orderDate, startDate, endDate)
-      )
-    );
-
-  return result.reduce((total, order) => total + (order.totalPrice || 0), 0);
 };
