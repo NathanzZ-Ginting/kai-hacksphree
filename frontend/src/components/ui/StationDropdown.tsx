@@ -81,7 +81,7 @@ const StationDropdown = ({
 
       {/* Dropdown Menu */}
       {isOpen && (
-        <div className="absolute z-[1001] w-full mt-2 bg-white border border-gray-200 rounded-lg shadow-lg max-h-80 overflow-hidden">
+        <div className="absolute z-50 w-full mt-2 bg-white border border-gray-200 rounded-lg shadow-lg max-h-80 overflow-hidden">
           {/* Search Input */}
           <div className="p-3 border-b border-gray-100">
             <div className="relative">

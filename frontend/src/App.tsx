@@ -17,6 +17,7 @@ import RegisterPage from "./pages/auth/RegisterPage";
 import ProfilePage from "./pages/auth/ProfilePage";
 import { AuthProvider } from "./context/AuthContext";
 import TicketDetailPage from "./pages/TicketDetailPage";
+import SuccessOrderPage from "./pages/SuccessOrderPage";
 
 function App() {
   return (
@@ -51,7 +52,10 @@ function App() {
               <Route path="/help" element={<HelpPage />} />
               <Route path="/article/:id" element={<ArticleDetailPage />} />
 
-              {/* Booking Routes - HARUS diurutkan dari yang lebih spesifik ke umum */}
+              {/* Order Routes */}
+              <Route path="/order/success" element={<SuccessOrderPage />} />
+
+              {/* Booking Routes */}
               <Route
                 path="/booking/detail/:uuid"
                 element={<TicketDetailPage />}
