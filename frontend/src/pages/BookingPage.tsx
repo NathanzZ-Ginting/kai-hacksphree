@@ -6,13 +6,16 @@ import {
   Train,
   MapPin,
   Calendar,
-  Users,
   ArrowRight,
   Filter,
   ArrowUpDown,
+  ArrowRightLeft,
 } from "lucide-react";
+import StationDropdown from "../components/ui/StationDropdown";
+import CustomDatePicker from "../components/ui/CustomDatePicker";
+import type { Station } from "../types/kai";
 
-// Types berdasarkan response API
+// Types
 interface Schedule {
   uuid: string;
   originStationId: string;
@@ -43,29 +46,96 @@ interface ApiResponse {
   data: Ticket[];
 }
 
+const TicketSkeleton = () => {
+  return (
+    <div className="bg-white rounded-2xl shadow-sm border border-gray-200 animate-pulse">
+      <div className="p-6">
+        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+          {/* Train Info Skeleton */}
+          <div className="flex-1">
+            <div className="flex items-center space-x-4 mb-4">
+              <div className="w-12 h-12 bg-gray-200 rounded-lg"></div>
+              <div className="space-y-2">
+                <div className="h-6 bg-gray-200 rounded w-32"></div>
+                <div className="h-4 bg-gray-200 rounded w-20"></div>
+              </div>
+            </div>
+
+            {/* Schedule Timeline Skeleton */}
+            <div className="flex items-center space-x-6">
+              <div className="text-center">
+                <div className="h-8 bg-gray-200 rounded w-16 mb-2"></div>
+                <div className="h-4 bg-gray-200 rounded w-12 mb-1"></div>
+                <div className="h-3 bg-gray-200 rounded w-20"></div>
+              </div>
+
+              <div className="flex-1 text-center">
+                <div className="h-4 bg-gray-200 rounded w-16 mx-auto mb-2"></div>
+                <div className="h-1 bg-gray-200 rounded-full relative">
+                  <div className="h-1 bg-gray-300 rounded-full w-3/4"></div>
+                  <div className="absolute top-1/2 left-0 transform -translate-y-1/2 w-3 h-3 bg-gray-300 rounded-full"></div>
+                  <div className="absolute top-1/2 right-0 transform -translate-y-1/2 w-3 h-3 bg-gray-300 rounded-full"></div>
+                </div>
+              </div>
+
+              <div className="text-center">
+                <div className="h-8 bg-gray-200 rounded w-16 mb-2"></div>
+                <div className="h-4 bg-gray-200 rounded w-12 mb-1"></div>
+                <div className="h-3 bg-gray-200 rounded w-20"></div>
+              </div>
+            </div>
+          </div>
+
+          {/* Price & Action Skeleton */}
+          <div className="lg:text-right">
+            <div className="h-10 bg-gray-200 rounded w-24 mb-2 mx-auto lg:mx-0 lg:ml-auto"></div>
+            <div className="h-4 bg-gray-200 rounded w-20 mb-4 mx-auto lg:mx-0"></div>
+            <div className="h-12 bg-gray-200 rounded w-32"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 const BookingPage = () => {
   const navigate = useNavigate();
   const [tickets, setTickets] = useState<Ticket[]>([]);
   const [filteredTickets, setFilteredTickets] = useState<Ticket[]>([]);
+  const [stations, setStations] = useState<Station[]>([]);
   const [loading, setLoading] = useState(true);
+  const [stationsLoading, setStationsLoading] = useState(true);
   const [error, setError] = useState("");
 
   // Filter states
   const [originStation, setOriginStation] = useState("");
   const [destinationStation, setDestinationStation] = useState("");
   const [departureDate, setDepartureDate] = useState("");
-  const [passengerCount, setPassengerCount] = useState(1);
   const [sortBy, setSortBy] = useState("price");
 
   const API_URL = import.meta.env.API_URL || "http://localhost:3000/api/v1";
 
-  // Get unique stations from tickets
-  const stations = Array.from(
-    new Set([
-      ...tickets.map((ticket) => ticket.originStationName),
-      ...tickets.map((ticket) => ticket.destinationStationName),
-    ])
-  ).sort();
+  // Fetch stations
+  useEffect(() => {
+    const fetchStations = async () => {
+      try {
+        setStationsLoading(true);
+        const response = await axios.get(`${API_URL}/master-data/station`);
+
+        if (response.data.success) {
+          setStations(response.data.data);
+        } else {
+          setError("Gagal mengambil data stasiun");
+        }
+      } catch (err) {
+        console.error("Error fetching stations:", err);
+      } finally {
+        setStationsLoading(false);
+      }
+    };
+
+    fetchStations();
+  }, []);
 
   // Fetch tickets from API
   useEffect(() => {
@@ -99,20 +169,30 @@ const BookingPage = () => {
 
     // Filter by origin station
     if (originStation) {
-      filtered = filtered.filter((ticket) =>
-        ticket.originStationName
-          .toLowerCase()
-          .includes(originStation.toLowerCase())
+      const originStationData = stations.find(
+        (s) => s.stationCode === originStation
       );
+      if (originStationData) {
+        filtered = filtered.filter((ticket) =>
+          ticket.originStationName
+            .toLowerCase()
+            .includes(originStationData.name.toLowerCase())
+        );
+      }
     }
 
     // Filter by destination station
     if (destinationStation) {
-      filtered = filtered.filter((ticket) =>
-        ticket.destinationStationName
-          .toLowerCase()
-          .includes(destinationStation.toLowerCase())
+      const destinationStationData = stations.find(
+        (s) => s.stationCode === destinationStation
       );
+      if (destinationStationData) {
+        filtered = filtered.filter((ticket) =>
+          ticket.destinationStationName
+            .toLowerCase()
+            .includes(destinationStationData.name.toLowerCase())
+        );
+      }
     }
 
     // Filter by departure date
@@ -149,10 +229,23 @@ const BookingPage = () => {
     });
 
     setFilteredTickets(filtered);
-  }, [originStation, destinationStation, departureDate, sortBy, tickets]);
+  }, [
+    originStation,
+    destinationStation,
+    departureDate,
+    sortBy,
+    tickets,
+    stations,
+  ]);
+
+  // Swap stations function
+  const swapStations = () => {
+    const temp = originStation;
+    setOriginStation(destinationStation);
+    setDestinationStation(temp);
+  };
 
   const handleBookTicket = (ticket: Ticket) => {
-    // Navigate to booking detail page or open booking modal
     navigate(`/booking/detail`, { state: { ticket } });
   };
 
@@ -207,17 +300,6 @@ const BookingPage = () => {
     }
   };
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-gray-50 pt-20 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Memuat data tiket...</p>
-        </div>
-      </div>
-    );
-  }
-
   if (error) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -239,7 +321,7 @@ const BookingPage = () => {
     <div className="min-h-screen bg-gray-50 pb-20">
       {/* Hero Section */}
       <div className="bg-gradient-to-r from-orange-600 to-orange-800 text-white py-12">
-        <div className="max-w-7xl mx-auto h-full px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 lg:py-20">
           <h1 className="text-3xl md:text-4xl font-bold mb-4">
             Pesan Tiket Kereta
           </h1>
@@ -252,25 +334,33 @@ const BookingPage = () => {
       {/* Search & Filter Section */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-8">
         <div className="bg-white rounded-2xl shadow-lg p-6 mb-8">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-end">
+          <div className="grid grid-cols-1 lg:grid-cols-11 gap-4 items-end">
             {/* Origin Station */}
             <div className="lg:col-span-3">
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 <MapPin className="h-4 w-4 inline mr-1" />
                 Stasiun Asal
               </label>
-              <select
+              <StationDropdown
                 value={originStation}
-                onChange={(e) => setOriginStation(e.target.value)}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent focus:outline-none text-gray-800"
+                onChange={setOriginStation}
+                placeholder={
+                  stationsLoading ? "Memuat stasiun..." : "Pilih Stasiun Awal"
+                }
+                stations={stations}
+              />
+            </div>
+
+            {/* Swap Button */}
+            <div className="lg:col-span-1 flex justify-center">
+              <button
+                onClick={swapStations}
+                disabled={!originStation || !destinationStation}
+                className="p-3 bg-gray-100 hover:bg-gray-200 rounded-full transition-colors disabled:opacity-50 disabled:cursor-not-allowed mt-2"
+                title="Tukar Stasiun"
               >
-                <option value="">Semua Stasiun</option>
-                {stations.map((station) => (
-                  <option key={station} value={station}>
-                    {station}
-                  </option>
-                ))}
-              </select>
+                <ArrowRightLeft className="h-5 w-5 text-gray-600" />
+              </button>
             </div>
 
             {/* Destination Station */}
@@ -279,59 +369,35 @@ const BookingPage = () => {
                 <MapPin className="h-4 w-4 inline mr-1" />
                 Stasiun Tujuan
               </label>
-              <select
+              <StationDropdown
                 value={destinationStation}
-                onChange={(e) => setDestinationStation(e.target.value)}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent focus:outline-none text-gray-800"
-              >
-                <option value="">Semua Stasiun</option>
-                {stations.map((station) => (
-                  <option key={station} value={station}>
-                    {station}
-                  </option>
-                ))}
-              </select>
+                onChange={setDestinationStation}
+                placeholder={
+                  stationsLoading ? "Memuat stasiun..." : "Pilih Stasiun Tujuan"
+                }
+                stations={stations}
+              />
             </div>
 
             {/* Departure Date */}
-            <div className="lg:col-span-2 w-full">
+            <div className="lg:col-span-3">
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 <Calendar className="h-4 w-4 inline mr-1" />
                 Tanggal Berangkat
               </label>
-              <input
-                type="date"
+              <CustomDatePicker
                 value={departureDate}
-                onChange={(e) => setDepartureDate(e.target.value)}
-                min={new Date().toISOString().split("T")[0]}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent focus:outline-none text-gray-800"
+                onChange={setDepartureDate}
+                placeholder="Pilih Tanggal"
+                minDate={new Date().toISOString().split("T")[0]}
               />
             </div>
 
-            {/* Passenger Count */}
-            <div className="lg:col-span-2">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                <Users className="h-4 w-4 inline mr-1" />
-                Penumpang
-              </label>
-              <select
-                value={passengerCount}
-                onChange={(e) => setPassengerCount(Number(e.target.value))}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent focus:outline-none text-gray-800"
-              >
-                {[1, 2, 3, 4, 5, 6].map((num) => (
-                  <option key={num} value={num}>
-                    {num} {num === 1 ? "Penumpang" : "Penumpang"}
-                  </option>
-                ))}
-              </select>
-            </div>
-
             {/* Search Button */}
-            <div className="lg:col-span-2">
+            <div className="lg:col-span-1">
               <button className="w-full bg-orange-600 text-white px-6 py-3 rounded-lg hover:bg-orange-700 transition-colors font-medium flex items-center justify-center">
-                <Search className="h-5 w-5 mr-2" />
-                Cari Tiket
+                <Search className="h-8 w-8 mr-2" />
+                Cari
               </button>
             </div>
           </div>
@@ -368,107 +434,121 @@ const BookingPage = () => {
         {/* Results Count */}
         <div className="mb-6">
           <p className="text-gray-600">
-            Menampilkan{" "}
-            <span className="font-semibold">{filteredTickets.length}</span>{" "}
-            tiket tersedia
+            {loading ? (
+              <div className="h-5 bg-gray-200 rounded w-40 animate-pulse"></div>
+            ) : (
+              <>
+                Menampilkan{" "}
+                <span className="font-semibold">{filteredTickets.length}</span>{" "}
+                tiket tersedia
+              </>
+            )}
           </p>
         </div>
 
         {/* Tickets Grid */}
         <div className="grid grid-cols-1 gap-6">
-          {filteredTickets.map((ticket) => (
-            <div
-              key={ticket.uuid}
-              className="bg-white rounded-2xl shadow-sm border border-gray-200 hover:shadow-md transition-shadow"
-            >
-              <div className="p-6">
-                <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
-                  {/* Train Info */}
-                  <div className="flex-1">
-                    <div className="flex items-center space-x-4 mb-4">
-                      <div className="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
-                        <Train className="h-6 w-6 text-orange-600" />
+          {loading
+            ? // Skeleton Loaders
+              Array.from({ length: 3 }).map((_, index) => (
+                <TicketSkeleton key={index} />
+              ))
+            : // Actual Tickets
+              filteredTickets.map((ticket) => (
+                <div
+                  key={ticket.uuid}
+                  className="bg-white rounded-2xl shadow-sm border border-gray-200 hover:shadow-md transition-shadow"
+                >
+                  <div className="p-6">
+                    <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+                      {/* Train Info */}
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-start space-x-4 mb-4">
+                          <div className="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                            <Train className="h-6 w-6 text-orange-600" />
+                          </div>
+                          <div className="min-w-0 flex-1">
+                            <h3 className="text-xl font-bold text-gray-900 truncate">
+                              {ticket.trainName}
+                            </h3>
+                            <div className="mt-1">
+                              <span
+                                className={`inline-block px-3 py-1 rounded-full text-sm font-medium ${getCategoryColor(
+                                  ticket.trainCategoryName
+                                )}`}
+                              >
+                                {ticket.trainCategoryName}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Schedule Timeline */}
+                        <div className="flex items-center space-x-4 lg:space-x-6">
+                          <div className="text-center min-w-20">
+                            <div className="text-2xl font-bold text-gray-900 whitespace-nowrap">
+                              {formatTime(ticket.schedule.departureTime)}
+                            </div>
+                            <div className="text-sm text-gray-600 mt-1 whitespace-nowrap">
+                              {formatDate(ticket.schedule.departureTime)}
+                            </div>
+                            <div className="text-xs text-gray-500 mt-1 truncate">
+                              {ticket.originStationName}
+                            </div>
+                          </div>
+
+                          <div className="flex-1 text-center min-w-24">
+                            <div className="text-sm text-gray-500 mb-2 whitespace-nowrap">
+                              {calculateDuration(
+                                ticket.schedule.departureTime,
+                                ticket.schedule.arrivalTime
+                              )}
+                            </div>
+                            <div className="h-1 bg-gray-200 rounded-full relative">
+                              <div className="h-1 bg-orange-500 rounded-full w-3/4"></div>
+                              <div className="absolute top-1/2 left-0 transform -translate-y-1/2 w-3 h-3 bg-orange-500 rounded-full"></div>
+                              <div className="absolute top-1/2 right-0 transform -translate-y-1/2 w-3 h-3 bg-orange-500 rounded-full"></div>
+                            </div>
+                          </div>
+
+                          <div className="text-center min-w-20">
+                            <div className="text-2xl font-bold text-gray-900 whitespace-nowrap">
+                              {formatTime(ticket.schedule.arrivalTime)}
+                            </div>
+                            <div className="text-sm text-gray-600 mt-1 whitespace-nowrap">
+                              {formatDate(ticket.schedule.arrivalTime)}
+                            </div>
+                            <div className="text-xs text-gray-500 mt-1 truncate">
+                              {ticket.destinationStationName}
+                            </div>
+                          </div>
+                        </div>
                       </div>
-                      <div>
-                        <h3 className="text-xl font-bold text-gray-900">
-                          {ticket.trainName}
-                        </h3>
-                        <span
-                          className={`inline-block px-3 py-1 rounded-full text-sm font-medium ${getCategoryColor(
-                            ticket.trainCategoryName
-                          )}`}
+
+                      {/* Price & Action */}
+                      <div className="lg:text-right lg:min-w-48">
+                        <div className="text-3xl font-bold text-orange-600 mb-2 whitespace-nowrap">
+                          {formatPrice(ticket.price)}
+                        </div>
+                        <div className="text-sm text-gray-500 mb-4 whitespace-nowrap">
+                          per penumpang
+                        </div>
+                        <button
+                          onClick={() => handleBookTicket(ticket)}
+                          className="w-full lg:w-auto bg-orange-600 text-white px-8 py-3 rounded-lg hover:bg-orange-700 transition-colors font-medium flex items-center justify-center lg:justify-start whitespace-nowrap"
                         >
-                          {ticket.trainCategoryName}
-                        </span>
+                          Pesan Sekarang
+                          <ArrowRight className="h-5 w-5 ml-2" />
+                        </button>
                       </div>
                     </div>
-
-                    {/* Schedule Timeline */}
-                    <div className="flex items-center space-x-6">
-                      <div className="text-center">
-                        <div className="text-2xl font-bold text-gray-900">
-                          {formatTime(ticket.schedule.departureTime)}
-                        </div>
-                        <div className="text-sm text-gray-600 mt-1">
-                          {formatDate(ticket.schedule.departureTime)}
-                        </div>
-                        <div className="text-xs text-gray-500 mt-1">
-                          {ticket.originStationName}
-                        </div>
-                      </div>
-
-                      <div className="flex-1 text-center">
-                        <div className="text-sm text-gray-500 mb-2">
-                          {calculateDuration(
-                            ticket.schedule.departureTime,
-                            ticket.schedule.arrivalTime
-                          )}
-                        </div>
-                        <div className="h-1 bg-gray-200 rounded-full relative">
-                          <div className="h-1 bg-orange-500 rounded-full w-3/4"></div>
-                          <div className="absolute top-1/2 left-0 transform -translate-y-1/2 w-3 h-3 bg-orange-500 rounded-full"></div>
-                          <div className="absolute top-1/2 right-0 transform -translate-y-1/2 w-3 h-3 bg-orange-500 rounded-full"></div>
-                        </div>
-                      </div>
-
-                      <div className="text-center">
-                        <div className="text-2xl font-bold text-gray-900">
-                          {formatTime(ticket.schedule.arrivalTime)}
-                        </div>
-                        <div className="text-sm text-gray-600 mt-1">
-                          {formatDate(ticket.schedule.arrivalTime)}
-                        </div>
-                        <div className="text-xs text-gray-500 mt-1">
-                          {ticket.destinationStationName}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Price & Action */}
-                  <div className="lg:text-right">
-                    <div className="text-3xl font-bold text-orange-600 mb-2">
-                      {formatPrice(ticket.price)}
-                    </div>
-                    <div className="text-sm text-gray-500 mb-4">
-                      per penumpang
-                    </div>
-                    <button
-                      onClick={() => handleBookTicket(ticket)}
-                      className="w-full lg:w-auto bg-orange-600 text-white px-8 py-3 rounded-lg hover:bg-orange-700 transition-colors font-medium flex items-center justify-center lg:justify-start"
-                    >
-                      Pesan Sekarang
-                      <ArrowRight className="h-5 w-5 ml-2" />
-                    </button>
                   </div>
                 </div>
-              </div>
-            </div>
-          ))}
+              ))}
         </div>
 
         {/* Empty State */}
-        {filteredTickets.length === 0 && (
+        {!loading && filteredTickets.length === 0 && (
           <div className="text-center py-12">
             <Search className="h-16 w-16 text-gray-400 mx-auto mb-4" />
             <h3 className="text-lg font-semibold text-gray-900 mb-2">
