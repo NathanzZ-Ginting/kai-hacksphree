@@ -144,6 +144,7 @@ const LoginPage = () => {
       console.log("User data:", userData);
 
       const userToStore = {
+        uuid: userData.uuid,
         name: userData.name,
         email: userData.email,
       };

@@ -58,7 +58,7 @@ const Header = () => {
     };
   }, []);
 
-  const hiddenPaths = ["/login", "/register", "/profile"];
+  const hiddenPaths = ["/login", "/register", "/profile", "/booking/detail"];
 
   const shouldHideHeader = hiddenPaths.some(
     (path) =>

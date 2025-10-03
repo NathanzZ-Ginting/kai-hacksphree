@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 import axios from "axios";
 import {
   Search,
@@ -115,11 +116,8 @@ const BookingPage = () => {
 
   const API_URL = import.meta.env.API_URL || "http://localhost:3000/api/v1";
 
-  const checkIsLoggedIn = (): boolean => {
-    const token = sessionStorage.getItem("token");
-    const userData = localStorage.getItem("userData");
-    return !!(token && userData);
-  };
+  // Use centralized auth state from AuthContext
+  const { isLoggedIn } = useAuth();
 
   // Fetch stations
   useEffect(() => {
@@ -252,8 +250,8 @@ const BookingPage = () => {
   };
 
   const handleBookTicket = (ticket: Ticket) => {
-    // Cek apakah user sudah login
-    if (!checkIsLoggedIn()) {
+    // Cek apakah user sudah login (gunakan AuthContext)
+    if (!isLoggedIn) {
       // Jika belum login, redirect ke halaman login
       navigate("/login");
       return;
@@ -447,7 +445,7 @@ const BookingPage = () => {
 
         {/* Results Count */}
         <div className="mb-6">
-          <p className="text-gray-600">
+          <div className="text-gray-600">
             {loading ? (
               <div className="h-5 bg-gray-200 rounded w-40 animate-pulse"></div>
             ) : (
@@ -457,7 +455,7 @@ const BookingPage = () => {
                 tiket tersedia
               </>
             )}
-          </p>
+          </div>
         </div>
 
         {/* Tickets Grid */}
