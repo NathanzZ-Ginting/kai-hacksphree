@@ -4,6 +4,7 @@ import { seedCategories } from "./categories-seeder.ts";
 import { seedLocations } from "./locations-seeder.ts";
 import { seedStations } from "./stations-seeder.ts";
 import { seedTrains } from "./trains-seeder.ts";
+import { seedTrainSeats } from "./train-seats-seeder.ts";
 import { seedSchedules } from "./schedules-seeder.ts";
 import { seedTickets } from "./tickets-seeder.ts";
 
@@ -26,6 +27,9 @@ async function runSeeders() {
 
     await seedTrains();
     console.log("✅ Trains seeded");
+
+    await seedTrainSeats();
+    console.log("✅ Train seats seeded");
 
     await seedSchedules();
     console.log("✅ Schedules seeded");

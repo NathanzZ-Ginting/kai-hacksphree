@@ -1,17 +1,18 @@
 import { pgTable, timestamp, uuid } from "drizzle-orm/pg-core";
 import { trains } from "./trains.ts";
 import { locations } from "./locations.ts";
+import { stations } from "./stations.ts";
 
 export const schedules = pgTable("schedules", {
   uuid: uuid("uuid").defaultRandom().primaryKey(),
   trainId: uuid("train_id").references(() => trains.uuid, {
     onDelete: "cascade",
   }),
-  originStationId: uuid("origin_station_id").references(() => locations.uuid, {
+  originStationId: uuid("origin_station_id").references(() => stations.uuid, {
     onDelete: "cascade",
   }),
   destinationStationId: uuid("destination_station_id").references(
-    () => locations.uuid,
+    () => stations.uuid,
     { onDelete: "cascade" }
   ),
   departureTime: timestamp("departure_time").notNull(),

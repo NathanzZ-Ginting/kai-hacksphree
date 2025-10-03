@@ -1,15 +1,33 @@
 import { eq, and, gte, lte, desc, asc } from "drizzle-orm";
 import { db } from "../../db/index.ts";
-import { tickets } from "../../db/schema.ts";
+import { schedules, stations, tickets } from "../../db/schema.ts";
 import { Ticket } from "../interface/tickets-interface.ts";
 
 // Get all tickets
 export const getAllTickets = async (): Promise<Ticket[]> => {
   const collection = await db
-    .select()
+    .select({
+      uuid: tickets.uuid,
+      scheduleId: tickets.scheduleId,
+      price: tickets.price,
+      createdAt: tickets.createdAt,
+      updatedAt: tickets.updatedAt,
+      schedule: {
+        uuid: schedules.uuid,
+        originStationId: schedules.originStationId,
+        destinationStationId: schedules.destinationStationId,
+        trainId: schedules.trainId,
+        departureTime: schedules.departureTime,
+        arrivalTime: schedules.arrivalTime,
+        createdAt: schedules.createdAt,
+        updatedAt: schedules.updatedAt,
+      },
+    })
     .from(tickets)
+    .innerJoin(schedules, eq(tickets.scheduleId, schedules.uuid))
+    .innerJoin(stations, eq(schedules.originStationId, stations.uuid))
     .orderBy(asc(tickets.createdAt));
-  return collection as Ticket[];
+  return collection as unknown as Ticket[];
 };
 
 // Get ticket by UUID
