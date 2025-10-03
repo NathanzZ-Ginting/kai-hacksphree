@@ -1,10 +1,13 @@
 import { eq, and, gte, lte, desc, asc } from "drizzle-orm";
+import { alias } from "drizzle-orm/pg-core";
 import { db } from "../../db/index.ts";
-import { schedules, stations, tickets } from "../../db/schema.ts";
+import { schedules, stations, tickets, trains, categories } from "../../db/schema.ts";
 import { Ticket } from "../interface/tickets-interface.ts";
 
 // Get all tickets
 export const getAllTickets = async (): Promise<Ticket[]> => {
+  const originStation = alias(stations, "origin_station");
+  const destinationStation = alias(stations, "destination_station");
   const collection = await db
     .select({
       uuid: tickets.uuid,
@@ -22,10 +25,17 @@ export const getAllTickets = async (): Promise<Ticket[]> => {
         createdAt: schedules.createdAt,
         updatedAt: schedules.updatedAt,
       },
+      trainName: trains.name,
+      trainCategoryName: categories.name,
+      originStationName: originStation.name,
+      destinationStationName: destinationStation.name,
     })
     .from(tickets)
     .innerJoin(schedules, eq(tickets.scheduleId, schedules.uuid))
-    .innerJoin(stations, eq(schedules.originStationId, stations.uuid))
+    .innerJoin(originStation, eq(schedules.originStationId, originStation.uuid))
+    .innerJoin(destinationStation, eq(schedules.destinationStationId, destinationStation.uuid))
+    .innerJoin(trains, eq(schedules.trainId, trains.uuid))
+    .leftJoin(categories, eq(trains.categoryId, categories.uuid))
     .orderBy(asc(tickets.createdAt));
   return collection as unknown as Ticket[];
 };
