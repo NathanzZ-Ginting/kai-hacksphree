@@ -1,5 +1,9 @@
 import { Ticket } from "../../../common/interface/tickets-interface.ts";
-import { createTicket, getAllTickets, getTicketByUuid } from "../../../common/repositories/tickets-repository.ts";
+import {
+  createTicket,
+  getAllTickets,
+  getTicketByUuid,
+} from "../../../common/repositories/tickets-repository.ts";
 
 interface ticketResult {
   success: boolean;
@@ -76,4 +80,4 @@ const addTicket = async (ticket: Ticket): Promise<ticketResult> => {
   }
 };
 
-export {fetchTicket, fetchTicketByUuid, addTicket}
+export { fetchTicket, fetchTicketByUuid, addTicket };

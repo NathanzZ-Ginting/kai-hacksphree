@@ -71,17 +71,6 @@ export const createOrderDetail = async (
   return createdOrderDetail[0] as unknown as OrderDetail;
 };
 
-// Create multiple order details
-export const createMultipleOrderDetails = async (
-  newOrderDetails: Omit<OrderDetail, "uuid" | "createdAt" | "updatedAt">[]
-): Promise<OrderDetail[]> => {
-  const createdOrderDetails = await db
-    .insert(orderDetails)
-    .values(newOrderDetails as any)
-    .returning();
-  return createdOrderDetails as unknown as OrderDetail[];
-};
-
 // Update order detail
 export const updateOrderDetail = async (
   uuid: string,

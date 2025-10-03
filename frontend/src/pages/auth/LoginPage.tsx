@@ -36,6 +36,14 @@ const LoginPage = () => {
   const { login } = useAuth();
   const { isLoggedIn } = useAuth();
 
+  // Load reCAPTCHA script sekali di awal
+  useEffect(() => {
+    const script = document.createElement("script");
+    script.src = `https://www.google.com/recaptcha/api.js?render=${import.meta.env.VITE_RECAPTCHA_SITE_KEY}`;
+    script.async = true;
+    document.body.appendChild(script);
+  }, []);
+
   useEffect(() => {
     const remembered = localStorage.getItem("rememberMe");
     if (remembered === "true") {
@@ -50,9 +58,10 @@ const LoginPage = () => {
 
   const loginToBackend = async (
     email: string,
-    password: string
+    password: string,
+    recaptchaToken: string
   ): Promise<LoginResponse> => {
-    const API_URL = import.meta.env.API_URL || "http://localhost:3000/api/v1";
+    const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000/api/v1";
 
     try {
       const response = await axios.post(
@@ -60,6 +69,7 @@ const LoginPage = () => {
         {
           email,
           password,
+          recaptchaToken, // kirim ke backend
         },
         {
           headers: {
@@ -94,12 +104,16 @@ const LoginPage = () => {
     setIsLoading(true);
 
     try {
-      // Validasi input
       if (!email || !password) {
         throw new Error("Silakan isi email dan password");
       }
 
-      // Simpan remember me data
+      // Ambil token reCAPTCHA v3
+      const token = await (window as any).grecaptcha.execute(
+        import.meta.env.VITE_RECAPTCHA_SITE_KEY,
+        { action: "login" }
+      );
+
       if (rememberMe) {
         localStorage.setItem("rememberMe", "true");
         localStorage.setItem("rememberedEmail", email);
@@ -111,29 +125,25 @@ const LoginPage = () => {
       }
 
       // Login ke backend
-      const loginResult = await loginToBackend(email, password);
+      const loginResult = await loginToBackend(email, password, token);
 
       if (!loginResult.success) {
-        // Tampilkan toast error untuk response gagal
         toast.error(loginResult.message || "Login gagal");
         throw new Error(loginResult.message || "Login gagal");
       }
 
-      // Dapatkan token dan user data dari response
-      const token = loginResult.data.token;
+      const tokenJwt = loginResult.data.token;
       const userData = loginResult.data.user;
 
-      console.log("Login successful, token received:", token);
+      console.log("Login successful, token received:", tokenJwt);
       console.log("User data:", userData);
 
-      // Simpan data user tanpa password
       const userToStore = {
         name: userData.name,
         email: userData.email,
-      }
-      login(token, userToStore);
+      };
+      login(tokenJwt, userToStore);
 
-      // Tampilkan toast sukses
       toast.success(loginResult.message || "Login berhasil");
       navigate("/");
     } catch (error) {
@@ -142,7 +152,6 @@ const LoginPage = () => {
         error instanceof Error ? error.message : "Terjadi kesalahan saat login";
       setError(errorMessage);
 
-      // Tampilkan toast error untuk exception
       if (!errorMessage.includes("Silakan isi email dan password")) {
         toast.error(errorMessage);
       }

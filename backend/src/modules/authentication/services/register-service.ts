@@ -8,6 +8,8 @@ import bcrypt from "bcrypt";
 interface RegisterResult {
   success: boolean;
   message: string;
+  data?: object
+  errors?: object
 }
 
 export const RegisterService = async (
@@ -42,12 +44,13 @@ export const RegisterService = async (
     return {
       success: true,
       message: "Registrasi berhasil!",
+      data: newUserData
     };
   } catch (error) {
-    console.error("Register error:", error);
     return {
       success: false,
       message: "Terjadi kesalahan saat registrasi!",
+      errors: {error}
     };
   }
 };

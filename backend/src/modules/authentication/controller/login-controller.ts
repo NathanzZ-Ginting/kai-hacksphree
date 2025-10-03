@@ -3,6 +3,9 @@ import { ErrorsRes, SuccessRes } from "../../../common/utils/api-response.ts";
 import { LoginService } from "../services/login-service.ts";
 import { sign } from "hono/jwt";
 import { getUserByEmail, updateUser } from "../../../common/repositories/users-repository.ts";
+import { LoginValidation } from "../validation/login-validation.ts";
+import z from "zod";
+import path from "path";
 
 const LoginController = new Hono();
 
@@ -11,6 +14,17 @@ LoginController.post("/", async (c) => {
 
   if (!email || !password) {
     return c.json(ErrorsRes("Silahkan isi email dan password!"), 400);
+  }
+
+  try{
+    await LoginValidation.parse({
+        email: email, passwor: password
+    })
+  }catch(error) {
+    return c.json(ErrorsRes("Data tidak valid!", (error as z.ZodError).issues.map((e) => ({
+        path: e.path[0],
+        message: e.message
+    }))),400)
   }
 
   const result = await LoginService(email, password);
