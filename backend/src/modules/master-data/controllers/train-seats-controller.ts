@@ -1,7 +1,6 @@
 import { Hono } from "hono";
-import { fetchCategory, fetchCategoryByUuid } from "../services/category-service";
 import { ErrorsRes, SuccessRes } from "../../../common/utils/api-response";
-import { fetchTrainSeats, fetchTrainSeatsByUuid } from "../services/train-seats-service";
+import { fetchSeatByTrainUuid, fetchTrainSeats } from "../services/train-seats-service";
 
 const trainSeatController = new Hono()
 
@@ -22,22 +21,21 @@ trainSeatController.get("/", async (c) => {
   }
 })
 
-trainSeatController.get("/:uuid", async (c) => {
-
-  if(!c.req.param("uuid")){
-    return c.json(SuccessRes("Required UUID"), 400)
+trainSeatController.get("/:trainId", async (c) => {
+  if (!c.req.param("trainId")) {
+    return c.json(ErrorsRes("Required TrainID"), 400);
   }
 
-  try{
-    const uuid = c.req.param("uuid")
-    const result = await fetchTrainSeatsByUuid(uuid)
+  try {
+    const uuid = c.req.param("trainId");
+    const result = await fetchSeatByTrainUuid(uuid);
 
-    if(!result.success) {
-      return c.json(ErrorsRes(result.message), 500)
+    if (!result.success) {
+      return c.json(ErrorsRes(result.message), 500);
     }
 
-    return c.json(SuccessRes(result.message, result.data))
-  }catch(error) {
+    return c.json(SuccessRes(result.message, result.data));
+  } catch (error) {
     return c.json(
       ErrorsRes("Unknown error occurred, please try again", error!),
       500
