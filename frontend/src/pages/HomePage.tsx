@@ -1,7 +1,7 @@
 import Hero from "../components/sections/Hero";
 import Services from "../components/sections/Services";
 import NewsSection from "../components/sections/NewsSection";
-import RouteMap from "../components/sections/RouteMap";
+import ScheduleFinder from "../components/sections/ScheduleFinder";
 import BookingNotification from "../components/ui/BookingNotification";
 
 const HomePage = () => {
@@ -9,7 +9,7 @@ const HomePage = () => {
     <>
       <Hero />
       <Services />
-      <RouteMap />
+      <ScheduleFinder />
       <NewsSection />
       <BookingNotification />
     </>
