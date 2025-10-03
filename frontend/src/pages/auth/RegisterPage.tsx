@@ -3,10 +3,9 @@ import { useNavigate } from "react-router-dom";
 import { Eye, EyeOff, Train } from "lucide-react";
 import { toast } from "sonner";
 import axios from "axios";
-import { useAuth } from "../../context/AuthContext";
 
 // Interface untuk response API
-interface LoginResponse {
+interface RegisterResponse {
   success: boolean;
   message: string;
   data: {
@@ -25,56 +24,47 @@ interface LoginResponse {
   };
 }
 
-const LoginPage = () => {
+const RegisterForm = () => {
+  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [rememberMe, setRememberMe] = useState(false);
   const [error, setError] = useState("");
   const navigate = useNavigate();
-  const { login } = useAuth();
-  const { isLoggedIn } = useAuth();
-
-  // Load reCAPTCHA script sekali di awal (v2 checkbox)
+  
+  // Load reCAPTCHA script (v2 checkbox)
   useEffect(() => {
     const script = document.createElement("script");
     script.src = "https://www.google.com/recaptcha/api.js";
     script.async = true;
     document.body.appendChild(script);
-
-    // Cleanup on unmount
+    
+    // Cleanup
     return () => {
       document.body.removeChild(script);
     };
   }, []);
 
-  useEffect(() => {
-    const remembered = localStorage.getItem("rememberMe");
-    if (remembered === "true") {
-      setRememberMe(true);
-      const savedEmail = localStorage.getItem("rememberedEmail");
-      const savedPassword = localStorage.getItem("rememberedPassword");
-
-      if (savedEmail) setEmail(savedEmail);
-      if (savedPassword) setPassword(savedPassword);
-    }
-  }, []);
-
-  const loginToBackend = async (
+  const registerToBackend = async (
+    name: string,
     email: string,
     password: string,
     recaptchaToken: string
-  ): Promise<LoginResponse> => {
-    const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000/api/v1";
+  ): Promise<RegisterResponse> => {
+    const API_URL =
+      import.meta.env.VITE_API_URL || "http://localhost:3000/api/v1";
 
     try {
       const response = await axios.post(
-        `${API_URL}/auth/login`,
+        `${API_URL}/auth/register`,
         {
+          name,
           email,
           password,
-          captchaToken: recaptchaToken, // kirim ke backend dengan nama yang sesuai
+          captchaToken: recaptchaToken, // kirim token ke backend
         },
         {
           headers: {
@@ -83,10 +73,10 @@ const LoginPage = () => {
         }
       );
 
-      const data: LoginResponse = response.data;
+      const data: RegisterResponse = response.data;
       return data;
     } catch (error) {
-      console.error("Login error:", error);
+      console.error("Register error:", error);
       if (axios.isAxiosError(error)) {
         throw new Error(
           error.response?.data?.message ||
@@ -97,67 +87,70 @@ const LoginPage = () => {
     }
   };
 
-  useEffect(() => {
-    if (isLoggedIn) {
-      navigate("/", { replace: true });
-    }
-  }, [isLoggedIn, navigate]);
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
     setIsLoading(true);
 
     try {
-      if (!email || !password) {
-        throw new Error("Silakan isi email dan password");
+      // Validasi input
+      if (!name || !email || !password || !confirmPassword) {
+        throw new Error("Silakan isi semua field");
+      }
+
+      if (password !== confirmPassword) {
+        throw new Error("Konfirmasi password tidak sesuai");
+      }
+
+      if (password.length < 6) {
+        throw new Error("Password harus minimal 6 karakter");
+      }
+
+      // Validasi email format
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(email)) {
+        throw new Error("Format email tidak valid");
       }
 
       // Get token from reCAPTCHA v2 checkbox
-      const token = (window as any).grecaptcha.getResponse();
-      if (!token) {
+      const recaptchaToken = (window as any).grecaptcha.getResponse();
+      if (!recaptchaToken) {
         throw new Error("Silakan centang reCAPTCHA");
       }
 
-      if (rememberMe) {
-        localStorage.setItem("rememberMe", "true");
-        localStorage.setItem("rememberedEmail", email);
-        localStorage.setItem("rememberedPassword", password);
-      } else {
-        localStorage.removeItem("rememberMe");
-        localStorage.removeItem("rememberedEmail");
-        localStorage.removeItem("rememberedPassword");
+      // Register ke backend
+      const registerResult = await registerToBackend(name, email, password, recaptchaToken);
+
+      if (!registerResult.success) {
+        // Tampilkan toast error untuk response gagal
+        toast.error(registerResult.message || "Registrasi gagal");
+        throw new Error(registerResult.message || "Registrasi gagal");
       }
 
-      // Login ke backend
-      const loginResult = await loginToBackend(email, password, token);
+      // Tampilkan toast sukses
+      toast.success(
+        registerResult.message || "Registrasi berhasil! Silakan login."
+      );
 
-      if (!loginResult.success) {
-        toast.error(loginResult.message || "Login gagal");
-        throw new Error(loginResult.message || "Login gagal");
-      }
-
-      const tokenJwt = loginResult.data.token;
-      const userData = loginResult.data.user;
-
-      console.log("Login successful, token received:", tokenJwt);
-      console.log("User data:", userData);
-
-      const userToStore = {
-        name: userData.name,
-        email: userData.email,
-      };
-      login(tokenJwt, userToStore);
-
-      toast.success(loginResult.message || "Login berhasil");
-      navigate("/");
+      // Redirect ke halaman login setelah 2 detik
+      setTimeout(() => {
+        navigate("/login");
+      }, 2000);
     } catch (error) {
-      console.error("Login error:", error);
+      console.error("Register error:", error);
       const errorMessage =
-        error instanceof Error ? error.message : "Terjadi kesalahan saat login";
+        error instanceof Error
+          ? error.message
+          : "Terjadi kesalahan saat registrasi";
       setError(errorMessage);
 
-      if (!errorMessage.includes("Silakan isi email dan password")) {
+      // Tampilkan toast error untuk exception
+      if (
+        !errorMessage.includes("Silakan isi semua field") &&
+        !errorMessage.includes("Konfirmasi password tidak sesuai") &&
+        !errorMessage.includes("Password harus minimal 6 karakter") &&
+        !errorMessage.includes("Format email tidak valid")
+      ) {
         toast.error(errorMessage);
       }
     } finally {
@@ -165,12 +158,8 @@ const LoginPage = () => {
     }
   };
 
-  const handleRememberMeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setRememberMe(e.target.checked);
-  };
-
-  const handleRegisterRedirect = () => {
-    navigate("/register");
+  const handleLoginRedirect = () => {
+    navigate("/login");
   };
 
   return (
@@ -188,10 +177,10 @@ const LoginPage = () => {
             </div>
           </div>
           <h2 className="text-3xl font-bold text-gray-900 mb-2">
-            Masuk ke Akun
+            Buat Akun Baru
           </h2>
           <p className="text-gray-600">
-            Selamat datang kembali! Silakan masuk ke akun Anda
+            Bergabunglah dengan kami! Daftarkan akun Anda
           </p>
         </div>
 
@@ -202,9 +191,29 @@ const LoginPage = () => {
           </div>
         )}
 
-        {/* Login Form */}
+        {/* Register Form */}
         <div className="bg-white rounded-3xl shadow-xl p-8">
           <form onSubmit={handleSubmit} className="space-y-6">
+            {/* Name Field */}
+            <div>
+              <label
+                htmlFor="name"
+                className="block text-sm font-medium text-gray-700 mb-2"
+              >
+                Nama Lengkap
+              </label>
+              <input
+                id="name"
+                type="text"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 focus:outline-none text-gray-700 transition-colors"
+                placeholder="masukkan nama lengkap Anda"
+                required
+                disabled={isLoading}
+              />
+            </div>
+
             {/* Email Field */}
             <div>
               <label
@@ -240,9 +249,10 @@ const LoginPage = () => {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 focus:outline-none text-gray-700 transition-colors pr-12"
-                  placeholder="masukkan kata sandi"
+                  placeholder="masukkan kata sandi (min. 6 karakter)"
                   required
                   disabled={isLoading}
+                  minLength={6}
                 />
                 <button
                   type="button"
@@ -259,25 +269,72 @@ const LoginPage = () => {
               </div>
             </div>
 
-            {/* Remember Me & Forgot Password */}
-            <div className="flex items-center justify-between">
-              <label className="flex items-center">
+            {/* Confirm Password Field */}
+            <div>
+              <label
+                htmlFor="confirmPassword"
+                className="block text-sm font-medium text-gray-700 mb-2"
+              >
+                Konfirmasi Kata Sandi
+              </label>
+              <div className="relative">
                 <input
+                  id="confirmPassword"
+                  type={showConfirmPassword ? "text" : "password"}
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 focus:outline-none text-gray-700 transition-colors pr-12"
+                  placeholder="konfirmasi kata sandi Anda"
+                  required
+                  disabled={isLoading}
+                  minLength={6}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+                  disabled={isLoading}
+                >
+                  {showConfirmPassword ? (
+                    <EyeOff className="h-5 w-5" />
+                  ) : (
+                    <Eye className="h-5 w-5" />
+                  )}
+                </button>
+              </div>
+            </div>
+
+            {/* Terms and Conditions */}
+            <div className="flex items-start">
+              <div className="flex items-center h-5">
+                <input
+                  id="terms"
                   type="checkbox"
-                  checked={rememberMe}
-                  onChange={handleRememberMeChange}
                   className="h-4 w-4 text-orange-600 focus:ring-orange-500 border-gray-300 rounded"
+                  required
                   disabled={isLoading}
                 />
-                <span className="ml-2 text-sm text-gray-700">Ingat saya</span>
-              </label>
-              <button
-                type="button"
-                className="text-sm text-orange-600 hover:text-orange-700 font-medium transition-colors disabled:text-gray-400"
-                disabled={isLoading}
-              >
-                Lupa kata sandi?
-              </button>
+              </div>
+              <div className="ml-3 text-sm">
+                <label htmlFor="terms" className="text-gray-700">
+                  Saya menyetujui{" "}
+                  <button
+                    type="button"
+                    className="text-orange-600 hover:text-orange-700 font-medium transition-colors"
+                    disabled={isLoading}
+                  >
+                    Syarat & Ketentuan
+                  </button>{" "}
+                  dan{" "}
+                  <button
+                    type="button"
+                    className="text-orange-600 hover:text-orange-700 font-medium transition-colors"
+                    disabled={isLoading}
+                  >
+                    Kebijakan Privasi
+                  </button>
+                </label>
+              </div>
             </div>
 
             {/* reCAPTCHA v2 Checkbox */}
@@ -297,7 +354,7 @@ const LoginPage = () => {
                   Memproses...
                 </div>
               ) : (
-                "Masuk"
+                "Daftar"
               )}
             </button>
           </form>
@@ -305,10 +362,10 @@ const LoginPage = () => {
           {/* Divider */}
           <div className="mt-6 pt-6 border-t border-gray-200">
             <p className="text-center text-sm text-gray-600 mb-4">
-              Atau masuk menggunakan
+              Atau daftar menggunakan
             </p>
 
-            {/* Social Login */}
+            {/* Social Register */}
             <div className="grid grid-cols-2 gap-3">
               <button
                 type="button"
@@ -352,16 +409,16 @@ const LoginPage = () => {
             </div>
           </div>
 
-          {/* Register Link */}
+          {/* Login Link */}
           <div className="mt-6 text-center">
             <p className="text-sm text-gray-600">
-              Belum punya akun?{" "}
+              Sudah punya akun?{" "}
               <button
-                onClick={handleRegisterRedirect}
+                onClick={handleLoginRedirect}
                 className="text-orange-600 hover:text-orange-700 font-medium transition-colors"
                 disabled={isLoading}
               >
-                Daftar sekarang
+                Masuk di sini
               </button>
             </p>
           </div>
@@ -378,4 +435,10 @@ const LoginPage = () => {
   );
 };
 
-export default LoginPage;
+const RegisterPage = () => {
+  return (
+    <RegisterForm />
+  );
+};
+
+export default RegisterPage;

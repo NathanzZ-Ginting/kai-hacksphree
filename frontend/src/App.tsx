@@ -1,6 +1,5 @@
-// App.tsx - Update Routes
+// App.tsx - Updated Routes
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import { BookingProvider } from "./context/BookingContext";
 import Header from "./components/layout/Header";
 import Footer from "./components/layout/Footer";
 import HomePage from "./pages/HomePage";
@@ -14,45 +13,55 @@ import HelpPage from "./pages/HelpPage";
 import BookingPage from "./pages/BookingPage";
 import ArticleDetailPage from "./pages/ArticleDetailPage";
 import LoginPage from "./pages/auth/LoginPage";
+import RegisterPage from "./pages/auth/RegisterPage";
 import ProfilePage from "./pages/auth/ProfilePage";
 import { AuthProvider } from "./context/AuthContext";
+import TicketDetailPage from "./pages/TicketDetailPage";
 
 function App() {
   return (
     <AuthProvider>
-      <BookingProvider>
-        <Router>
-          <div className="min-h-screen bg-white">
-            <Header />
-            <main>
-              <Routes>
-                <Route path="/login" element={<LoginPage />} />
-                <Route path="/" element={<HomePage />} />
-                <Route path="/about" element={<AboutPage />} />
-                <Route path="/services" element={<ServicesPage />} />
-                <Route
-                  path="/services/passenger"
-                  element={<PassengerServicePage />}
-                />
-                <Route
-                  path="/services/logistics"
-                  element={<LogisticsServicePage />}
-                />
-                <Route
-                  path="/services/property"
-                  element={<PropertyServicePage />}
-                />
-                <Route path="/news" element={<NewsPage />} />
-                <Route path="/help" element={<HelpPage />} />
-                <Route path="/article/:id" element={<ArticleDetailPage />} />
-                <Route path="/booking" element={<BookingPage />} />
-                <Route path="/profile" element={<ProfilePage />} />
-              </Routes>
-            </main>
-            <Footer />
-          </div>
-        </Router>
-      </BookingProvider>
+      <Router>
+        <div className="min-h-screen bg-white">
+          <Header />
+          <main>
+            <Routes>
+              {/* Auth Routes */}
+              <Route path="/login" element={<LoginPage />} />
+              <Route path="/register" element={<RegisterPage />} />
+              <Route path="/profile" element={<ProfilePage />} />
+
+              {/* Public Routes */}
+              <Route path="/" element={<HomePage />} />
+              <Route path="/about" element={<AboutPage />} />
+              <Route path="/services" element={<ServicesPage />} />
+              <Route
+                path="/services/passenger"
+                element={<PassengerServicePage />}
+              />
+              <Route
+                path="/services/logistics"
+                element={<LogisticsServicePage />}
+              />
+              <Route
+                path="/services/property"
+                element={<PropertyServicePage />}
+              />
+              <Route path="/news" element={<NewsPage />} />
+              <Route path="/help" element={<HelpPage />} />
+              <Route path="/article/:id" element={<ArticleDetailPage />} />
+
+              {/* Booking Routes - HARUS diurutkan dari yang lebih spesifik ke umum */}
+              <Route
+                path="/booking/detail/:uuid"
+                element={<TicketDetailPage />}
+              />
+              <Route path="/booking" element={<BookingPage />} />
+            </Routes>
+          </main>
+          <Footer />
+        </div>
+      </Router>
     </AuthProvider>
   );
 }

@@ -18,7 +18,7 @@ LoginController.post("/", async (c) => {
 
   try{
     await LoginValidation.parse({
-        email: email, passwor: password
+        email: email, password: password
     })
   }catch(error) {
     return c.json(ErrorsRes("Data tidak valid!", (error as z.ZodError).issues.map((e) => ({

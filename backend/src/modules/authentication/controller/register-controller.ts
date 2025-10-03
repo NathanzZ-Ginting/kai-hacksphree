@@ -11,7 +11,7 @@ RegisterController.post("/", async (c) => {
   try {
     const { name, email, password, age, phoneNumber } = await c.req.json();
 
-    if (!name || !email || !password || !age || !phoneNumber) {
+    if (!name || !email || !password) {
       return c.json(ErrorsRes("Isi lengkap data diri anda!"), 400);
     }
 

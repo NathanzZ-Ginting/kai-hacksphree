@@ -1,7 +1,13 @@
 import { eq, and, gte, lte, desc, asc } from "drizzle-orm";
 import { alias } from "drizzle-orm/pg-core";
 import { db } from "../../db/index.ts";
-import { schedules, stations, tickets, trains, categories } from "../../db/schema.ts";
+import {
+  schedules,
+  stations,
+  tickets,
+  trains,
+  categories,
+} from "../../db/schema.ts";
 import { Ticket } from "../interface/tickets-interface.ts";
 
 // Get all tickets
@@ -33,7 +39,10 @@ export const getAllTickets = async (): Promise<Ticket[]> => {
     .from(tickets)
     .innerJoin(schedules, eq(tickets.scheduleId, schedules.uuid))
     .innerJoin(originStation, eq(schedules.originStationId, originStation.uuid))
-    .innerJoin(destinationStation, eq(schedules.destinationStationId, destinationStation.uuid))
+    .innerJoin(
+      destinationStation,
+      eq(schedules.destinationStationId, destinationStation.uuid)
+    )
     .innerJoin(trains, eq(schedules.trainId, trains.uuid))
     .leftJoin(categories, eq(trains.categoryId, categories.uuid))
     .orderBy(asc(tickets.createdAt));
@@ -42,12 +51,44 @@ export const getAllTickets = async (): Promise<Ticket[]> => {
 
 // Get ticket by UUID
 export const getTicketByUuid = async (uuid: string): Promise<Ticket | null> => {
-  const ticket = await db
-    .select()
+  const originStation = alias(stations, "origin_station");
+  const destinationStation = alias(stations, "destination_station");
+
+  const collection = await db
+    .select({
+      uuid: tickets.uuid,
+      scheduleId: tickets.scheduleId,
+      price: tickets.price,
+      createdAt: tickets.createdAt,
+      updatedAt: tickets.updatedAt,
+      schedule: {
+        uuid: schedules.uuid,
+        originStationId: schedules.originStationId,
+        destinationStationId: schedules.destinationStationId,
+        trainId: schedules.trainId,
+        departureTime: schedules.departureTime,
+        arrivalTime: schedules.arrivalTime,
+        createdAt: schedules.createdAt,
+        updatedAt: schedules.updatedAt,
+      },
+      trainName: trains.name,
+      trainCategoryName: categories.name,
+      originStationName: originStation.name,
+      destinationStationName: destinationStation.name,
+    })
     .from(tickets)
+    .innerJoin(schedules, eq(tickets.scheduleId, schedules.uuid))
+    .innerJoin(originStation, eq(schedules.originStationId, originStation.uuid))
+    .innerJoin(
+      destinationStation,
+      eq(schedules.destinationStationId, destinationStation.uuid)
+    )
+    .innerJoin(trains, eq(schedules.trainId, trains.uuid))
+    .leftJoin(categories, eq(trains.categoryId, categories.uuid))
     .where(eq(tickets.uuid, uuid))
     .limit(1);
-  return (ticket[0] as Ticket) || null;
+
+  return (collection[0] as unknown as Ticket) || null;
 };
 
 // Get tickets by schedule ID
