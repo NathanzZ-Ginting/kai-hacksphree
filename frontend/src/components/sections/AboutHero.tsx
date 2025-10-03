@@ -21,9 +21,9 @@ const AboutHero = () => {
           </div>
           <div className="relative">
             <img
-              src="/images/about-hero.jpg"
+              src="/assets/images/logos/logo-KAI.png"
               alt="Sejarah KAI"
-              className="rounded-2xl shadow-2xl"
+              className="rounded-2xl shadow-2xl bg-white h-40"
             />
           </div>
         </div>

@@ -14,6 +14,7 @@ import HelpPage from "./pages/HelpPage";
 import BookingPage from "./pages/BookingPage";
 import ArticleDetailPage from "./pages/ArticleDetailPage";
 import LoginPage from "./pages/auth/LoginPage";
+import ProfilePage from "./pages/auth/ProfilePage";
 import { AuthProvider } from "./context/AuthContext";
 
 function App() {
@@ -45,6 +46,7 @@ function App() {
                 <Route path="/help" element={<HelpPage />} />
                 <Route path="/article/:id" element={<ArticleDetailPage />} />
                 <Route path="/booking" element={<BookingPage />} />
+                <Route path="/profile" element={<ProfilePage />} />
               </Routes>
             </main>
             <Footer />

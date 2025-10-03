@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { MapPin, Clock, Train, ArrowRightLeft } from "lucide-react";
+import { Clock, Train, ArrowRightLeft } from "lucide-react";
 import StationDropdown from "../ui/StationDropdown";
 import TrainMap from "../ui/TrainMap";
 

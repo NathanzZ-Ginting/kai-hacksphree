@@ -2,12 +2,25 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Eye, EyeOff, Train } from "lucide-react";
 import { toast } from "sonner";
+import axios from "axios";
+import { useAuth } from "../../context/AuthContext";
 
 // Interface untuk response API
 interface LoginResponse {
   success: boolean;
   message: string;
   data: {
+    user: {
+      uuid: string;
+      name: string;
+      age: number;
+      email: string;
+      password: string;
+      token: string | null;
+      phoneNumber: string;
+      createdAt: string;
+      updatedAt: string;
+    };
     token: string;
   };
 }
@@ -20,6 +33,8 @@ const LoginPage = () => {
   const [rememberMe, setRememberMe] = useState(false);
   const [error, setError] = useState("");
   const navigate = useNavigate();
+  const { login } = useAuth();
+  const { isLoggedIn } = useAuth();
 
   useEffect(() => {
     const remembered = localStorage.getItem("rememberMe");
@@ -40,29 +55,38 @@ const LoginPage = () => {
     const API_URL = import.meta.env.API_URL || "http://localhost:3000/api/v1";
 
     try {
-      const response = await fetch(`${API_URL}/auth/login`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
+      const response = await axios.post(
+        `${API_URL}/auth/login`,
+        {
+          email,
+          password,
         },
-        body: JSON.stringify({ email, password }),
-      });
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
 
-      if (!response.ok) {
-        // Coba parse error message dari response
-        const errorData = await response.json().catch(() => null);
-        throw new Error(
-          errorData?.message || `HTTP error! status: ${response.status}`
-        );
-      }
-
-      const data: LoginResponse = await response.json();
+      const data: LoginResponse = response.data;
       return data;
     } catch (error) {
       console.error("Login error:", error);
+      if (axios.isAxiosError(error)) {
+        throw new Error(
+          error.response?.data?.message ||
+            `HTTP error! status: ${error.response?.status}`
+        );
+      }
       throw new Error("Terjadi kesalahan saat menghubungi server");
     }
   };
+
+  useEffect(() => {
+    if (isLoggedIn) {
+      navigate("/", { replace: true });
+    }
+  }, [isLoggedIn, navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -95,10 +119,19 @@ const LoginPage = () => {
         throw new Error(loginResult.message || "Login gagal");
       }
 
-      // Dapatkan token dari response
+      // Dapatkan token dan user data dari response
       const token = loginResult.data.token;
+      const userData = loginResult.data.user;
 
       console.log("Login successful, token received:", token);
+      console.log("User data:", userData);
+
+      // Simpan data user tanpa password
+      const userToStore = {
+        name: userData.name,
+        email: userData.email,
+      }
+      login(token, userToStore);
 
       // Tampilkan toast sukses
       toast.success(loginResult.message || "Login berhasil");

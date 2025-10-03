@@ -1,13 +1,8 @@
 import { useState } from "react";
 import {
-  Search,
   MessageCircle,
   Phone,
   Mail,
-  FileText,
-  Download,
-  Users,
-  Ticket,
   Bot,
   ArrowRight,
   CheckCircle,
@@ -17,7 +12,6 @@ import ChatBot from "../components/ui/ChatBot";
 import { useNavigate } from "react-router-dom";
 
 const HelpPage = () => {
-  const [searchTerm, setSearchTerm] = useState("");
   const [isChatBotOpen, setIsChatBotOpen] = useState(false);
   const navigate = useNavigate();
 
@@ -51,32 +45,7 @@ const HelpPage = () => {
     },
   ];
 
-  const quickLinks = [
-    {
-      icon: FileText,
-      title: "Syarat & Ketentuan",
-      description: "Ketentuan penggunaan layanan KAI",
-      link: "#",
-    },
-    {
-      icon: Download,
-      title: "Download Aplikasi",
-      description: "Dapatkan aplikasi KAI Access",
-      link: "#",
-    },
-    {
-      icon: Users,
-      title: "Status Keberangkatan",
-      description: "Cek jadwal kereta real-time",
-      link: "#",
-    },
-    {
-      icon: Ticket,
-      title: "Cek Tiket",
-      description: "Verifikasi tiket Anda",
-      link: "#",
-    },
-  ];
+  // quickLinks intentionally removed because not used in UI yet
 
   const popularArticles = [
     {

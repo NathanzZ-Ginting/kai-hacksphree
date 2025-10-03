@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useReducer } from "react";
 import type { ReactNode } from "react";
-import type { Station, Schedule, Passenger, BookingData } from "../types/booking";
+import type { Station, Schedule, Passenger } from "../types/booking";
 
 interface BookingState {
   step: "search" | "select" | "passenger" | "payment" | "confirmation";

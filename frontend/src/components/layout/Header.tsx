@@ -5,7 +5,7 @@ import { Menu, X, ChevronDown, User, LogOut, Settings } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 
 // Import images
-import penumpangIcon from "/assets/images/services/angkutan_penumpang.jpg"; 
+import penumpangIcon from "/assets/images/services/angkutan_penumpang.jpg";
 import barangIcon from "/assets/images/services/angkutan_barang.jpg";
 import asetIcon from "/assets/images/services/pengusahaan_aset.jpg";
 
@@ -21,6 +21,53 @@ const Header = () => {
 
   // Gunakan Auth Context
   const { isLoggedIn, userData, logout } = useAuth();
+
+  // keep effect hooks (scroll + outside click) above any early returns so
+  // React hooks order remains stable between renders
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.scrollY > 10) {
+        setIsScrolled(true);
+      } else {
+        setIsScrolled(false);
+      }
+    };
+
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
+        setIsServicesDropdownOpen(false);
+      }
+
+      if (
+        profileDropdownRef.current &&
+        !profileDropdownRef.current.contains(event.target as Node)
+      ) {
+        setIsProfileDropdownOpen(false);
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    document.addEventListener("mousedown", handleClickOutside);
+
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
+  const hiddenPaths = ["/login", "/register", "/profile"];
+
+  const shouldHideHeader = hiddenPaths.some(
+    (path) =>
+      location.pathname === path || location.pathname.startsWith(path + "/")
+  );
+
+  if (shouldHideHeader) {
+    return null;
+  }
 
   const servicesItems = [
     {
@@ -57,40 +104,6 @@ const Header = () => {
     { name: "Berita", href: "/news" },
     { name: "Bantuan", href: "/help" },
   ];
-
-  useEffect(() => {
-    const handleScroll = () => {
-      if (window.scrollY > 10) {
-        setIsScrolled(true);
-      } else {
-        setIsScrolled(false);
-      }
-    };
-
-    const handleClickOutside = (event: MouseEvent) => {
-      if (
-        dropdownRef.current &&
-        !dropdownRef.current.contains(event.target as Node)
-      ) {
-        setIsServicesDropdownOpen(false);
-      }
-
-      if (
-        profileDropdownRef.current &&
-        !profileDropdownRef.current.contains(event.target as Node)
-      ) {
-        setIsProfileDropdownOpen(false);
-      }
-    };
-
-    window.addEventListener("scroll", handleScroll);
-    document.addEventListener("mousedown", handleClickOutside);
-
-    return () => {
-      window.removeEventListener("scroll", handleScroll);
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, []);
 
   const handleOrderTicket = () => {
     navigate("/booking");
@@ -134,12 +147,7 @@ const Header = () => {
   };
 
   const handleLogout = () => {
-    // Clear remember me data (jika ada)
-    localStorage.removeItem("rememberMe");
-    localStorage.removeItem("rememberedEmail");
-    localStorage.removeItem("rememberedPassword");
-
-    // Logout dari context
+    // Logout dari context (akan clear semua storage)
     logout();
 
     // Reset state
@@ -168,11 +176,21 @@ const Header = () => {
   );
 
   // Generate avatar URL using UI Avatars
-  const getAvatarUrl = (name: string) => {
+  const getAvatarUrl = (name: string | null) => {
     const displayName = name || "User";
     return `https://ui-avatars.com/api/?name=${encodeURIComponent(
       displayName
     )}&background=orange&color=fff&size=128&bold=true&rounded=true`;
+  };
+
+  // Get user display name
+  const getUserDisplayName = () => {
+    return userData?.name || "User";
+  };
+
+  // Get user email
+  const getUserEmail = () => {
+    return userData?.email || "";
   };
 
   return (
@@ -313,7 +331,7 @@ const Header = () => {
                   }`}
                 >
                   <img
-                    src={getAvatarUrl(userData.name)}
+                    src={getAvatarUrl(userData?.name || null)}
                     alt="Profile"
                     className="w-8 h-8 rounded-full border-2 border-orange-500"
                   />
@@ -330,16 +348,16 @@ const Header = () => {
                     <div className="p-4 border-b border-gray-100">
                       <div className="flex items-center space-x-3">
                         <img
-                          src={getAvatarUrl(userData.name)}
+                          src={getAvatarUrl(userData?.name || null)}
                           alt="Profile"
                           className="w-12 h-12 rounded-full border-2 border-orange-500"
                         />
                         <div className="flex-1 min-w-0">
                           <div className="font-semibold text-gray-900 truncate">
-                            {userData.name}
+                            {getUserDisplayName()}
                           </div>
                           <div className="text-sm text-gray-500 truncate">
-                            {userData.email}
+                            {getUserEmail()}
                           </div>
                         </div>
                       </div>
@@ -466,16 +484,16 @@ const Header = () => {
                   <div className="space-y-2">
                     <div className="flex items-center space-x-3 p-3 bg-orange-50 rounded-lg">
                       <img
-                        src={getAvatarUrl(userData.name)}
+                        src={getAvatarUrl(userData?.name || null)}
                         alt="Profile"
                         className="w-10 h-10 rounded-full border-2 border-orange-500"
                       />
                       <div className="flex-1 min-w-0">
                         <div className="font-semibold text-gray-900 text-sm truncate">
-                          {userData.name}
+                          {getUserDisplayName()}
                         </div>
                         <div className="text-xs text-gray-500 truncate">
-                          {userData.email}
+                          {getUserEmail()}
                         </div>
                       </div>
                     </div>

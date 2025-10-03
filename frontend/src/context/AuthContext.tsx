@@ -8,7 +8,7 @@ interface UserData {
 
 interface AuthContextType {
   isLoggedIn: boolean;
-  userData: UserData;
+  userData: UserData | null;
   login: (token: string, user: UserData) => void;
   logout: () => void;
 }
@@ -19,28 +19,65 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [userData, setUserData] = useState<UserData>({ name: "", email: "" });
+  const [userData, setUserData] = useState<UserData | null>(null);
 
-  // Check token on app start
+  // Check token and user data on app start AND on storage changes
   useEffect(() => {
-    const token = sessionStorage.getItem("authToken");
-    if (token) {
-      // Verify token dengan backend (optional)
-      setIsLoggedIn(true);
-      // Anda bisa fetch user data dari endpoint /me di sini
-    }
+    const checkAuthStatus = () => {
+      const token = sessionStorage.getItem("authToken");
+      const storedUserData = localStorage.getItem("userData");
+
+      if (token && storedUserData) {
+        try {
+          const user = JSON.parse(storedUserData);
+          setIsLoggedIn(true);
+          setUserData(user);
+        } catch (error) {
+          console.error("Error parsing stored user data:", error);
+          // Clear invalid data
+          sessionStorage.removeItem("authToken");
+          localStorage.removeItem("userData");
+          setIsLoggedIn(false);
+          setUserData(null);
+        }
+      } else {
+        setIsLoggedIn(false);
+        setUserData(null);
+      }
+    };
+
+    // Check initial status
+    checkAuthStatus();
+
+    // Listen for storage changes (for cross-tab sync)
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === "authToken" || e.key === "userData") {
+        checkAuthStatus();
+      }
+    };
+
+    window.addEventListener("storage", handleStorageChange);
+
+    return () => {
+      window.removeEventListener("storage", handleStorageChange);
+    };
   }, []);
 
   const login = (token: string, user: UserData) => {
     sessionStorage.setItem("authToken", token);
+    localStorage.setItem("userData", JSON.stringify(user));
     setIsLoggedIn(true);
     setUserData(user);
   };
 
   const logout = () => {
     sessionStorage.removeItem("authToken");
+    localStorage.removeItem("userData");
+    localStorage.removeItem("rememberMe");
+    localStorage.removeItem("rememberedEmail");
+    localStorage.removeItem("rememberedPassword");
     setIsLoggedIn(false);
-    setUserData({ name: "", email: "" });
+    setUserData(null);
   };
 
   return (

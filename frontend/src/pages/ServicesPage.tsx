@@ -134,6 +134,8 @@ const ServicesPage = () => {
     }
   };
 
+  // getFacilityIcon removed from usage - kept in file in case we reuse later
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Hero Section */}
