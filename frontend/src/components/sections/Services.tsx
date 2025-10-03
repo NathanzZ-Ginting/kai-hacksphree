@@ -59,45 +59,54 @@ const Services = () => {
           {services.map((service, index) => (
             <div
               key={index}
-              className="bg-white rounded-xl shadow-sm hover:shadow-md transition-all duration-300 p-6 group cursor-pointer relative overflow-hidden"
+              className="bg-white rounded-xl shadow-sm hover:shadow-lg hover:scale-105 transition-all duration-300 p-6 group cursor-pointer relative overflow-hidden border border-gray-100 hover:border-red-100"
+              onClick={() => handleServiceClick(service.href)}
             >
-              <div className="w-full flex items-center justify-center mb-4">
-                {service.icon === "image" ? (
-                  <img
-                    src={service.image}
-                    alt={service.title}
-                    className="w-full object-contain"
-                  />
-                ) : (
-                  <User className="h-6 w-6 group-hover:text-white" />
-                )}
-              </div>
+              {/* Gradient overlay on hover */}
+              <div className="absolute inset-0 bg-gradient-to-br from-white to-gray-50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-xl"></div>
 
-              <h3 className="text-xl font-semibold text-gray-900 mb-3">
-                {service.title}
-              </h3>
+              <div className="relative z-10">
+                <div className="w-full flex items-center justify-center mb-4">
+                  {service.icon === "image" ? (
+                    <div className="overflow-hidden rounded-lg">
+                      <img
+                        src={service.image}
+                        alt={service.title}
+                        className="w-full object-contain"
+                      />
+                    </div>
+                  ) : (
+                    <div className="p-3 bg-red-50 rounded-full group-hover:bg-red-100 transition-colors duration-300">
+                      <User className="h-6 w-6 text-red-500" />
+                    </div>
+                  )}
+                </div>
 
-              <p className="text-gray-600 mb-4">{service.description}</p>
+                <h3 className="text-xl font-semibold text-gray-900 mb-3 group-hover:text-red-600 transition-colors duration-300">
+                  {service.title}
+                </h3>
 
-              <ul className="space-y-2 mb-12">
-                {service.features.map((feature, idx) => (
-                  <li
-                    key={idx}
-                    className="flex items-center text-sm text-gray-500"
-                  >
-                    <div className="w-1.5 h-1.5 bg-red-500 rounded-full mr-2"></div>
-                    {feature}
-                  </li>
-                ))}
-              </ul>
+                <p className="text-gray-600 mb-4 group-hover:text-gray-700 transition-colors duration-300">
+                  {service.description}
+                </p>
 
-              <div className="absolute bottom-0 left-0 right-0 p-6 bg-white transform translate-y-full group-hover:translate-y-0 transition-transform duration-300 cursor-pointer">
-                <button
-                  onClick={() => handleServiceClick(service.href)}
-                  className="w-full bg-red-500 hover:bg-red-600 text-white py-3 px-4 rounded-lg font-medium transition-colors duration-200 cursor-pointer"
-                >
-                  Selengkapnya
-                </button>
+                <ul className="space-y-2 mb-6">
+                  {service.features.map((feature, idx) => (
+                    <li
+                      key={idx}
+                      className="flex items-center text-sm text-gray-500 group-hover:text-gray-600 transition-colors duration-300"
+                    >
+                      <div className="w-1.5 h-1.5 bg-red-500 rounded-full mr-2 group-hover:bg-red-600 transition-colors duration-300"></div>
+                      {feature}
+                    </li>
+                  ))}
+                </ul>
+
+                <div className="pt-4 border-t border-gray-100 group-hover:border-red-100 transition-colors duration-300">
+                  <button className="w-full bg-red-500 hover:bg-red-600 text-white py-3 px-4 rounded-lg font-medium transition-all duration-200 transform group-hover:scale-[1.02] cursor-pointer shadow-sm hover:shadow-md">
+                    Selengkapnya
+                  </button>
+                </div>
               </div>
             </div>
           ))}
