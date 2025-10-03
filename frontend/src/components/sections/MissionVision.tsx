@@ -17,11 +17,11 @@ const MissionVision = () => {
   };
 
   return (
-    <section className="py-24 bg-gradient-to-br from-white to-gray-50">
+    <section className="py-24 bg-gradient-to-br from-orange-50 via-red-50 to-amber-50">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
-          <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
-            Visi & <span className="text-red-600">Misi</span> Kami
+          <h2 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-orange-600 to-red-600 bg-clip-text text-transparent mb-4">
+            Visi & <span className="bg-gradient-to-r from-red-600 to-amber-600 bg-clip-text text-transparent">Misi</span> Kami
           </h2>
           <p className="text-xl text-gray-600 max-w-2xl mx-auto">
             Prinsip-prinsip utama yang menjadi pedoman dalam setiap langkah perjalanan kami
@@ -35,7 +35,7 @@ const MissionVision = () => {
               onClick={() => setActiveTab('vision')}
               className={`px-8 py-4 rounded-xl font-semibold text-lg transition-all duration-300 ${
                 activeTab === 'vision'
-                  ? 'bg-gradient-to-r from-red-600 to-orange-600 text-white shadow-md'
+                  ? 'bg-gradient-to-r from-orange-600 to-red-600 text-white shadow-md'
                   : 'text-gray-600 hover:text-gray-900'
               }`}
             >
@@ -45,7 +45,7 @@ const MissionVision = () => {
               onClick={() => setActiveTab('mission')}
               className={`px-8 py-4 rounded-xl font-semibold text-lg transition-all duration-300 ${
                 activeTab === 'mission'
-                  ? 'bg-gradient-to-r from-red-600 to-orange-600 text-white shadow-md'
+                  ? 'bg-gradient-to-r from-orange-600 to-red-600 text-white shadow-md'
                   : 'text-gray-600 hover:text-gray-900'
               }`}
             >
@@ -60,13 +60,13 @@ const MissionVision = () => {
             {/* Icon Side */}
             <div className={`p-12 flex items-center justify-center transition-all duration-500 ${
               activeTab === 'vision' 
-                ? 'bg-gradient-to-br from-red-50 to-orange-50' 
-                : 'bg-gradient-to-br from-blue-50 to-indigo-50'
+                ? 'bg-gradient-to-br from-orange-50 to-red-50' 
+                : 'bg-gradient-to-br from-red-50 to-amber-50'
             }`}>
               <div className={`w-32 h-32 rounded-3xl flex items-center justify-center transition-all duration-300 ${
                 activeTab === 'vision' 
-                  ? 'bg-gradient-to-br from-red-500 to-orange-500 shadow-lg shadow-red-500/30' 
-                  : 'bg-gradient-to-br from-blue-500 to-indigo-500 shadow-lg shadow-blue-500/30'
+                  ? 'bg-gradient-to-br from-orange-500 to-red-500 shadow-lg shadow-orange-500/30' 
+                  : 'bg-gradient-to-br from-red-500 to-amber-500 shadow-lg shadow-red-500/30'
               }`}>
                 <div className="text-white">
                   {activeTab === 'vision' ? vision.icon : mission.icon}
@@ -78,7 +78,7 @@ const MissionVision = () => {
             <div className="p-12">
               <div className="transition-all duration-500">
                 <h3 className={`text-3xl font-bold mb-6 ${
-                  activeTab === 'vision' ? 'text-red-600' : 'text-blue-600'
+                  activeTab === 'vision' ? 'bg-gradient-to-r from-orange-600 to-red-600 bg-clip-text text-transparent' : 'bg-gradient-to-r from-red-600 to-amber-600 bg-clip-text text-transparent'
                 }`}>
                   {activeTab === 'vision' ? vision.title : mission.title}
                 </h3>
@@ -92,17 +92,17 @@ const MissionVision = () => {
 
         {/* Stats Section */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-16">
-          <div className="bg-white rounded-2xl p-8 text-center shadow-lg border border-gray-100 hover:shadow-xl transition-all duration-300">
-            <div className="text-4xl font-bold text-red-600 mb-2">100+</div>
-            <div className="text-gray-600">Kota Terhubung</div>
+          <div className="bg-white rounded-2xl p-8 text-center shadow-lg border border-orange-100 hover:shadow-xl transition-all duration-300 hover:border-orange-200">
+            <div className="text-4xl font-bold bg-gradient-to-r from-orange-600 to-red-600 bg-clip-text text-transparent mb-2">100+</div>
+            <div className="text-gray-600 font-medium">Kota Terhubung</div>
           </div>
-          <div className="bg-white rounded-2xl p-8 text-center shadow-lg border border-gray-100 hover:shadow-xl transition-all duration-300">
-            <div className="text-4xl font-bold text-red-600 mb-2">50JT+</div>
-            <div className="text-gray-600">Penumpang Tahunan</div>
+          <div className="bg-white rounded-2xl p-8 text-center shadow-lg border border-red-100 hover:shadow-xl transition-all duration-300 hover:border-red-200">
+            <div className="text-4xl font-bold bg-gradient-to-r from-red-600 to-amber-600 bg-clip-text text-transparent mb-2">50JT+</div>
+            <div className="text-gray-600 font-medium">Penumpang Tahunan</div>
           </div>
-          <div className="bg-white rounded-2xl p-8 text-center shadow-lg border border-gray-100 hover:shadow-xl transition-all duration-300">
-            <div className="text-4xl font-bold text-red-600 mb-2">99%</div>
-            <div className="text-gray-600">Kepuasan Pelanggan</div>
+          <div className="bg-white rounded-2xl p-8 text-center shadow-lg border border-amber-100 hover:shadow-xl transition-all duration-300 hover:border-amber-200">
+            <div className="text-4xl font-bold bg-gradient-to-r from-amber-600 to-orange-600 bg-clip-text text-transparent mb-2">99%</div>
+            <div className="text-gray-600 font-medium">Kepuasan Pelanggan</div>
           </div>
         </div>
       </div>

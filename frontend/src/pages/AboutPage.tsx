@@ -8,7 +8,7 @@ import ContactInfo from "../components/sections/ContactInfo";
 
 const AboutPage = () => {
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
+    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-red-50 to-amber-50">
       <AboutHero />
       <CompanyHistory />
       <MissionVision />
