@@ -115,6 +115,12 @@ const BookingPage = () => {
 
   const API_URL = import.meta.env.API_URL || "http://localhost:3000/api/v1";
 
+  const checkIsLoggedIn = (): boolean => {
+    const token = sessionStorage.getItem("token");
+    const userData = localStorage.getItem("userData");
+    return !!(token && userData);
+  };
+
   // Fetch stations
   useEffect(() => {
     const fetchStations = async () => {
@@ -246,7 +252,15 @@ const BookingPage = () => {
   };
 
   const handleBookTicket = (ticket: Ticket) => {
-    navigate(`/booking/detail`, { state: { ticket } });
+    // Cek apakah user sudah login
+    if (!checkIsLoggedIn()) {
+      // Jika belum login, redirect ke halaman login
+      navigate("/login");
+      return;
+    }
+
+    // Jika sudah login, redirect ke halaman detail tiket dengan UUID
+    navigate(`/booking/detail/${ticket.uuid}`, { state: { ticket } });
   };
 
   const formatTime = (dateString: string) => {

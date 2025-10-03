@@ -1,4 +1,4 @@
-// App.tsx - Update Routes
+// App.tsx - Updated Routes
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Header from "./components/layout/Header";
 import Footer from "./components/layout/Footer";
@@ -26,8 +26,12 @@ function App() {
           <Header />
           <main>
             <Routes>
+              {/* Auth Routes */}
               <Route path="/login" element={<LoginPage />} />
               <Route path="/register" element={<RegisterPage />} />
+              <Route path="/profile" element={<ProfilePage />} />
+
+              {/* Public Routes */}
               <Route path="/" element={<HomePage />} />
               <Route path="/about" element={<AboutPage />} />
               <Route path="/services" element={<ServicesPage />} />
@@ -46,9 +50,13 @@ function App() {
               <Route path="/news" element={<NewsPage />} />
               <Route path="/help" element={<HelpPage />} />
               <Route path="/article/:id" element={<ArticleDetailPage />} />
+
+              {/* Booking Routes - HARUS diurutkan dari yang lebih spesifik ke umum */}
+              <Route
+                path="/booking/detail/:uuid"
+                element={<TicketDetailPage />}
+              />
               <Route path="/booking" element={<BookingPage />} />
-              <Route path="/booking/detail/:uuid" element={<TicketDetailPage />} />
-              <Route path="/profile" element={<ProfilePage />} />
             </Routes>
           </main>
           <Footer />
