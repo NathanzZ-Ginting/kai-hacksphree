@@ -1,6 +1,7 @@
+import { success } from "zod";
 import { TrainSeat } from "../../../common/interface/train-seats-interface";
 import { Train } from "../../../common/interface/trains-interface";
-import { createTrainSeat, getAllTrainSeats, getTrainSeatByUuid } from "../../../common/repositories/train-seats-repository";
+import { createTrainSeat, getAllTrainSeats, getTrainSeatByUuid, getTrainSeatsByTrainId } from "../../../common/repositories/train-seats-repository";
 import { createTrain, getAllTrains, getTrainByUuid } from "../../../common/repositories/trains-repository";
 
 interface seatsResult {
@@ -35,11 +36,43 @@ const fetchTrainSeats = async (): Promise<seatsResult> => {
   }
 };
 
-const fetchTrainSeatsByUuid = async (uuid: string): Promise<seatsResult> => {
-  try {
-    const trainSeats = await getTrainSeatByUuid(uuid);
+// const fetchTrainSeatsByUuid = async (uuid: string): Promise<seatsResult> => {
+//   try {
+//     const trainSeats = await getTrainSeatByUuid(uuid);
 
-    if (!trainSeats) {
+//     if (!trainSeats) {
+//       return {
+//         success: false,
+//         message: `Train seats dengan uuid ${uuid} tidak ditemukan!`,
+//       };
+//     }
+
+//     return {
+//       success: true,
+//       message: "Train seats ditemukan!",
+//       data: trainSeats as TrainSeat,
+//     };
+//   } catch (error) {
+//     return {
+//       success: false,
+//       message: "Terjadi kesalahan!",
+//       errors: { [0]: error },
+//     };
+//   }
+// };
+
+const fetchSeatByTrainUuid = async (uuid: string): Promise<seatsResult> => {
+  try{
+    const trainSeat = await getTrainSeatsByTrainId(uuid)
+
+    if(trainSeat.length < 1){
+      return {
+        success: false,
+        message: "Kursi kereta belom tersedia!"
+      } as seatsResult
+    }
+
+    if (!trainSeat) {
       return {
         success: false,
         message: `Train seats dengan uuid ${uuid} tidak ditemukan!`,
@@ -48,17 +81,17 @@ const fetchTrainSeatsByUuid = async (uuid: string): Promise<seatsResult> => {
 
     return {
       success: true,
-      message: "Train seats ditemukan!",
-      data: trainSeats as TrainSeat,
-    };
-  } catch (error) {
+      message: "Kursi kereta ditemukan!",
+      data: trainSeat
+    } as seatsResult
+  }catch(error) {
     return {
       success: false,
       message: "Terjadi kesalahan!",
       errors: { [0]: error },
     };
   }
-};
+}
 
 const addTrainSeats = async (trainSeats: TrainSeat): Promise<seatsResult> => {
   try {
@@ -78,4 +111,4 @@ const addTrainSeats = async (trainSeats: TrainSeat): Promise<seatsResult> => {
   }
 };
 
-export {fetchTrainSeats, fetchTrainSeatsByUuid, addTrainSeats}
+export {fetchTrainSeats, fetchSeatByTrainUuid, addTrainSeats}

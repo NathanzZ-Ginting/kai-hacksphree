@@ -2,6 +2,8 @@ import { eq, like, and, desc, asc } from "drizzle-orm";
 import { db } from "../../db/index";
 import { trainSeats } from "../../db/schema/train-seats";
 import { TrainSeat } from "../interface/train-seats-interface";
+import { categories, trains } from "../../db/schema";
+import { uuid } from "zod";
 
 // Get all train seats
 export const getAllTrainSeats = async (): Promise<TrainSeat[]> => {
@@ -29,8 +31,15 @@ export const getTrainSeatsByTrainId = async (
   trainId: string
 ): Promise<TrainSeat[]> => {
   const collection = await db
-    .select()
+    .select({
+      uuid: trainSeats.uuid,
+      trainId: trains.name,
+      nameSeat: trainSeats.nameSeat,
+      categoryTrain: categories.name
+    })
     .from(trainSeats)
+    .innerJoin(trains, eq(trainSeats.trainId, trains.uuid))
+    .innerJoin(categories, eq(trains.categoryId, categories.uuid))
     .where(eq(trainSeats.trainId, trainId))
     .orderBy(asc(trainSeats.nameSeat));
   return collection as unknown as TrainSeat[];
