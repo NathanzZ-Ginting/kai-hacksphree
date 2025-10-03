@@ -5,9 +5,6 @@ import {
   Bus,
   Package,
   Users,
-  Wifi,
-  Utensils,
-  Zap,
 } from "lucide-react";
 
 const ServicesPage = () => {
@@ -119,20 +116,6 @@ const ServicesPage = () => {
       priceRange: "Rp 3.000 - Rp 10.000",
     },
   ];
-
-  const getFacilityIcon = (facility: string) => {
-    switch (facility.toLowerCase()) {
-      case "wifi":
-        return <Wifi className="h-4 w-4" />;
-      case "makanan included":
-      case "snack":
-        return <Utensils className="h-4 w-4" />;
-      case "power outlet":
-        return <Zap className="h-4 w-4" />;
-      default:
-        return <div className="w-4 h-4 bg-gray-300 rounded-full"></div>;
-    }
-  };
 
   // getFacilityIcon removed from usage - kept in file in case we reuse later
 
