@@ -109,7 +109,7 @@ const Footer = () => {
 
           {/* Contact Info */}
           <div>
-            <h3 className="font-semibold mb-4">Kontak</h3>
+            <h3 className="font-semibold mb-4 text-orange-500">Kontak</h3>
             <ul className="space-y-2 text-gray-400">
               <li className="flex items-center">
                 <Mail className="h-4 w-4 mr-2" />
