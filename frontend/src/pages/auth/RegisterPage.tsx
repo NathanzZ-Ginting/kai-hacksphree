@@ -1,8 +1,9 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Eye, EyeOff, Train } from "lucide-react";
 import { toast } from "sonner";
 import axios from "axios";
+import { GoogleReCaptchaProvider, useGoogleReCaptcha } from "react-google-recaptcha-v3";
 
 // Interface untuk response API
 interface RegisterResponse {
@@ -24,7 +25,7 @@ interface RegisterResponse {
   };
 }
 
-const RegisterPage = () => {
+const RegisterForm = () => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -34,11 +35,14 @@ const RegisterPage = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const navigate = useNavigate();
+  
+  const { executeRecaptcha } = useGoogleReCaptcha();
 
   const registerToBackend = async (
     name: string,
     email: string,
-    password: string
+    password: string,
+    recaptchaToken: string
   ): Promise<RegisterResponse> => {
     const API_URL =
       import.meta.env.VITE_API_URL || "http://localhost:3000/api/v1";
@@ -50,6 +54,7 @@ const RegisterPage = () => {
           name,
           email,
           password,
+          captchaToken: recaptchaToken, // kirim token ke backend
         },
         {
           headers: {
@@ -97,8 +102,14 @@ const RegisterPage = () => {
         throw new Error("Format email tidak valid");
       }
 
+      // Ambil token captcha
+      if (!executeRecaptcha) {
+        throw new Error("reCAPTCHA belum siap");
+      }
+      const recaptchaToken = await executeRecaptcha("register");
+
       // Register ke backend
-      const registerResult = await registerToBackend(name, email, password);
+      const registerResult = await registerToBackend(name, email, password, recaptchaToken);
 
       if (!registerResult.success) {
         // Tampilkan toast error untuk response gagal
@@ -406,6 +417,14 @@ const RegisterPage = () => {
         </div>
       </div>
     </div>
+  );
+};
+
+const RegisterPage = () => {
+  return (
+    <GoogleReCaptchaProvider reCaptchaKey={import.meta.env.VITE_RECAPTCHA_SITE_KEY}>
+      <RegisterForm />
+    </GoogleReCaptchaProvider>
   );
 };
 
