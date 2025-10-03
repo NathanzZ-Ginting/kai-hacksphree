@@ -1,5 +1,13 @@
 import midtransClient from "midtrans-client";
-import { createPayment } from "../../../common/repositories/payments-repository.ts";
+import {
+  createPayment,
+  getPaymentByInvoicePayment,
+} from "../../../common/repositories/payments-repository.ts";
+import { Payment } from "../../../common/interface/payments-interface.ts";
+import {
+  getOrderTicketByInvoiceNumber,
+  updateOrderTicket,
+} from "../../../common/repositories/order-tickets-repository.ts";
 
 interface checkResult {
   success: boolean;
@@ -36,15 +44,32 @@ export const checkStatusService = async (
       };
     }
 
-    var data = {
-      orderId: res.transaction_id,
-      invoicePayment: res.order_id,
-      amount: res.gross_amount,
-      status: res.transaction_status,
-      method: res.payment_type,
-    };
+    const order = await getOrderTicketByInvoiceNumber(res.order_id);
 
-    await createPayment(data)
+    if (res.transaction_status === "settlement") {
+      await updateOrderTicket(order!.uuid, {
+        status: "Paid",
+      });
+
+      // Check if payment already exists
+      const existingPayment = await getPaymentByInvoicePayment(res.order_id);
+
+      if (!existingPayment) {
+        var data = {
+          orderId: order!.uuid,
+          invoicePayment: res.order_id,
+          amount: parseInt(res.gross_amount) || 0,
+          status: "success",
+          method: res.payment_type,
+        };
+
+        await createPayment(data);
+      }
+    } else {
+      await updateOrderTicket(order!.uuid, {
+        status: res.transaction_status,
+      });
+    }
 
     return {
       success: true,
