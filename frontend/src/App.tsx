@@ -13,6 +13,7 @@ import HelpPage from "./pages/HelpPage";
 import BookingPage from "./pages/BookingPage";
 import ArticleDetailPage from "./pages/ArticleDetailPage";
 import LoginPage from "./pages/auth/LoginPage";
+import RegisterPage from "./pages/auth/RegisterPage";
 import ProfilePage from "./pages/auth/ProfilePage";
 import { AuthProvider } from "./context/AuthContext";
 
@@ -25,6 +26,7 @@ function App() {
           <main>
             <Routes>
               <Route path="/login" element={<LoginPage />} />
+              <Route path="/register" element={<RegisterPage />} />
               <Route path="/" element={<HomePage />} />
               <Route path="/about" element={<AboutPage />} />
               <Route path="/services" element={<ServicesPage />} />
