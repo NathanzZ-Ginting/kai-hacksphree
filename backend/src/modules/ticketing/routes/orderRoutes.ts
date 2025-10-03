@@ -1,5 +1,5 @@
 import { Hono } from "hono";
-import OrderTicketController from "../controllers/order-ticket-controller.ts";
+import OrderTicketController from "../controllers/order-ticket-controller";
 
 const orderRoute = new Hono()
 

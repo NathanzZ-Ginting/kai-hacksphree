@@ -1,5 +1,5 @@
-import { Station } from "../../../common/interface/stations-interface.ts";
-import { createStation, getAllStations, getStationByUuid } from "../../../common/repositories/stations-repository.ts";
+import { Station } from "../../../common/interface/stations-interface";
+import { createStation, getAllStations, getStationByUuid } from "../../../common/repositories/stations-repository";
 
 interface stationResult {
   success: boolean;

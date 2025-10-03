@@ -1,6 +1,6 @@
-import { db } from "../index.ts";
-import { trainSeats } from "../schema/train-seats.ts";
-import { trains } from "../schema/trains.ts";
+import { db } from "../index";
+import { trainSeats } from "../schema/train-seats";
+import { trains } from "../schema/trains";
 
 export async function seedTrainSeats() {
   console.log("🪑 Seeding train seats...");

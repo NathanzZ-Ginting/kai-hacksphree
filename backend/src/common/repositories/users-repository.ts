@@ -1,7 +1,7 @@
 import { eq } from "drizzle-orm";
-import { db } from "../../db/index.ts";
-import { users } from "../../db/schema.ts";
-import { User } from "../interface/users-interface.ts";
+import { db } from "../../db/index";
+import { users } from "../../db/schema";
+import { User } from "../interface/users-interface";
 
 export const getAllUsers = async (): Promise<User[]> => {
   var collection = await db.select().from(users);

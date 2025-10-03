@@ -1,7 +1,7 @@
 import { Hono } from "hono";
-import { fetchCategory, fetchCategoryByUuid } from "../services/category-service.ts";
-import { ErrorsRes, SuccessRes } from "../../../common/utils/api-response.ts";
-import { fetchStation, fetchStationByUuid } from "../services/station-service.ts";
+import { fetchCategory, fetchCategoryByUuid } from "../services/category-service";
+import { ErrorsRes, SuccessRes } from "../../../common/utils/api-response";
+import { fetchStation, fetchStationByUuid } from "../services/station-service";
 
 const stationController = new Hono()
 

@@ -1,12 +1,12 @@
-import { db } from "../index.ts";
-import { seedUsers } from "./users-seeder.ts";
-import { seedCategories } from "./categories-seeder.ts";
-import { seedLocations } from "./locations-seeder.ts";
-import { seedStations } from "./stations-seeder.ts";
-import { seedTrains } from "./trains-seeder.ts";
-import { seedTrainSeats } from "./train-seats-seeder.ts";
-import { seedSchedules } from "./schedules-seeder.ts";
-import { seedTickets } from "./tickets-seeder.ts";
+import { db } from "../index";
+import { seedUsers } from "./users-seeder";
+import { seedCategories } from "./categories-seeder";
+import { seedLocations } from "./locations-seeder";
+import { seedStations } from "./stations-seeder";
+import { seedTrains } from "./trains-seeder";
+import { seedTrainSeats } from "./train-seats-seeder";
+import { seedSchedules } from "./schedules-seeder";
+import { seedTickets } from "./tickets-seeder";
 
 async function runSeeders() {
   try {
@@ -44,7 +44,7 @@ async function runSeeders() {
 }
 
 // Run seeders if this file is executed directly
-if (import.meta.main) {
+if (require.main === module) {
   runSeeders();
 }
 

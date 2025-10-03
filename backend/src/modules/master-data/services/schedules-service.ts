@@ -1,11 +1,11 @@
-import { Schedule } from "../../../common/interface/schedules-interface.ts";
+import { Schedule } from "../../../common/interface/schedules-interface";
 import {
   createSchedule,
   filterByOriginAndDestination,
   getAllSchedules,
   getScheduleByUuid,
-} from "../../../common/repositories/schedules-repository.ts";
-import { getStationByUuid } from "../../../common/repositories/stations-repository.ts";
+} from "../../../common/repositories/schedules-repository";
+import { getStationByUuid } from "../../../common/repositories/stations-repository";
 
 interface schedulesResult {
   success: boolean;

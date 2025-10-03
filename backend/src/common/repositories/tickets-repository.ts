@@ -1,14 +1,14 @@
 import { eq, and, gte, lte, desc, asc } from "drizzle-orm";
 import { alias } from "drizzle-orm/pg-core";
-import { db } from "../../db/index.ts";
+import { db } from "../../db/index";
 import {
   schedules,
   stations,
   tickets,
   trains,
   categories,
-} from "../../db/schema.ts";
-import { Ticket } from "../interface/tickets-interface.ts";
+} from "../../db/schema";
+import { Ticket } from "../interface/tickets-interface";
 
 // Get all tickets
 export const getAllTickets = async (): Promise<Ticket[]> => {

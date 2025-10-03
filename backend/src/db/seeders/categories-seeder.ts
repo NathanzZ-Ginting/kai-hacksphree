@@ -1,5 +1,5 @@
-import { db } from "../index.ts";
-import { categories } from "../schema/categories.ts";
+import { db } from "../index";
+import { categories } from "../schema/categories";
 
 export async function seedCategories() {
   const categoryData = [

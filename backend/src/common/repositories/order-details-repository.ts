@@ -1,7 +1,7 @@
 import { eq, like, and, desc, asc } from "drizzle-orm";
-import { db } from "../../db/index.ts";
-import { orderDetails } from "../../db/schema.ts";
-import { OrderDetail } from "../interface/order-details-interface.ts";
+import { db } from "../../db/index";
+import { orderDetails } from "../../db/schema";
+import { OrderDetail } from "../interface/order-details-interface";
 
 // Get all order details
 export const getAllOrderDetails = async (): Promise<OrderDetail[]> => {

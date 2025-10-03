@@ -1,7 +1,7 @@
 import { Hono } from "hono";
-import { fetchCategory, fetchCategoryByUuid } from "../services/category-service.ts";
-import { ErrorsRes, SuccessRes } from "../../../common/utils/api-response.ts";
-import { fetchLocation, fetchLocationByCity, fetchLocationByUuid } from "../services/location-service.ts";
+import { fetchCategory, fetchCategoryByUuid } from "../services/category-service";
+import { ErrorsRes, SuccessRes } from "../../../common/utils/api-response";
+import { fetchLocation, fetchLocationByCity, fetchLocationByUuid } from "../services/location-service";
 
 const locationController = new Hono()
 

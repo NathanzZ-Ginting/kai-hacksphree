@@ -1,6 +1,6 @@
 import { Hono } from "hono";
-import { ErrorsRes, SuccessRes } from "../../../common/utils/api-response.ts";
-import { searchOrderTicketByInvoice } from "../services/order-ticket-service.ts";
+import { ErrorsRes, SuccessRes } from "../../../common/utils/api-response";
+import { searchOrderTicketByInvoice } from "../services/order-ticket-service";
 
 const orderTicketController = new Hono()
 

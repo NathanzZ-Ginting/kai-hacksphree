@@ -1,5 +1,5 @@
-import { Train } from "../../../common/interface/trains-interface.ts";
-import { createTrain, getAllTrains, getTrainByUuid } from "../../../common/repositories/trains-repository.ts";
+import { Train } from "../../../common/interface/trains-interface";
+import { createTrain, getAllTrains, getTrainByUuid } from "../../../common/repositories/trains-repository";
 
 interface trainResult {
   success: boolean;

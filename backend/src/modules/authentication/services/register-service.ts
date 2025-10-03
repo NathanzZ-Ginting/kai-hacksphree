@@ -1,8 +1,8 @@
 import {
   getUserByEmail,
   createUser,
-} from "../../../common/repositories/users-repository.ts";
-import { User } from "../../../common/interface/users-interface.ts";
+} from "../../../common/repositories/users-repository";
+import { User } from "../../../common/interface/users-interface";
 import bcrypt from "bcrypt";
 
 interface RegisterResult {

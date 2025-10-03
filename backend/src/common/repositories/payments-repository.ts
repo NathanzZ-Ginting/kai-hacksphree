@@ -1,7 +1,7 @@
 import { eq, like, and, desc, asc, sql } from "drizzle-orm";
-import { db } from "../../db/index.ts";
-import { payments } from "../../db/schema.ts";
-import { Payment } from "../interface/payments-interface.ts";
+import { db } from "../../db/index";
+import { payments } from "../../db/schema";
+import { Payment } from "../interface/payments-interface";
 
 // Get all payments
 export const getAllPayments = async (): Promise<Payment[]> => {

@@ -1,7 +1,7 @@
 import { eq, like, and, asc } from "drizzle-orm";
-import { db } from "../../db/index.ts";
-import { trains } from "../../db/schema.ts";
-import { Train } from "../interface/trains-interface.ts";
+import { db } from "../../db/index";
+import { trains } from "../../db/schema";
+import { Train } from "../interface/trains-interface";
 
 // Get all trains
 export const getAllTrains = async (): Promise<Train[]> => {

@@ -102,8 +102,14 @@ const RegisterForm = () => {
         throw new Error("Konfirmasi password tidak sesuai");
       }
 
-      if (password.length < 6) {
-        throw new Error("Password harus minimal 6 karakter");
+      if (password.length < 8) {
+        throw new Error("Password harus minimal 8 karakter dengan huruf besar, huruf kecil, dan angka");
+      }
+
+      // Enhanced password validation to match backend Layer 5
+      const passwordPattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
+      if (!passwordPattern.test(password)) {
+        throw new Error("Password harus mengandung minimal 1 huruf besar, 1 huruf kecil, dan 1 angka");
       }
 
       // Validasi email format
@@ -249,10 +255,10 @@ const RegisterForm = () => {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 focus:outline-none text-gray-700 transition-colors pr-12"
-                  placeholder="masukkan kata sandi (min. 6 karakter)"
+                  placeholder="masukkan kata sandi"
                   required
                   disabled={isLoading}
-                  minLength={6}
+                  minLength={8}
                 />
                 <button
                   type="button"
@@ -267,6 +273,9 @@ const RegisterForm = () => {
                   )}
                 </button>
               </div>
+              <p className="text-xs text-gray-500 mt-1">
+                Min. 8 karakter, harus ada huruf besar, huruf kecil, dan angka
+              </p>
             </div>
 
             {/* Confirm Password Field */}
@@ -287,7 +296,7 @@ const RegisterForm = () => {
                   placeholder="konfirmasi kata sandi Anda"
                   required
                   disabled={isLoading}
-                  minLength={6}
+                  minLength={8}
                 />
                 <button
                   type="button"

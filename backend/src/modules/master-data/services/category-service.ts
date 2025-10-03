@@ -1,5 +1,5 @@
-import { Category } from "../../../common/interface/categories-interface.ts";
-import { createCategory, getAllCategories, getCategoryByUuid } from "../../../common/repositories/categories-repository.ts";
+import { Category } from "../../../common/interface/categories-interface";
+import { createCategory, getAllCategories, getCategoryByUuid } from "../../../common/repositories/categories-repository";
 
 interface categoryResult {
   success: boolean;

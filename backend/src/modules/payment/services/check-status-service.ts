@@ -2,12 +2,12 @@ import midtransClient from "midtrans-client";
 import {
   createPayment,
   getPaymentByInvoicePayment,
-} from "../../../common/repositories/payments-repository.ts";
-import { Payment } from "../../../common/interface/payments-interface.ts";
+} from "../../../common/repositories/payments-repository";
+import { Payment } from "../../../common/interface/payments-interface";
 import {
   getOrderTicketByInvoiceNumber,
   updateOrderTicket,
-} from "../../../common/repositories/order-tickets-repository.ts";
+} from "../../../common/repositories/order-tickets-repository";
 
 interface checkResult {
   success: boolean;

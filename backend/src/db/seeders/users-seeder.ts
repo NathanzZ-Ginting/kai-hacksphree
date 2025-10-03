@@ -1,5 +1,5 @@
-import { db } from "../index.ts";
-import { users } from "../schema/users.ts";
+import { db } from "../index";
+import { users } from "../schema/users";
 import bcrypt from "bcrypt";
 
 export async function seedUsers() {

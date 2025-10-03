@@ -1,11 +1,11 @@
 import { Hono } from "hono";
-import { ErrorsRes, SuccessRes } from "../../../common/utils/api-response.ts";
-import { authMiddleware } from "../middleware/auth-middleware.ts";
+import { ErrorsRes, SuccessRes } from "../../../common/utils/api-response";
+import { authMiddleware } from "../middleware/auth-middleware";
 import {
   getUserByUuid,
   updateUser,
-} from "../../../common/repositories/users-repository.ts";
-import { User } from "../../../common/interface/users-interface.ts";
+} from "../../../common/repositories/users-repository";
+import { User } from "../../../common/interface/users-interface";
 
 const UserController = new Hono();
 

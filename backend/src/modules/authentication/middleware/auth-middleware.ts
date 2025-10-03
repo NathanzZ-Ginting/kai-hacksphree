@@ -1,7 +1,7 @@
 import { Context, Next, MiddlewareHandler } from "hono";
 import { verify } from "hono/jwt";
-import { ErrorsRes } from "../../../common/utils/api-response.ts";
-import { getUserByUuid } from "../../../common/repositories/users-repository.ts";
+import { ErrorsRes } from "../../../common/utils/api-response";
+import { getUserByUuid } from "../../../common/repositories/users-repository";
 
 export interface AuthPayload {
   uuid: string;

@@ -1,5 +1,5 @@
-import { OrderTicket } from "../../../common/interface/order-tickets-interface.ts";
-import { searchOrderTicketsByInvoiceNumber } from "../../../common/repositories/order-tickets-repository.ts";
+import { OrderTicket } from "../../../common/interface/order-tickets-interface";
+import { searchOrderTicketsByInvoiceNumber } from "../../../common/repositories/order-tickets-repository";
 
 const searchOrderTicketByInvoice = async (invoice: string) => {
     try {

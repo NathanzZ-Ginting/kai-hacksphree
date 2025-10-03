@@ -1,5 +1,5 @@
-import { db } from "../index.ts";
-import { locations } from "../schema/locations.ts";
+import { db } from "../index";
+import { locations } from "../schema/locations";
 
 export async function seedLocations() {
   const locationData = [

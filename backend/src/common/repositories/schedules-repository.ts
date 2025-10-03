@@ -1,8 +1,8 @@
 import { eq, and, or, gte, lte, desc, asc, ilike } from "drizzle-orm";
 import { alias } from "drizzle-orm/pg-core";
-import { db } from "../../db/index.ts";
-import { schedules, stations, trains } from "../../db/schema.ts";
-import { Schedule } from "../interface/schedules-interface.ts";
+import { db } from "../../db/index";
+import { schedules, stations, trains } from "../../db/schema";
+import { Schedule } from "../interface/schedules-interface";
 
 // Get all schedules
 export const getAllSchedules = async (): Promise<Schedule[]> => {

@@ -1,9 +1,9 @@
-import { Ticket } from "../../../common/interface/tickets-interface.ts";
+import { Ticket } from "../../../common/interface/tickets-interface";
 import {
   createTicket,
   getAllTickets,
   getTicketByUuid,
-} from "../../../common/repositories/tickets-repository.ts";
+} from "../../../common/repositories/tickets-repository";
 
 interface ticketResult {
   success: boolean;

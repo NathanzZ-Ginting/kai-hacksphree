@@ -1,4 +1,4 @@
-import { Schedule } from "./schedules-interface.ts";
+import { Schedule } from "./schedules-interface";
 
 // Ticket interfaces
 export interface Ticket {

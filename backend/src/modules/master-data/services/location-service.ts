@@ -1,16 +1,16 @@
-import { Category } from "../../../common/interface/categories-interface.ts";
-import { Location } from "../../../common/interface/locations-interface.ts";
+import { Category } from "../../../common/interface/categories-interface";
+import { Location } from "../../../common/interface/locations-interface";
 import {
   createCategory,
   getAllCategories,
   getCategoryByUuid,
-} from "../../../common/repositories/categories-repository.ts";
+} from "../../../common/repositories/categories-repository";
 import {
   createLocation,
   getAllLocations,
   getLocationByCity,
   getLocationByUuid,
-} from "../../../common/repositories/locations-repository.ts";
+} from "../../../common/repositories/locations-repository";
 
 interface locationResult {
   success: boolean;

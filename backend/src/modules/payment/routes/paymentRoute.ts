@@ -1,5 +1,5 @@
 import { Hono } from "hono";
-import checkStatusController from "../controllers/check-status-controller.ts";
+import checkStatusController from "../controllers/check-status-controller";
 
 const paymentRoute = new Hono()
 

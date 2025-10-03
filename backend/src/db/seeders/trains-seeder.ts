@@ -1,6 +1,6 @@
-import { db } from "../index.ts";
-import { trains } from "../schema/trains.ts";
-import { categories } from "../schema/categories.ts";
+import { db } from "../index";
+import { trains } from "../schema/trains";
+import { categories } from "../schema/categories";
 
 export async function seedTrains() {
   // Get category UUIDs first

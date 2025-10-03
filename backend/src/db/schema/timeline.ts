@@ -1,5 +1,5 @@
 import { pgTable, timestamp, uuid, varchar } from "drizzle-orm/pg-core";
-import { orderTickets } from "./order-tickets.ts";
+import { orderTickets } from "./order-tickets";
 
 export const timeline = pgTable("timeline", {
   uuid: uuid("uuid").defaultRandom().primaryKey(),

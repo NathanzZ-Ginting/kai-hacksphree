@@ -2,12 +2,12 @@ import 'dotenv/config'
 import { Hono } from 'hono'
 import { serve } from '@hono/node-server'
 import client from 'prom-client'
-import authRoute from './modules/authentication/routes/auth-route.ts'
+import authRoute from './modules/authentication/routes/auth-route'
 import { logger } from 'hono/logger'
 import { cors } from 'hono/cors'
-import orderRoute from './modules/ticketing/routes/orderRoutes.ts'
-import masterDataRoute from './modules/master-data/routes/masterDataRoute.ts'
-import paymentRoute from './modules/payment/routes/paymentRoute.ts'
+import orderRoute from './modules/ticketing/routes/orderRoutes'
+import masterDataRoute from './modules/master-data/routes/masterDataRoute'
+import paymentRoute from './modules/payment/routes/paymentRoute'
 
 // Buat app Hono
 const app = new Hono()
@@ -17,7 +17,7 @@ app.use('*', cors({
   origin: ['http://localhost:5173', '*'],  // Allow frontend origin and any other origins for testing
   allowHeaders: ['Content-Type', 'Authorization'],
   allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  exposeHeaders: ['Content-Length'],
+  exposeHeaders: ['Content-Length', 'X-RateLimit-Limit', 'X-RateLimit-Remaining', 'X-RateLimit-Reset'],
   maxAge: 600,
   credentials: true,
 }))

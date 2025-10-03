@@ -1,6 +1,6 @@
 import { Hono } from "hono";
-import { checkStatusService } from "../services/check-status-service.ts";
-import { ErrorsRes, SuccessRes } from "../../../common/utils/api-response.ts";
+import { checkStatusService } from "../services/check-status-service";
+import { ErrorsRes, SuccessRes } from "../../../common/utils/api-response";
 
 const checkStatusController = new Hono();
 

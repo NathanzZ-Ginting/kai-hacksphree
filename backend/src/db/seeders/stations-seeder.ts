@@ -1,6 +1,6 @@
-import { db } from "../index.ts";
-import { stations } from "../schema/stations.ts";
-import { locations } from "../schema/locations.ts";
+import { db } from "../index";
+import { stations } from "../schema/stations";
+import { locations } from "../schema/locations";
 import { eq } from "drizzle-orm";
 
 export async function seedStations() {

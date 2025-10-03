@@ -1,7 +1,7 @@
-import { db } from "../index.ts";
-import { schedules } from "../schema/schedules.ts";
-import { trains } from "../schema/trains.ts";
-import { stations } from "../schema/stations.ts";
+import { db } from "../index";
+import { schedules } from "../schema/schedules";
+import { trains } from "../schema/trains";
+import { stations } from "../schema/stations";
 
 export async function seedSchedules() {
   console.log("🚂 Seeding schedules...");

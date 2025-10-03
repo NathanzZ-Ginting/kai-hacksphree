@@ -1,9 +1,9 @@
 import midtransClient from "midtrans-client";
 import "dotenv/config";
-import { createOrderTicket } from "../../../common/repositories/order-tickets-repository.ts";
+import { createOrderTicket } from "../../../common/repositories/order-tickets-repository";
 import { randomInt } from "crypto";
-import { getUserByUuid } from "../../../common/repositories/users-repository.ts";
-import { createOrderDetail } from "../../../common/repositories/order-details-repository.ts";
+import { getUserByUuid } from "../../../common/repositories/users-repository";
+import { createOrderDetail } from "../../../common/repositories/order-details-repository";
 
 interface OrderService {
   success: boolean;

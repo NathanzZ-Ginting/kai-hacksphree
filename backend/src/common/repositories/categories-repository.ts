@@ -1,7 +1,7 @@
 import { eq, like, and, asc } from "drizzle-orm";
-import { db } from "../../db/index.ts";
-import { categories } from "../../db/schema.ts";
-import { Category } from "../interface/categories-interface.ts";
+import { db } from "../../db/index";
+import { categories } from "../../db/schema";
+import { Category } from "../interface/categories-interface";
 
 // Get all categories
 export const getAllCategories = async (): Promise<Category[]> => {

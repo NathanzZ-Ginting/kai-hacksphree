@@ -1,7 +1,7 @@
-import { TrainSeat } from "../../../common/interface/train-seats-interface.ts";
-import { Train } from "../../../common/interface/trains-interface.ts";
-import { createTrainSeat, getAllTrainSeats, getTrainSeatByUuid } from "../../../common/repositories/train-seats-repository.ts";
-import { createTrain, getAllTrains, getTrainByUuid } from "../../../common/repositories/trains-repository.ts";
+import { TrainSeat } from "../../../common/interface/train-seats-interface";
+import { Train } from "../../../common/interface/trains-interface";
+import { createTrainSeat, getAllTrainSeats, getTrainSeatByUuid } from "../../../common/repositories/train-seats-repository";
+import { createTrain, getAllTrains, getTrainByUuid } from "../../../common/repositories/trains-repository";
 
 interface seatsResult {
   success: boolean;

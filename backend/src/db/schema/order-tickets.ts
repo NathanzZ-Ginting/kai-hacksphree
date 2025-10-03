@@ -5,7 +5,7 @@ import {
   uuid,
   varchar,
 } from "drizzle-orm/pg-core";
-import { users } from "./users.ts";
+import { users } from "./users";
 
 export const orderTickets = pgTable("order_tickets", {
   uuid: uuid("uuid").defaultRandom().primaryKey(),

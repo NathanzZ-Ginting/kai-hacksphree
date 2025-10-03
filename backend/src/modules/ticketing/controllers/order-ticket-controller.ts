@@ -1,6 +1,6 @@
 import { Hono } from "hono";
-import { ErrorsRes, SuccessRes } from "../../../common/utils/api-response.ts";
-import { createOrder } from "../services/order-ticket-service.ts";
+import { ErrorsRes, SuccessRes } from "../../../common/utils/api-response";
+import { createOrder } from "../services/order-ticket-service";
 
 const OrderTicketController = new Hono();
 

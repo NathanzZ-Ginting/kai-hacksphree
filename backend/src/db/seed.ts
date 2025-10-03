@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-import { runSeeders } from "./seeders/index.ts";
+import { runSeeders } from "./seeders/index";
 
 console.log("🌱 Running database seeders...");
 runSeeders()

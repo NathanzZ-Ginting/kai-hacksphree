@@ -1,4 +1,4 @@
-import { getUserByEmail } from "../../../common/repositories/users-repository.ts";
+import { getUserByEmail } from "../../../common/repositories/users-repository";
 import bcrypt from "bcrypt";
 
 interface LoginResult {

@@ -1,6 +1,6 @@
-import { db } from "../index.ts";
-import { tickets } from "../schema/tickets.ts";
-import { schedules } from "../schema/schedules.ts";
+import { db } from "../index";
+import { tickets } from "../schema/tickets";
+import { schedules } from "../schema/schedules";
 
 export async function seedTickets() {
   // Get schedule UUIDs first
