@@ -51,15 +51,13 @@ scheduleController.get("/:uuid", async (c) => {
   }
 });
 
-scheduleController.get("/station", async (c) => {
+scheduleController.get(":uuidOrigin/:uuidDestination", async (c) => {
   try {
     // Get query parameters
-    const origin = c.req.query("origin");
-    const destination = c.req.query("destination");
+    const uuidOrigin = await c.req.param("uuidOrigin")
+    const uuidDestination = await c.req.param("uuidDestination")
 
-    console.log(`Controller: Received origin="${origin}", destination="${destination}"`);
-
-    if (!origin || !destination) {
+    if (!uuidDestination || !uuidOrigin) {
       return c.json(
         ErrorsRes("Masukan stasiun asal dan stasiun tujuan terlebih dahulu!"),
         400
@@ -67,38 +65,26 @@ scheduleController.get("/station", async (c) => {
     }
 
     // Validate that origin and destination are different
-    if (origin === destination) {
+    if (uuidOrigin === uuidDestination) {
       return c.json(
         ErrorsRes("Stasiun asal dan stasiun tujuan tidak boleh sama!"),
         400
       );
     }
 
-    // Basic UUID validation (simple check)
-    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-    if (!uuidRegex.test(origin) || !uuidRegex.test(destination)) {
-      return c.json(
-        ErrorsRes("Format ID stasiun tidak valid. Gunakan UUID yang valid."),
-        400
-      );
-    }
-
-    console.log(`Controller: Searching schedules from UUID: "${origin}" to UUID: "${destination}"`);
-
-    const result = await fetchScheduleByStation(origin, destination);
+    const result = await fetchScheduleByStation(uuidOrigin, uuidDestination);
 
     if (!result.success) {
       console.log(`Controller: Service returned error: ${result.message}`);
       return c.json(ErrorsRes(result.message), 404);
     }
 
-    console.log(`Controller: Service returned success with ${Array.isArray(result.data) ? result.data.length : 0} results`);
     return c.json(SuccessRes(result.message, result.data), 200);
   } catch (error) {
     console.error("Error in /station endpoint:", error);
     return c.json(
-      ErrorsRes("Terjadi kesalahan saat mencari jadwal kereta!", { 
-        error: error instanceof Error ? error.message : String(error) 
+      ErrorsRes("Terjadi kesalahan saat mencari jadwal kereta!", {
+        error: error instanceof Error ? error.message : String(error),
       }),
       500
     );

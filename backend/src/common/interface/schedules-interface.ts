@@ -1,9 +1,9 @@
 // Schedule interfaces
 export interface Schedule {
   uuid: string;
-  trainId?: string;
-  originStationId?: string;
-  destinationStationId?: string;
+  trainName?: string;
+  originStationName?: string;
+  destinationStationName?: string;
   departureTime: Date;
   arrivalTime: Date;
   createdAt: Date;

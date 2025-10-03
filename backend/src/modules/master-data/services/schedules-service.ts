@@ -4,10 +4,8 @@ import {
   filterByOriginAndDestination,
   getAllSchedules,
   getScheduleByUuid,
-  getSchedulesByDestinationStation,
-  getSchedulesByRoute,
-  getSchedulesByStationNames,
 } from "../../../common/repositories/schedules-repository.ts";
+import { getStationByUuid } from "../../../common/repositories/stations-repository.ts";
 
 interface schedulesResult {
   success: boolean;
@@ -79,23 +77,23 @@ const fetchScheduleByStation = async (
       };
     }
 
+    const originStasiun = await getStationByUuid(origin)
+    const destinationStasiun = await getStationByUuid(destination)
+
     // Use the new function that searches by station names
-    const schedule = await filterByOriginAndDestination(
-      origin,
-      destination
-    );
+    const schedule = await filterByOriginAndDestination(origin, destination);
 
     if (!schedule || schedule.length < 1) {
       return {
         success: false,
-        message: `Tidak ada jadwal keberangkatan dari stasiun ${origin} ke stasiun ${destination}`,
+        message: `Tidak ada jadwal keberangkatan dari stasiun ${originStasiun?.name} ke stasiun ${destinationStasiun?.name}`,
       };
     }
 
     return {
       success: true,
       message: "Jadwal ditemukan!",
-      data: schedule as Schedule[],
+      data: schedule,
     };
   } catch (error) {
     console.error("Error in fetchScheduleByStation:", error);
