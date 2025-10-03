@@ -49,7 +49,7 @@ export const createOrder = async (
   });
 
   const now = new Date();
-  const invcNumber = "KAI-" + now + randomInt(99999);
+  const invcNumber = "KAI-" + now.getTime() + randomInt(9999);
 
   const user = await getUserByUuid(userUuid);
   if (!user) {
