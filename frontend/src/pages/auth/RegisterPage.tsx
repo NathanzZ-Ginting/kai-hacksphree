@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 import { Eye, EyeOff, Train } from "lucide-react";
 import { toast } from "sonner";
 import axios from "axios";
-import { GoogleReCaptchaProvider, useGoogleReCaptcha } from "react-google-recaptcha-v3";
 
 // Interface untuk response API
 interface RegisterResponse {
@@ -36,7 +35,18 @@ const RegisterForm = () => {
   const [error, setError] = useState("");
   const navigate = useNavigate();
   
-  const { executeRecaptcha } = useGoogleReCaptcha();
+  // Load reCAPTCHA script (v2 checkbox)
+  useEffect(() => {
+    const script = document.createElement("script");
+    script.src = "https://www.google.com/recaptcha/api.js";
+    script.async = true;
+    document.body.appendChild(script);
+    
+    // Cleanup
+    return () => {
+      document.body.removeChild(script);
+    };
+  }, []);
 
   const registerToBackend = async (
     name: string,
@@ -102,11 +112,11 @@ const RegisterForm = () => {
         throw new Error("Format email tidak valid");
       }
 
-      // Ambil token captcha
-      if (!executeRecaptcha) {
-        throw new Error("reCAPTCHA belum siap");
+      // Get token from reCAPTCHA v2 checkbox
+      const recaptchaToken = (window as any).grecaptcha.getResponse();
+      if (!recaptchaToken) {
+        throw new Error("Silakan centang reCAPTCHA");
       }
-      const recaptchaToken = await executeRecaptcha("register");
 
       // Register ke backend
       const registerResult = await registerToBackend(name, email, password, recaptchaToken);
@@ -327,6 +337,11 @@ const RegisterForm = () => {
               </div>
             </div>
 
+            {/* reCAPTCHA v2 Checkbox */}
+            <div className="flex justify-center my-4">
+              <div className="g-recaptcha" data-sitekey={import.meta.env.VITE_RECAPTCHA_SITE_KEY}></div>
+            </div>
+
             {/* Submit Button */}
             <button
               type="submit"
@@ -422,9 +437,7 @@ const RegisterForm = () => {
 
 const RegisterPage = () => {
   return (
-    <GoogleReCaptchaProvider reCaptchaKey={import.meta.env.VITE_RECAPTCHA_SITE_KEY}>
-      <RegisterForm />
-    </GoogleReCaptchaProvider>
+    <RegisterForm />
   );
 };
 

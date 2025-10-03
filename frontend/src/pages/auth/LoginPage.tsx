@@ -36,12 +36,17 @@ const LoginPage = () => {
   const { login } = useAuth();
   const { isLoggedIn } = useAuth();
 
-  // Load reCAPTCHA script sekali di awal
+  // Load reCAPTCHA script sekali di awal (v2 checkbox)
   useEffect(() => {
     const script = document.createElement("script");
-    script.src = `https://www.google.com/recaptcha/api.js?render=${import.meta.env.VITE_RECAPTCHA_SITE_KEY}`;
+    script.src = "https://www.google.com/recaptcha/api.js";
     script.async = true;
     document.body.appendChild(script);
+
+    // Cleanup on unmount
+    return () => {
+      document.body.removeChild(script);
+    };
   }, []);
 
   useEffect(() => {
@@ -69,7 +74,7 @@ const LoginPage = () => {
         {
           email,
           password,
-          recaptchaToken, // kirim ke backend
+          captchaToken: recaptchaToken, // kirim ke backend dengan nama yang sesuai
         },
         {
           headers: {
@@ -108,11 +113,11 @@ const LoginPage = () => {
         throw new Error("Silakan isi email dan password");
       }
 
-      // Ambil token reCAPTCHA v3
-      const token = await (window as any).grecaptcha.execute(
-        import.meta.env.VITE_RECAPTCHA_SITE_KEY,
-        { action: "login" }
-      );
+      // Get token from reCAPTCHA v2 checkbox
+      const token = (window as any).grecaptcha.getResponse();
+      if (!token) {
+        throw new Error("Silakan centang reCAPTCHA");
+      }
 
       if (rememberMe) {
         localStorage.setItem("rememberMe", "true");
@@ -273,6 +278,11 @@ const LoginPage = () => {
               >
                 Lupa kata sandi?
               </button>
+            </div>
+
+            {/* reCAPTCHA v2 Checkbox */}
+            <div className="flex justify-center my-4">
+              <div className="g-recaptcha" data-sitekey={import.meta.env.VITE_RECAPTCHA_SITE_KEY}></div>
             </div>
 
             {/* Submit Button */}
