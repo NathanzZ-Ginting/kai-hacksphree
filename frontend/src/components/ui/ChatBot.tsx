@@ -493,13 +493,13 @@ const ChatBot = ({
               <div className="text-sm text-gray-600 mb-2 font-medium">
                 Pertanyaan Cepat:
               </div>
-              <div className="space-y-2 max-h-32 overflow-y-auto">
+              <div className="space-y-2 max-h-32 overflow-y-auto no-scrollbar">
                 {quickQuestions.map((q, index) => (
                   <button
                     key={index}
                     onClick={() => handleQuickQuestion(q.question, q.answer)}
                     disabled={isTyping}
-                    className="w-full text-left p-3 text-sm border border-gray-200 rounded-lg hover:bg-purple-50 hover:border-purple-200 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed bg-white shadow-sm"
+                    className="w-full text-left p-3 text-sm border border-gray-200 rounded-lg hover:bg-purple-50 hover:border-purple-200 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed bg-white shadow-sm text-gray-800 font-medium"
                   >
                     {q.question}
                   </button>

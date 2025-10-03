@@ -258,17 +258,17 @@ const HelpPage = () => {
               <button
                 key={index}
                 onClick={() => setIsChatBotOpen(true)}
-                className="bg-white rounded-xl p-6 shadow-sm border border-gray-200 hover:border-purple-200 transition-colors cursor-pointer group text-left"
+                className="bg-white rounded-xl p-6 shadow-md border border-gray-200 hover:border-purple-300 hover:bg-gray-50 transition-all cursor-pointer group text-left w-full"
               >
-                <div className="flex items-start space-x-3">
+                <div className="flex items-start space-x-3 w-full">
                   <div className="text-2xl flex-shrink-0">
                     {q.question.split(" ")[0]}
                   </div>
-                  <div>
+                  <div className="flex-grow">
                     <h3 className="font-semibold text-gray-900 mb-2 group-hover:text-purple-600 transition-colors">
                       {q.question.substring(q.question.indexOf(" ") + 1)}
                     </h3>
-                    <p className="text-sm text-gray-600 line-clamp-2">
+                    <p className="text-sm text-gray-700 font-medium">
                       {q.answer.split("\n")[0]}
                     </p>
                   </div>
