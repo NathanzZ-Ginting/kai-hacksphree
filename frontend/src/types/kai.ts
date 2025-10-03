@@ -30,3 +30,15 @@ export interface FAQ {
   answer: string;
   category: string;
 }
+
+export interface Station {
+  uuid: string;
+  name: string;
+  stationCode: string;
+  locationId: string;
+  createdAt: string;
+  updatedAt: string;
+  lat?: number;
+  lng?: number;
+  city?: string;
+}
