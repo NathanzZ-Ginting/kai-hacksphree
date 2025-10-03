@@ -39,9 +39,9 @@ const fetchTicket = async (): Promise<ticketResult> => {
 
 const fetchTicketByUuid = async (uuid: string): Promise<ticketResult> => {
   try {
-    const schedule = await getTicketByUuid(uuid);
+    const ticket = await getTicketByUuid(uuid);
 
-    if (!schedule) {
+    if (!ticket) {
       return {
         success: false,
         message: `Ticket dengan uuid ${uuid} tidak ditemukan!`,
@@ -51,7 +51,7 @@ const fetchTicketByUuid = async (uuid: string): Promise<ticketResult> => {
     return {
       success: true,
       message: "Ticket ditemukan!",
-      data: schedule as Ticket,
+      data: ticket as Ticket,
     };
   } catch (error) {
     return {

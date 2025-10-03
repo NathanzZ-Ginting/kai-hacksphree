@@ -6,6 +6,7 @@ import stationController from "../controllers/station-controller.ts";
 import ticketController from "../controllers/ticket-controller.ts";
 import trainController from "../controllers/train-schedules.ts";
 import trainSeatController from "../controllers/train-seats-controller.ts";
+import orderTicketController from "../controllers/order-ticket-controller.ts";
 
 const masterDataRoute = new Hono()
 
@@ -16,5 +17,6 @@ masterDataRoute.route("/station", stationController)
 masterDataRoute.route("/ticket", ticketController)
 masterDataRoute.route("/train", trainController)
 masterDataRoute.route("/train-seat", trainSeatController)
+masterDataRoute.route("/order-ticket", orderTicketController)
 
 export default masterDataRoute
