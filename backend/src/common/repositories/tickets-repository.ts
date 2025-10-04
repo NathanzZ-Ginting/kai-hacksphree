@@ -31,6 +31,7 @@ export const getAllTickets = async (): Promise<Ticket[]> => {
         createdAt: schedules.createdAt,
         updatedAt: schedules.updatedAt,
       },
+      trainUuid: trains.uuid,
       trainName: trains.name,
       trainCategoryName: categories.name,
       originStationName: originStation.name,
