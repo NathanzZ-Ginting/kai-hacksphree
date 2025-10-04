@@ -1074,7 +1074,7 @@ const TicketDetailPage = () => {
                 Jumlah Penumpang
               </h2>
               <div className="space-y-6">
-                {passengerCounters.map((counter, index) => (
+                {passengerCounters.map((counter) => (
                   <div
                     key={counter.type}
                     className="flex items-center justify-between p-4 border border-gray-200 rounded-xl hover:border-orange-300 transition-colors"
