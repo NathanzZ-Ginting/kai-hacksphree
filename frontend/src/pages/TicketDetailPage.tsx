@@ -34,10 +34,18 @@ interface TicketDetail {
   createdAt: string;
   updatedAt: string;
   schedule: Schedule;
+  trainUuid: string;
   trainName: string;
   trainCategoryName: string;
   originStationName: string;
   destinationStationName: string;
+}
+
+interface Seat {
+  uuid: string;
+  trainId: string; // This will be train name from backend
+  nameSeat: string;
+  categoryTrain: string; // This will be category name from backend
 }
 
 interface OrderResponse {
@@ -54,7 +62,12 @@ interface ApiResponse {
   data: TicketDetail;
 }
 
-// Interface untuk passenger counter
+interface SeatApiResponse {
+  success: boolean;
+  message: string;
+  data: Seat[];
+}
+
 interface PassengerCounter {
   type: string;
   label: string;
@@ -63,14 +76,12 @@ interface PassengerCounter {
   priceMultiplier: number;
 }
 
-// Interface untuk layout kursi
 interface SeatLayout {
   rows: number;
   columns: number;
   seatsPerRow: number;
   layout: string[][];
   hasAisle?: boolean;
-  businessClass?: boolean;
 }
 
 const TicketDetailPage = () => {
@@ -78,16 +89,13 @@ const TicketDetailPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [ticket, setTicket] = useState<TicketDetail | null>(null);
+  const [seats, setSeats] = useState<Seat[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [orderLoading, setOrderLoading] = useState(false);
   const [orderSuccess, setOrderSuccess] = useState(false);
-
-  // State untuk modal Midtrans
   const [showMidtransModal, setShowMidtransModal] = useState(false);
   const [snapRedirectUrl, setSnapRedirectUrl] = useState("");
-
-  // Form states
   const [passengerCounters, setPassengerCounters] = useState<
     PassengerCounter[]
   >([
@@ -106,47 +114,121 @@ const TicketDetailPage = () => {
       priceMultiplier: 0.7,
     },
   ]);
-
   const [selectedSeats, setSelectedSeats] = useState<string[]>([]);
   const [selectedCoach, setSelectedCoach] = useState<number>(1);
 
   const API_URL = import.meta.env.API_URL || "http://localhost:3000/api/v1";
 
-  // Data gerbong berdasarkan kategori kereta
-  const getCoachesByCategory = (category: string): number[] => {
-    switch (category.toLowerCase()) {
-      case "eksekutif":
-        return [1, 2, 3];
-      case "bisnis":
-        return [1, 2, 3, 4];
-      case "ekonomi":
-        return [1, 2, 3, 4, 5, 6, 7, 8];
-      case "luxury":
-        return [1, 2];
-      case "priority":
-        return [1, 2, 3];
-      default:
-        return [1, 2, 3, 4];
+  // Fetch ticket detail and seats
+  useEffect(() => {
+    const fetchTicketDetail = async () => {
+      try {
+        setLoading(true);
+        if (location.state?.ticket) {
+          console.log(
+            "Using ticket from location state:",
+            location.state.ticket
+          );
+          setTicket(location.state.ticket);
+          // Fetch seats after getting ticket
+          if (location.state.ticket.trainUuid) {
+            console.log(
+              "Fetching seats for trainUuid from state:",
+              location.state.ticket.trainUuid
+            );
+            await fetchSeats(location.state.ticket.trainUuid);
+          } else {
+            console.warn("No trainUuid found in location state ticket");
+          }
+          setLoading(false);
+          return;
+        }
+
+        console.log("Fetching ticket detail for UUID:", uuid);
+        const response = await axios.get<ApiResponse>(
+          `${API_URL}/master-data/ticket/${uuid}`
+        );
+
+        console.log("Ticket detail response:", response.data);
+
+        if (response.data.success) {
+          setTicket(response.data.data);
+          // Fetch seats after getting ticket
+          if (response.data.data.trainUuid) {
+            console.log(
+              "Fetching seats for trainUuid from API:",
+              response.data.data.trainUuid
+            );
+            await fetchSeats(response.data.data.trainUuid);
+          } else {
+            console.warn(
+              "No trainUuid found in API response",
+              response.data.data
+            );
+          }
+        } else {
+          setError("Gagal memuat detail tiket");
+        }
+      } catch (err) {
+        setError("Terjadi kesalahan saat memuat detail tiket");
+        console.error("Error fetching ticket detail:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    const fetchSeats = async (trainUuid: string) => {
+      try {
+        console.log("Fetching seats for trainUuid:", trainUuid);
+        console.log(
+          "Seat API URL:",
+          `${API_URL}/master-data/train-seat/${trainUuid}`
+        );
+
+        const response = await axios.get<SeatApiResponse>(
+          `${API_URL}/master-data/train-seat/${trainUuid}`
+        );
+
+        console.log("Seats response:", response.data);
+
+        if (response.data.success) {
+          setSeats(response.data.data);
+          console.log("Seats loaded successfully:", response.data.data);
+        } else {
+          console.error("Failed to load seats:", response.data.message);
+          setError("Gagal memuat data kursi");
+        }
+      } catch (err) {
+        console.error("Error fetching seats:", err);
+        setError("Terjadi kesalahan saat memuat data kursi");
+      }
+    };
+
+    if (uuid) {
+      fetchTicketDetail();
     }
+  }, [uuid, location.state]);
+
+  // Get unique coaches from seat data
+  const getCoaches = () => {
+    const coachNumbers = seats.map((seat) => parseInt(seat.nameSeat.charAt(0)));
+    return Array.from(new Set(coachNumbers)).sort((a, b) => a - b);
   };
 
-  // Layout kursi dengan format spesifik berdasarkan kategori
+  // Layout kursi berdasarkan kategori
   const getSeatLayoutByCategory = (category: string): SeatLayout => {
     const categoryLower = category.toLowerCase();
 
-    // Fungsi untuk membuat layout 2-2 dengan jumlah baris tertentu
     const createTwoTwoLayout = (rows: number) => {
       const layout: string[][] = [];
       const rowTypes = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J"];
-
       for (let i = 0; i < rows; i++) {
-        const rowNumber = i + 1;
         const row: string[] = [
-          `${rowTypes[i]}1`, // Kiri atas
-          `${rowTypes[i]}2`, // Kiri bawah
-          "", // Garis tengah
-          `${rowTypes[i]}3`, // Kanan atas
-          `${rowTypes[i]}4`, // Kanan bawah
+          `${rowTypes[i]}1`,
+          `${rowTypes[i]}2`,
+          "",
+          `${rowTypes[i]}3`,
+          `${rowTypes[i]}4`,
         ];
         layout.push(row);
       }
@@ -159,18 +241,11 @@ const TicketDetailPage = () => {
       };
     };
 
-    // Fungsi untuk membuat layout 1-1 dengan jumlah baris tertentu
     const createOneOneLayout = (rows: number) => {
       const layout: string[][] = [];
       const rowTypes = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J"];
-
       for (let i = 0; i < rows; i++) {
-        const rowNumber = i + 1;
-        const row: string[] = [
-          `${rowTypes[i]}1`, // Kiri
-          "", // Garis tengah
-          `${rowTypes[i]}2`, // Kanan
-        ];
+        const row: string[] = [`${rowTypes[i]}1`, "", `${rowTypes[i]}2`];
         layout.push(row);
       }
       return {
@@ -184,80 +259,26 @@ const TicketDetailPage = () => {
 
     switch (categoryLower) {
       case "bisnis":
-        return createTwoTwoLayout(8); // 8 rows × 4 seats/row × 2 coaches = 64 seats
+        return createTwoTwoLayout(8);
       case "ekonomi":
-        return createTwoTwoLayout(10); // 10 rows × 4 seats/row × 2 coaches = 80 seats
+        return createTwoTwoLayout(10);
       case "eksekutif":
-        return createTwoTwoLayout(6); // 6 rows × 4 seats/row × 2 coaches = 48 seats (adjusted to 50 with extra logic if needed)
+        return createTwoTwoLayout(6);
       case "luxury":
-        return createOneOneLayout(6); // 6 rows × 2 seats/row × 2 coaches = 24 seats
+        return createOneOneLayout(6);
       case "priority":
-        return createOneOneLayout(3); // 3 rows × 2 seats/row × 3 coaches = 18 seats
+        return createOneOneLayout(3);
       default:
         return createTwoTwoLayout(8);
     }
   };
 
-  // Generate semua kursi berdasarkan gerbong dan kategori
-  const generateAllSeats = (category: string) => {
-    const allSeats: string[] = [];
-    const coaches = getCoachesByCategory(category);
-    const seatLayout = getSeatLayoutByCategory(category);
-
-    coaches.forEach((coach) => {
-      seatLayout.layout.forEach((row) => {
-        row.forEach((seat) => {
-          if (seat && seat.trim() !== "") {
-            allSeats.push(`${coach}${seat}`);
-          }
-        });
-      });
-    });
-    return allSeats;
+  // Filter kursi berdasarkan gerbong yang dipilih
+  const getSeatsByCoach = (coach: number) => {
+    return seats
+      .filter((seat) => seat.nameSeat.startsWith(coach.toString()))
+      .map((seat) => seat.nameSeat);
   };
-
-  const [allSeats, setAllSeats] = useState<string[]>([]);
-
-  // Update seats ketika ticket berubah
-  useEffect(() => {
-    if (ticket) {
-      const seats = generateAllSeats(ticket.trainCategoryName);
-      setAllSeats(seats);
-    }
-  }, [ticket]);
-
-  // Fetch ticket detail
-  useEffect(() => {
-    const fetchTicketDetail = async () => {
-      try {
-        setLoading(true);
-        if (location.state?.ticket) {
-          setTicket(location.state.ticket);
-          setLoading(false);
-          return;
-        }
-
-        const response = await axios.get<ApiResponse>(
-          `${API_URL}/master-data/ticket/${uuid}`
-        );
-
-        if (response.data.success) {
-          setTicket(response.data.data);
-        } else {
-          setError("Gagal memuat detail tiket");
-        }
-      } catch (err) {
-        setError("Terjadi kesalahan saat memuat detail tiket");
-        console.error("Error fetching ticket detail:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    if (uuid) {
-      fetchTicketDetail();
-    }
-  }, [uuid, location.state]);
 
   // Hitung total passenger
   const totalPassengers = passengerCounters.reduce(
@@ -281,7 +302,6 @@ const TicketDetailPage = () => {
   // Handler untuk passenger counter
   const updatePassengerCount = (type: string, newCount: number) => {
     if (newCount < 0) return;
-
     setPassengerCounters((prev) =>
       prev.map((counter) =>
         counter.type === type ? { ...counter, count: newCount } : counter
@@ -291,20 +311,18 @@ const TicketDetailPage = () => {
 
   // Handler untuk memilih kursi
   const handleSeatSelect = (seat: string, passengerIndex: number) => {
-    // Cek apakah kursi sudah dipilih oleh passenger lain
     if (
       selectedSeats.includes(seat) &&
       selectedSeats[passengerIndex] !== seat
     ) {
       return;
     }
-
     const updatedSeats = [...selectedSeats];
     updatedSeats[passengerIndex] = seat;
     setSelectedSeats(updatedSeats);
   };
 
-  // Generate typePassenger array sesuai format yang diinginkan
+  // Generate typePassenger array
   const generateTypePassengerArray = (): string[] => {
     const typeArray: string[] = [];
     passengerCounters.forEach((counter) => {
@@ -315,9 +333,9 @@ const TicketDetailPage = () => {
     return typeArray;
   };
 
+  // Calculate total price
   const calculateTotalPrice = () => {
     if (!ticket) return 0;
-
     let total = 0;
     passengerCounters.forEach((counter) => {
       total += ticket.price * counter.priceMultiplier * counter.count;
@@ -325,10 +343,10 @@ const TicketDetailPage = () => {
     return total;
   };
 
+  // Submit order
   const handleSubmitOrder = async () => {
     if (!ticket) return;
 
-    // Validasi
     if (totalPassengers === 0) {
       setError("Harap pilih minimal 1 penumpang");
       return;
@@ -354,11 +372,9 @@ const TicketDetailPage = () => {
       }
 
       let userUuid: string;
-
       try {
         const userData = JSON.parse(userDataString);
         userUuid = userData.uuid;
-
         if (!userUuid || typeof userUuid !== "string") {
           throw new Error("UUID tidak valid");
         }
@@ -369,7 +385,6 @@ const TicketDetailPage = () => {
       }
 
       const typePasangger = generateTypePassengerArray();
-
       const orderData = {
         userUuid: userUuid,
         ticketUuid: ticket.uuid,
@@ -378,8 +393,6 @@ const TicketDetailPage = () => {
         typePasangger: typePasangger,
         seatNumbers: selectedSeats,
       };
-
-      console.log("Order data:", orderData);
 
       const response = await axios.post<OrderResponse>(
         `${API_URL}/order/order-ticket`,
@@ -409,17 +422,9 @@ const TicketDetailPage = () => {
     setOrderSuccess(false);
   };
 
-  // Handler untuk membuka Midtrans di tab baru
   const handleOpenMidtransInNewTab = () => {
     window.open(snapRedirectUrl, "_blank");
   };
-
-  // Filter kursi berdasarkan gerbong yang dipilih
-  const getSeatsByCoach = (coach: number) => {
-    return allSeats.filter((seat) => seat.startsWith(coach.toString()));
-  };
-
-  const currentCoachSeats = getSeatsByCoach(selectedCoach);
 
   // Helper functions
   const formatTime = (dateString: string) => {
@@ -442,10 +447,8 @@ const TicketDetailPage = () => {
     const dep = new Date(departure);
     const arr = new Date(arrival);
     const diff = arr.getTime() - dep.getTime();
-
     const hours = Math.floor(diff / (1000 * 60 * 60));
     const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-
     return `${hours} jam ${minutes} menit`;
   };
 
@@ -474,18 +477,17 @@ const TicketDetailPage = () => {
     }
   };
 
-  // Render seat layout dengan tampilan gerbong realistis
+  // Render seat layout
   const renderSeatLayout = () => {
     if (!ticket) return null;
 
     const seatLayout = getSeatLayoutByCategory(ticket.trainCategoryName);
     const categoryLower = ticket.trainCategoryName.toLowerCase();
+    const currentCoachSeats = getSeatsByCoach(selectedCoach);
 
-    // Warna berdasarkan kategori
     const getSeatColor = (isSelected: boolean, isOccupied: boolean) => {
       if (isSelected) return "bg-orange-600 text-white border-orange-800";
       if (isOccupied) return "bg-red-500 text-white border-red-700 opacity-70";
-
       switch (categoryLower) {
         case "luxury":
           return "bg-gradient-to-b from-yellow-400 to-yellow-600 text-white border-yellow-700 hover:from-yellow-500 hover:to-yellow-700";
@@ -500,7 +502,6 @@ const TicketDetailPage = () => {
 
     return (
       <div className="bg-white rounded-lg p-6">
-        {/* Train Coach Header */}
         <div className="bg-gradient-to-r from-gray-800 to-gray-900 text-white py-3 px-4 rounded-t-lg mb-4 flex justify-between items-center shadow-lg">
           <div className="flex items-center space-x-3">
             <Train className="h-6 w-6 text-orange-400" />
@@ -511,12 +512,8 @@ const TicketDetailPage = () => {
           </div>
         </div>
 
-        {/* Coach Visualization */}
         <div className="relative bg-gradient-to-b from-gray-100 to-gray-300 rounded-lg p-6 border-4 border-gray-400 shadow-inner">
-          {/* Train Roof */}
           <div className="absolute top-0 left-0 right-0 h-6 bg-gray-800 rounded-t-lg border-b-2 border-gray-600"></div>
-
-          {/* Doors */}
           <div className="absolute top-6 left-4 transform -translate-y-1">
             <div className="bg-gray-700 w-10 h-20 rounded-lg flex items-center justify-center shadow-lg border-2 border-gray-600">
               <DoorOpen className="h-8 w-8 text-gray-300" />
@@ -527,11 +524,8 @@ const TicketDetailPage = () => {
               <DoorOpen className="h-8 w-8 text-gray-300" />
             </div>
           </div>
-
-          {/* Windows */}
           <div className="absolute top-8 left-16 right-16 h-4 bg-blue-200 rounded-lg border border-blue-300 opacity-50"></div>
 
-          {/* Seat Layout Container */}
           <div className="ml-20 mr-20 mt-8">
             <div className="space-y-4">
               {seatLayout.layout.map((row, rowIndex) => (
@@ -539,7 +533,6 @@ const TicketDetailPage = () => {
                   key={rowIndex}
                   className="flex justify-between items-center"
                 >
-                  {/* Left Side Seats */}
                   <div className="flex space-x-3">
                     {row
                       .slice(
@@ -552,6 +545,9 @@ const TicketDetailPage = () => {
                       .map((seat, seatIndex) => {
                         if (!seat) return null;
                         const fullSeatNumber = `${selectedCoach}${seat}`;
+                        const isAvailable =
+                          currentCoachSeats.includes(fullSeatNumber);
+                        if (!isAvailable) return null;
                         const isSelected =
                           selectedSeats.includes(fullSeatNumber);
                         const passengerIndex = selectedSeats.findIndex(
@@ -579,15 +575,15 @@ const TicketDetailPage = () => {
                             }}
                             disabled={isOccupied && !isSelected}
                             className={`
-                            w-14 h-14 rounded-xl flex flex-col items-center justify-center text-sm font-bold transition-all
-                            relative border-2 shadow-lg transform hover:scale-110
-                            ${getSeatColor(isSelected, isOccupied)}
-                            ${
-                              isOccupied && !isSelected
-                                ? "cursor-not-allowed"
-                                : "cursor-pointer"
-                            }
-                          `}
+                              w-14 h-14 rounded-xl flex flex-col items-center justify-center text-sm font-bold transition-all
+                              relative border-2 shadow-lg transform hover:scale-110
+                              ${getSeatColor(isSelected, isOccupied)}
+                              ${
+                                isOccupied && !isSelected
+                                  ? "cursor-not-allowed"
+                                  : "cursor-pointer"
+                              }
+                            `}
                           >
                             <Car className="h-5 w-5 mb-1" />
                             <span className="text-xs">{seat}</span>
@@ -596,14 +592,13 @@ const TicketDetailPage = () => {
                                 P{passengerIndex + 1}
                               </span>
                             )}
-                            {/* Seat Type Indicator */}
                             <div
                               className={`absolute -top-1 -left-1 w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold
-                            ${
-                              seat.includes("1") || seat.includes("4")
-                                ? "bg-blue-500 text-white"
-                                : "bg-green-500 text-white"
-                            }`}
+                              ${
+                                seat.includes("1") || seat.includes("4")
+                                  ? "bg-blue-500 text-white"
+                                  : "bg-green-500 text-white"
+                              }`}
                             >
                               {seat.includes("1") || seat.includes("4")
                                 ? "W"
@@ -614,12 +609,10 @@ const TicketDetailPage = () => {
                       })}
                   </div>
 
-                  {/* Garis Tengah */}
                   <div className="w-16 h-14 flex items-center justify-center">
                     <div className="w-1 h-12 bg-gray-800 rounded-lg shadow-inner border-2 border-gray-900"></div>
                   </div>
 
-                  {/* Right Side Seats */}
                   <div className="flex space-x-3">
                     {row
                       .slice(
@@ -632,6 +625,9 @@ const TicketDetailPage = () => {
                       .map((seat, seatIndex) => {
                         if (!seat) return null;
                         const fullSeatNumber = `${selectedCoach}${seat}`;
+                        const isAvailable =
+                          currentCoachSeats.includes(fullSeatNumber);
+                        if (!isAvailable) return null;
                         const isSelected =
                           selectedSeats.includes(fullSeatNumber);
                         const passengerIndex = selectedSeats.findIndex(
@@ -659,15 +655,15 @@ const TicketDetailPage = () => {
                             }}
                             disabled={isOccupied && !isSelected}
                             className={`
-                            w-14 h-14 rounded-xl flex flex-col items-center justify-center text-sm font-bold transition-all
-                            relative border-2 shadow-lg transform hover:scale-110
-                            ${getSeatColor(isSelected, isOccupied)}
-                            ${
-                              isOccupied && !isSelected
-                                ? "cursor-not-allowed"
-                                : "cursor-pointer"
-                            }
-                          `}
+                              w-14 h-14 rounded-xl flex flex-col items-center justify-center text-sm font-bold transition-all
+                              relative border-2 shadow-lg transform hover:scale-110
+                              ${getSeatColor(isSelected, isOccupied)}
+                              ${
+                                isOccupied && !isSelected
+                                  ? "cursor-not-allowed"
+                                  : "cursor-pointer"
+                              }
+                            `}
                           >
                             <Car className="h-5 w-5 mb-1" />
                             <span className="text-xs">{seat}</span>
@@ -676,14 +672,13 @@ const TicketDetailPage = () => {
                                 P{passengerIndex + 1}
                               </span>
                             )}
-                            {/* Seat Type Indicator */}
                             <div
                               className={`absolute -top-1 -right-1 w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold
-                            ${
-                              seat.includes("3") || seat.includes("4")
-                                ? "bg-blue-500 text-white"
-                                : "bg-green-500 text-white"
-                            }`}
+                              ${
+                                seat.includes("3") || seat.includes("4")
+                                  ? "bg-blue-500 text-white"
+                                  : "bg-green-500 text-white"
+                              }`}
                             >
                               {seat.includes("3") || seat.includes("4")
                                 ? "W"
@@ -698,16 +693,12 @@ const TicketDetailPage = () => {
             </div>
           </div>
 
-          {/* Train Floor */}
           <div className="absolute bottom-0 left-0 right-0 h-4 bg-gray-600 rounded-b-lg border-t-2 border-gray-700"></div>
-
-          {/* Coach Number */}
           <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white px-4 py-1 rounded-full text-sm font-bold border-2 border-gray-600">
             GERBONG {selectedCoach}
           </div>
         </div>
 
-        {/* Seat Numbering Explanation */}
         <div className="mt-6 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border border-blue-200">
           <h4 className="font-bold text-gray-900 mb-3 text-lg flex items-center">
             <Car className="h-5 w-5 mr-2 text-blue-600" />
@@ -798,7 +789,6 @@ const TicketDetailPage = () => {
           </div>
         </div>
 
-        {/* Legend */}
         <div className="mt-6 flex flex-wrap justify-center gap-4 text-sm">
           <div className="flex items-center space-x-2 bg-white px-3 py-2 rounded-lg border border-gray-200 shadow-sm">
             <div className="w-4 h-4 bg-green-500 rounded border-2 border-green-700"></div>
@@ -836,7 +826,6 @@ const TicketDetailPage = () => {
     return (
       <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
         <div className="bg-white rounded-2xl max-w-md w-full max-h-[90vh] overflow-y-auto">
-          {/* Header */}
           <div className="flex items-center justify-between p-6 border-b border-gray-200">
             <h3 className="text-xl font-bold text-gray-900">
               Lanjutkan Pembayaran
@@ -848,8 +837,6 @@ const TicketDetailPage = () => {
               <X className="h-6 w-6" />
             </button>
           </div>
-
-          {/* Content */}
           <div className="p-6">
             <div className="text-center mb-6">
               <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -863,7 +850,6 @@ const TicketDetailPage = () => {
                 menyelesaikan pemesanan Anda.
               </p>
             </div>
-
             <div className="bg-blue-50 rounded-lg p-4 mb-6">
               <div className="flex items-center justify-between text-sm">
                 <span className="text-blue-700 font-medium">
@@ -874,7 +860,6 @@ const TicketDetailPage = () => {
                 </span>
               </div>
             </div>
-
             <div className="space-y-3">
               <button
                 onClick={() => {
@@ -884,14 +869,12 @@ const TicketDetailPage = () => {
               >
                 Bayar Sekarang
               </button>
-
               <button
                 onClick={handleOpenMidtransInNewTab}
                 className="w-full border border-gray-300 text-gray-700 py-3 rounded-lg hover:bg-gray-50 transition-colors font-semibold"
               >
                 Buka di Tab Baru
               </button>
-
               <button
                 onClick={handleCloseMidtransModal}
                 className="w-full text-gray-600 py-3 rounded-lg hover:text-gray-800 transition-colors font-medium"
@@ -899,7 +882,6 @@ const TicketDetailPage = () => {
                 Bayar Nanti
               </button>
             </div>
-
             <div className="mt-6 text-center text-sm text-gray-500">
               <p>Pembayaran aman diproses oleh Midtrans</p>
             </div>
@@ -953,11 +935,10 @@ const TicketDetailPage = () => {
     );
   }
 
-  const coaches = getCoachesByCategory(ticket.trainCategoryName);
+  const coaches = getCoaches();
 
   return (
     <div className="min-h-screen bg-gray-50 pb-20">
-      {/* Header */}
       <div className="bg-white shadow-sm border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <button
@@ -972,16 +953,12 @@ const TicketDetailPage = () => {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Left Column - Ticket Details */}
           <div className="lg:col-span-2 space-y-6">
-            {/* Ticket Summary */}
             <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
               <h2 className="text-2xl font-bold text-gray-900 mb-6">
                 Detail Perjalanan
               </h2>
-
               <div className="space-y-6">
-                {/* Train Info */}
                 <div className="flex items-start space-x-4">
                   <div className="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center flex-shrink-0">
                     <Train className="h-6 w-6 text-orange-600" />
@@ -1008,8 +985,6 @@ const TicketDetailPage = () => {
                     </p>
                   </div>
                 </div>
-
-                {/* Schedule */}
                 <div className="flex items-center justify-between">
                   <div className="text-center">
                     <div className="text-2xl font-bold text-gray-900">
@@ -1022,7 +997,6 @@ const TicketDetailPage = () => {
                       {ticket.originStationName}
                     </div>
                   </div>
-
                   <div className="flex-1 px-6 text-center">
                     <div className="text-sm text-gray-500 mb-2">
                       {calculateDuration(
@@ -1036,7 +1010,6 @@ const TicketDetailPage = () => {
                       <div className="absolute top-1/2 right-0 transform -translate-y-1/2 w-3 h-3 bg-orange-500 rounded-full"></div>
                     </div>
                   </div>
-
                   <div className="text-center">
                     <div className="text-2xl font-bold text-gray-900">
                       {formatTime(ticket.schedule.arrivalTime)}
@@ -1049,8 +1022,6 @@ const TicketDetailPage = () => {
                     </div>
                   </div>
                 </div>
-
-                {/* Price */}
                 <div className="border-t pt-6">
                   <div className="flex justify-between items-center">
                     <span className="text-lg font-semibold text-gray-900">
@@ -1064,12 +1035,10 @@ const TicketDetailPage = () => {
               </div>
             </div>
 
-            {/* Passenger Counter Form */}
             <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
               <h2 className="text-2xl font-bold text-gray-900 mb-6">
                 Jumlah Penumpang
               </h2>
-
               <div className="space-y-6">
                 {passengerCounters.map((counter, index) => (
                   <div
@@ -1088,7 +1057,6 @@ const TicketDetailPage = () => {
                         orang
                       </p>
                     </div>
-
                     <div className="flex items-center space-x-4">
                       <button
                         onClick={() =>
@@ -1099,11 +1067,9 @@ const TicketDetailPage = () => {
                       >
                         <Minus className="h-4 w-4" />
                       </button>
-
                       <span className="text-xl font-bold w-8 text-center text-gray-700">
                         {counter.count}
                       </span>
-
                       <button
                         onClick={() =>
                           updatePassengerCount(counter.type, counter.count + 1)
@@ -1116,8 +1082,6 @@ const TicketDetailPage = () => {
                   </div>
                 ))}
               </div>
-
-              {/* Total Passengers Summary */}
               <div className="mt-6 p-4 bg-blue-50 rounded-xl border border-blue-200">
                 <div className="flex justify-between items-center">
                   <span className="text-lg font-semibold text-gray-900">
@@ -1130,14 +1094,11 @@ const TicketDetailPage = () => {
               </div>
             </div>
 
-            {/* Seat Selection */}
             {totalPassengers > 0 && (
               <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
                 <h2 className="text-2xl font-bold text-gray-900 mb-6">
                   Pilih Kursi
                 </h2>
-
-                {/* Coach Selection */}
                 <div className="mb-8">
                   <h3 className="text-lg font-semibold text-gray-900 mb-4">
                     Pilih Gerbong ({coaches.length} gerbong tersedia)
@@ -1158,18 +1119,12 @@ const TicketDetailPage = () => {
                     ))}
                   </div>
                 </div>
-
-                {/* Updated Seat Layout */}
                 <div className="mb-6">
                   <h3 className="text-lg font-semibold text-gray-900 mb-4">
                     Gerbong {selectedCoach} - {ticket.trainCategoryName}
                   </h3>
-
-                  {/* Realistic Train Coach */}
                   {renderSeatLayout()}
                 </div>
-
-                {/* Selected Seats Summary */}
                 {selectedSeats.filter((seat) => seat).length > 0 && (
                   <div className="mt-6 p-4 bg-green-50 rounded-xl border border-green-200">
                     <h4 className="font-semibold text-gray-900 mb-3 text-lg">
@@ -1208,14 +1163,11 @@ const TicketDetailPage = () => {
             )}
           </div>
 
-          {/* Right Column - Order Summary */}
           <div className="lg:col-span-1">
             <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 sticky top-6">
               <h2 className="text-xl font-bold text-gray-900 mb-6">
                 Ringkasan Pemesanan
               </h2>
-
-              {/* Order Details */}
               <div className="space-y-4 mb-6">
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-600">Kereta</span>
@@ -1223,35 +1175,30 @@ const TicketDetailPage = () => {
                     {ticket.trainName}
                   </span>
                 </div>
-
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-600">Kelas</span>
                   <span className="font-medium text-right text-gray-700">
                     {ticket.trainCategoryName}
                   </span>
                 </div>
-
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-600">Rute</span>
                   <span className="font-medium text-right text-gray-700">
                     {ticket.originStationName} → {ticket.destinationStationName}
                   </span>
                 </div>
-
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-600">Tanggal</span>
                   <span className="font-medium text-gray-700">
                     {formatDate(ticket.schedule.departureTime)}
                   </span>
                 </div>
-
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-600">Berangkat</span>
                   <span className="font-medium">
                     {formatTime(ticket.schedule.departureTime)}
                   </span>
                 </div>
-
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-600">Tiba</span>
                   <span className="font-medium">
@@ -1259,8 +1206,6 @@ const TicketDetailPage = () => {
                   </span>
                 </div>
               </div>
-
-              {/* Price Breakdown */}
               <div className="border-t pt-4 space-y-3">
                 {passengerCounters
                   .map((counter) => {
@@ -1285,8 +1230,6 @@ const TicketDetailPage = () => {
                   })
                   .filter(Boolean)}
               </div>
-
-              {/* Total */}
               <div className="border-t pt-4 mt-4">
                 <div className="flex justify-between items-center text-lg font-bold">
                   <span>Total</span>
@@ -1295,8 +1238,6 @@ const TicketDetailPage = () => {
                   </span>
                 </div>
               </div>
-
-              {/* Selected Seats */}
               {selectedSeats.filter((seat) => seat).length > 0 && (
                 <div className="border-t pt-4 mt-4">
                   <h4 className="font-semibold text-gray-900 mb-2">
@@ -1317,15 +1258,11 @@ const TicketDetailPage = () => {
                   </div>
                 </div>
               )}
-
-              {/* Error Message */}
               {error && (
                 <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg">
                   <p className="text-red-700 text-sm">{error}</p>
                 </div>
               )}
-
-              {/* Success Message */}
               {orderSuccess && !showMidtransModal && (
                 <div className="mt-4 p-3 bg-green-50 border border-green-200 rounded-lg">
                   <p className="text-green-700 text-sm">
@@ -1333,8 +1270,6 @@ const TicketDetailPage = () => {
                   </p>
                 </div>
               )}
-
-              {/* Order Button */}
               <button
                 onClick={handleSubmitOrder}
                 disabled={
@@ -1358,8 +1293,6 @@ const TicketDetailPage = () => {
                   </>
                 )}
               </button>
-
-              {/* Security Badge */}
               <div className="mt-4 text-center">
                 <div className="flex items-center justify-center space-x-2 text-sm text-gray-500">
                   <Shield className="h-4 w-4" />
@@ -1370,8 +1303,6 @@ const TicketDetailPage = () => {
           </div>
         </div>
       </div>
-
-      {/* Midtrans Modal */}
       <MidtransModal />
     </div>
   );
