@@ -703,16 +703,16 @@ const TicketDetailPage = () => {
               <DoorOpen className="h-8 w-8 text-gray-300" />
             </div>
           </div>
-          <div className="absolute top-8 left-16 right-16 h-4 bg-blue-200 rounded-lg border border-blue-300 opacity-50"></div>
+          <div className="absolute top-8 left-4 right-4 sm:left-16 sm:right-16 h-4 bg-blue-200 rounded-lg border border-blue-300 opacity-50"></div>
 
-          <div className="ml-20 mr-20 mt-8">
-            <div className="space-y-4">
+          <div className="ml-4 mr-4 sm:ml-20 sm:mr-20 mt-8">
+            <div className="space-y-2 sm:space-y-4">
               {seatLayout.layout.map((row, rowIndex) => (
                 <div
                   key={rowIndex}
                   className="flex justify-between items-center"
                 >
-                  <div className="flex space-x-3">
+                  <div className="flex space-x-1 sm:space-x-3">
                     {row
                       .slice(0, isLuxuryOrPriority ? 1 : 2)
                       .map((seat, seatIndex) => {
@@ -720,7 +720,7 @@ const TicketDetailPage = () => {
                           return (
                             <div
                               key={`empty-${seatIndex}`}
-                              className="w-14 h-14"
+                              className="w-10 h-10 sm:w-14 sm:h-14"
                             ></div>
                           );
 
@@ -747,7 +747,7 @@ const TicketDetailPage = () => {
                               !isSelectable && !selectedSeats.includes(seat)
                             }
                             className={`
-                            w-14 h-14 rounded-xl flex flex-col items-center justify-center text-sm font-bold transition-all
+                            w-10 h-10 sm:w-14 sm:h-14 rounded-xl flex flex-col items-center justify-center text-xs sm:text-sm font-bold transition-all
                             relative border-2 shadow-lg transform hover:scale-110
                             ${getSeatColor(seat)}
                             ${
@@ -757,10 +757,10 @@ const TicketDetailPage = () => {
                             }
                           `}
                           >
-                            <Armchair className="h-5 w-5 mb-1" />
+                            <Armchair className="h-3 w-3 sm:h-5 sm:w-5 mb-1" />
                             <span className="text-xs">{seat}</span>
                             {status === "selected" && (
-                              <span className="absolute -top-2 -right-2 bg-white text-orange-600 text-xs font-bold w-6 h-6 rounded-full flex items-center justify-center border-2 border-orange-600 shadow-lg">
+                              <span className="absolute -top-1 -right-1 sm:-top-2 sm:-right-2 bg-white text-orange-600 text-xs font-bold w-4 h-4 sm:w-6 sm:h-6 rounded-full flex items-center justify-center border-2 border-orange-600 shadow-lg">
                                 P{passengerIndex + 1}
                               </span>
                             )}
@@ -769,11 +769,11 @@ const TicketDetailPage = () => {
                       })}
                   </div>
 
-                  <div className="w-16 h-14 flex items-center justify-center">
-                    <div className="w-1 h-12 bg-gray-800 rounded-lg shadow-inner border-2 border-gray-900"></div>
+                  <div className="w-8 h-10 sm:w-16 sm:h-14 flex items-center justify-center">
+                    <div className="w-1 h-8 sm:h-12 bg-gray-800 rounded-lg shadow-inner border-2 border-gray-900"></div>
                   </div>
 
-                  <div className="flex space-x-3">
+                  <div className="flex space-x-1 sm:space-x-3">
                     {row
                       .slice(
                         isLuxuryOrPriority ? 2 : 3,
@@ -784,7 +784,7 @@ const TicketDetailPage = () => {
                           return (
                             <div
                               key={`empty-right-${seatIndex}`}
-                              className="w-14 h-14"
+                              className="w-10 h-10 sm:w-14 sm:h-14"
                             ></div>
                           );
 
@@ -811,7 +811,7 @@ const TicketDetailPage = () => {
                               !isSelectable && !selectedSeats.includes(seat)
                             }
                             className={`
-                            w-14 h-14 rounded-xl flex flex-col items-center justify-center text-sm font-bold transition-all
+                            w-10 h-10 sm:w-14 sm:h-14 rounded-xl flex flex-col items-center justify-center text-xs sm:text-sm font-bold transition-all
                             relative border-2 shadow-lg transform hover:scale-110
                             ${getSeatColor(seat)}
                             ${
@@ -821,10 +821,10 @@ const TicketDetailPage = () => {
                             }
                           `}
                           >
-                            <Armchair className="h-5 w-5 mb-1" />
+                            <Armchair className="h-3 w-3 sm:h-5 sm:w-5 mb-1" />
                             <span className="text-xs">{seat}</span>
                             {status === "selected" && (
-                              <span className="absolute -top-2 -right-2 bg-white text-orange-600 text-xs font-bold w-6 h-6 rounded-full flex items-center justify-center border-2 border-orange-600 shadow-lg">
+                              <span className="absolute -top-1 -right-1 sm:-top-2 sm:-right-2 bg-white text-orange-600 text-xs font-bold w-4 h-4 sm:w-6 sm:h-6 rounded-full flex items-center justify-center border-2 border-orange-600 shadow-lg">
                                 P{passengerIndex + 1}
                               </span>
                             )}
@@ -843,21 +843,21 @@ const TicketDetailPage = () => {
           </div>
         </div>
 
-        <div className="mt-6 flex flex-wrap justify-center gap-4 text-sm">
-          <div className="flex items-center space-x-2 bg-white px-3 py-2 rounded-lg border border-gray-200 shadow-sm">
-            <div className="w-4 h-4 bg-green-500 rounded border-2 border-green-700"></div>
+        <div className="mt-4 sm:mt-6 flex flex-wrap justify-center gap-2 sm:gap-4 text-xs sm:text-sm">
+          <div className="flex items-center space-x-1 sm:space-x-2 bg-white px-2 sm:px-3 py-1 sm:py-2 rounded-lg border border-gray-200 shadow-sm">
+            <div className="w-3 h-3 sm:w-4 sm:h-4 bg-green-500 rounded border-2 border-green-700"></div>
             <span className="text-gray-700">Tersedia</span>
           </div>
-          <div className="flex items-center space-x-2 bg-white px-3 py-2 rounded-lg border border-gray-200 shadow-sm">
-            <div className="w-4 h-4 bg-orange-600 rounded border-2 border-orange-800"></div>
+          <div className="flex items-center space-x-1 sm:space-x-2 bg-white px-2 sm:px-3 py-1 sm:py-2 rounded-lg border border-gray-200 shadow-sm">
+            <div className="w-3 h-3 sm:w-4 sm:h-4 bg-orange-600 rounded border-2 border-orange-800"></div>
             <span className="text-gray-700">Terpilih</span>
           </div>
-          <div className="flex items-center space-x-2 bg-white px-3 py-2 rounded-lg border border-gray-200 shadow-sm">
-            <div className="w-4 h-4 bg-red-500 rounded border-2 border-red-700"></div>
+          <div className="flex items-center space-x-1 sm:space-x-2 bg-white px-2 sm:px-3 py-1 sm:py-2 rounded-lg border border-gray-200 shadow-sm">
+            <div className="w-3 h-3 sm:w-4 sm:h-4 bg-red-500 rounded border-2 border-red-700"></div>
             <span className="text-gray-700">Terisi</span>
           </div>
-          <div className="flex items-center space-x-2 bg-white px-3 py-2 rounded-lg border border-gray-200 shadow-sm">
-            <div className="w-4 h-4 bg-gray-800 rounded border-2 border-gray-800"></div>
+          <div className="flex items-center space-x-1 sm:space-x-2 bg-white px-2 sm:px-3 py-1 sm:py-2 rounded-lg border border-gray-200 shadow-sm">
+            <div className="w-3 h-3 sm:w-4 sm:h-4 bg-gray-800 rounded border-2 border-gray-800"></div>
             <span className="text-gray-700">Lorong</span>
           </div>
         </div>
@@ -920,15 +920,6 @@ const TicketDetailPage = () => {
               >
                 Buka di Tab Baru
               </button>
-              <button
-                onClick={handleCloseMidtransModal}
-                className="w-full text-gray-600 py-3 rounded-lg hover:text-gray-800 transition-colors font-medium"
-              >
-                Bayar Nanti
-              </button>
-            </div>
-            <div className="mt-6 text-center text-sm text-gray-500">
-              <p>Pembayaran aman diproses oleh Midtrans</p>
             </div>
           </div>
         </div>

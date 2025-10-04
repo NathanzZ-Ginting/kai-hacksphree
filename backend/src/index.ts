@@ -14,7 +14,7 @@ const app = new Hono()
 
 // Add CORS middleware
 app.use('*', cors({
-  origin: ['http://localhost:5173', '*'],  // Allow frontend origin and any other origins for testing
+  origin: ['http://localhost:5173', 'http://localhost:5175', '*'],  // Allow both frontend ports and any other origins for testing
   allowHeaders: ['Content-Type', 'Authorization'],
   allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   exposeHeaders: ['Content-Length', 'X-RateLimit-Limit', 'X-RateLimit-Remaining', 'X-RateLimit-Reset'],

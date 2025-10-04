@@ -3,25 +3,12 @@ import { useNavigate } from "react-router-dom";
 import { Eye, EyeOff, Train } from "lucide-react";
 import { toast } from "sonner";
 import axios from "axios";
+import type { RegisterResponse } from "../../types/kai";
 
-// Interface untuk response API
-interface RegisterResponse {
-  success: boolean;
-  message: string;
-  data: {
-    user: {
-      uuid: string;
-      name: string;
-      age: number;
-      email: string;
-      password: string;
-      token: string | null;
-      phoneNumber: string;
-      createdAt: string;
-      updatedAt: string;
-    };
-    token: string;
-  };
+declare global {
+  interface Window {
+    grecaptcha: any;
+  }
 }
 
 const RegisterForm = () => {
@@ -138,10 +125,15 @@ const RegisterForm = () => {
         registerResult.message || "Registrasi berhasil! Silakan login."
       );
 
-      // Redirect ke halaman login setelah 2 detik
+      // Redirect ke halaman login
       setTimeout(() => {
-        navigate("/login");
-      }, 2000);
+        navigate("/login", { 
+          state: { 
+            message: 'Registrasi berhasil! Silakan login dengan akun Anda.',
+            email: email
+          }
+        });
+      }, 1500);
     } catch (error) {
       console.error("Register error:", error);
       const errorMessage =
