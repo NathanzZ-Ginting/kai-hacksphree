@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import axios from "axios";
@@ -102,7 +102,6 @@ const TicketSkeleton = () => {
 const BookingPage = () => {
   const navigate = useNavigate();
   const [tickets, setTickets] = useState<Ticket[]>([]);
-  const [filteredTickets, setFilteredTickets] = useState<Ticket[]>([]);
   const [stations, setStations] = useState<Station[]>([]);
   const [loading, setLoading] = useState(true);
   const [stationsLoading, setStationsLoading] = useState(true);
@@ -154,7 +153,6 @@ const BookingPage = () => {
 
         if (response.data.success) {
           setTickets(response.data.data);
-          setFilteredTickets(response.data.data);
         } else {
           setError("Gagal memuat data tiket");
         }
@@ -169,49 +167,25 @@ const BookingPage = () => {
     fetchTickets();
   }, [API_URL]);
 
-  // Apply filters - MODIFIED: Filter tidak wajib semua diisi
-  useEffect(() => {
+  // Apply filters using useMemo for performance
+  const filteredTickets = useMemo(() => {
     let filtered = [...tickets];
 
-    // Filter by origin station (jika dipilih)
+    // Filter by origin station (if selected)
     if (originStation) {
-      const originStationData = stations.find(
-        (s) => s.stationCode === originStation
+      filtered = filtered.filter(
+        (ticket) => ticket.schedule.originStationId === originStation
       );
-      if (originStationData) {
-        filtered = filtered.filter((ticket) => {
-          // Normalize station names for comparison
-          const ticketStationName = ticket.originStationName
-            .toLowerCase()
-            .trim();
-          const selectedStationName = originStationData.name
-            .toLowerCase()
-            .trim();
-          return ticketStationName === selectedStationName;
-        });
-      }
     }
 
-    // Filter by destination station (jika dipilih)
+    // Filter by destination station (if selected)
     if (destinationStation) {
-      const destinationStationData = stations.find(
-        (s) => s.stationCode === destinationStation
+      filtered = filtered.filter(
+        (ticket) => ticket.schedule.destinationStationId === destinationStation
       );
-      if (destinationStationData) {
-        filtered = filtered.filter((ticket) => {
-          // Normalize station names for comparison
-          const ticketStationName = ticket.destinationStationName
-            .toLowerCase()
-            .trim();
-          const selectedStationName = destinationStationData.name
-            .toLowerCase()
-            .trim();
-          return ticketStationName === selectedStationName;
-        });
-      }
     }
 
-    // Filter by departure date (jika dipilih)
+    // Filter by departure date (if selected)
     if (departureDate) {
       filtered = filtered.filter((ticket) => {
         const ticketDate = new Date(ticket.schedule.departureTime)
@@ -244,20 +218,11 @@ const BookingPage = () => {
       }
     });
 
-    setFilteredTickets(filtered);
-  }, [
-    originStation,
-    destinationStation,
-    departureDate,
-    sortBy,
-    tickets,
-    stations,
-  ]);
+    return filtered;
+  }, [originStation, destinationStation, departureDate, sortBy, tickets]);
 
-  // Handle search button click - MODIFIED: Selalu aktif
+  // Handle search button click
   const handleSearch = () => {
-    // Filter logic is already handled in the useEffect above
-    // This function is for explicit user action if needed
     console.log("Search triggered with:", {
       originStation: originStation || "All stations",
       destinationStation: destinationStation || "All stations",
@@ -282,14 +247,10 @@ const BookingPage = () => {
   };
 
   const handleBookTicket = (ticket: Ticket) => {
-    // Cek apakah user sudah login (gunakan AuthContext)
     if (!isLoggedIn) {
-      // Jika belum login, redirect ke halaman login
       navigate("/login");
       return;
     }
-
-    // Jika sudah login, redirect ke halaman detail tiket dengan UUID
     navigate(`/booking/detail/${ticket.uuid}`, { state: { ticket } });
   };
 
@@ -344,9 +305,6 @@ const BookingPage = () => {
     }
   };
 
-  // MODIFIED: Search is always enabled now
-  const isSearchEnabled = true;
-
   if (error) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -367,14 +325,34 @@ const BookingPage = () => {
   return (
     <div className="min-h-screen bg-gray-50 pb-20">
       {/* Hero Section */}
-      <div className="bg-gradient-to-r from-orange-600 to-orange-800 text-white py-12">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 lg:py-20">
-          <h1 className="text-3xl md:text-4xl font-bold mb-4">
-            Pesan Tiket Kereta
-          </h1>
-          <p className="text-orange-100 text-lg">
-            Temukan dan pesan tiket kereta dengan mudah
-          </p>
+      <div className="bg-gradient-to-r from-orange-600 to-orange-800 text-white py-16 lg:py-20">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center">
+            <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold mb-6 leading-tight">
+              Jelajahi Nusantara
+              <br />
+              <span className="text-orange-200 text-3xl md:text-4xl lg:text-5xl">Dengan Kereta Api</span>
+            </h1>
+            <p className="text-xl md:text-2xl text-orange-100 mb-5 max-w-3xl mx-auto leading-relaxed">
+              <span className="block mt-2">
+                Pesan tiket kereta Anda dengan mudah, cepat, dan aman.
+              </span>
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+              <div className="flex items-center text-orange-200">
+                <div className="w-2 h-2 bg-orange-300 rounded-full mr-2"></div>
+                <span>Terjamin Keamanannya</span>
+              </div>
+              <div className="flex items-center text-orange-200">
+                <div className="w-2 h-2 bg-orange-300 rounded-full mr-2"></div>
+                <span>Terpercaya Kualitasnya</span>
+              </div>
+              <div className="flex items-center text-orange-200">
+                <div className="w-2 h-2 bg-orange-300 rounded-full mr-2"></div>
+                <span>Terjangkau Harganya</span>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -394,7 +372,9 @@ const BookingPage = () => {
                 placeholder={
                   stationsLoading ? "Memuat stasiun..." : "Pilih Stasiun Awal"
                 }
-                stations={stations}
+                stations={stations.filter(
+                  (station) => station.uuid !== destinationStation
+                )}
               />
             </div>
 
@@ -422,7 +402,9 @@ const BookingPage = () => {
                 placeholder={
                   stationsLoading ? "Memuat stasiun..." : "Pilih Stasiun Tujuan"
                 }
-                stations={stations}
+                stations={stations.filter(
+                  (station) => station.uuid !== originStation
+                )}
               />
             </div>
 
@@ -440,13 +422,12 @@ const BookingPage = () => {
               />
             </div>
 
-            {/* Search Button - MODIFIED: Always enabled */}
+            {/* Search Button */}
             <div className="lg:col-span-1">
               <button
                 onClick={handleSearch}
                 className="w-full px-6 py-3 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors font-medium flex items-center justify-center"
               >
-                <Search className="h-5 w-5 mr-2" />
                 Cari
               </button>
             </div>
@@ -460,8 +441,7 @@ const BookingPage = () => {
 
               {originStation && (
                 <span className="inline-flex items-center px-3 py-1 rounded-full text-xs bg-orange-100 text-orange-800">
-                  Asal:{" "}
-                  {stations.find((s) => s.stationCode === originStation)?.name}
+                  Asal: {stations.find((s) => s.uuid === originStation)?.name}
                   <button
                     onClick={() => setOriginStation("")}
                     className="ml-1 hover:text-orange-900"
@@ -474,10 +454,7 @@ const BookingPage = () => {
               {destinationStation && (
                 <span className="inline-flex items-center px-3 py-1 rounded-full text-xs bg-orange-100 text-orange-800">
                   Tujuan:{" "}
-                  {
-                    stations.find((s) => s.stationCode === destinationStation)
-                      ?.name
-                  }
+                  {stations.find((s) => s.uuid === destinationStation)?.name}
                   <button
                     onClick={() => setDestinationStation("")}
                     className="ml-1 hover:text-orange-900"
@@ -537,7 +514,7 @@ const BookingPage = () => {
           </div>
         </div>
 
-        {/* Results Count - MODIFIED: Better messaging */}
+        {/* Results Count */}
         <div className="mb-6 flex justify-between items-center">
           <div className="text-gray-600">
             {loading ? (
@@ -565,7 +542,6 @@ const BookingPage = () => {
             )}
           </div>
 
-          {/* Reset Filters */}
           {(originStation || destinationStation || departureDate) && (
             <button
               onClick={clearFilters}
@@ -579,12 +555,10 @@ const BookingPage = () => {
         {/* Tickets Grid */}
         <div className="grid grid-cols-1 gap-6">
           {loading
-            ? // Skeleton Loaders
-              Array.from({ length: 3 }).map((_, index) => (
+            ? Array.from({ length: 3 }).map((_, index) => (
                 <TicketSkeleton key={index} />
               ))
-            : // Actual Tickets
-              filteredTickets.map((ticket) => (
+            : filteredTickets.map((ticket) => (
                 <div
                   key={ticket.uuid}
                   className="bg-white rounded-2xl shadow-sm border border-gray-200 hover:shadow-md transition-shadow"
@@ -677,7 +651,7 @@ const BookingPage = () => {
               ))}
         </div>
 
-        {/* Empty State - MODIFIED: Better messaging */}
+        {/* Empty State */}
         {!loading && filteredTickets.length === 0 && (
           <div className="text-center py-12">
             <Search className="h-16 w-16 text-gray-400 mx-auto mb-4" />

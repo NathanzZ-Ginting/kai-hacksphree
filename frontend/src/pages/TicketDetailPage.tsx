@@ -4,15 +4,13 @@ import axios from "axios";
 import {
   ArrowLeft,
   Train,
-  Users,
   CreditCard,
-  User,
   Shield,
   Plus,
   Minus,
   X,
   DoorOpen,
-  Car,
+  Armchair,
 } from "lucide-react";
 
 // Types
@@ -84,6 +82,153 @@ interface SeatLayout {
   layout: string[][];
   hasAisle?: boolean;
 }
+
+const TicketDetailSkeleton = () => {
+  return (
+    <div className="min-h-screen bg-gray-50 pt-20">
+      <div className="bg-white shadow-sm border-b">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+          <div className="flex items-center text-gray-400">
+            <div className="w-5 h-5 bg-gray-300 rounded mr-2 animate-pulse"></div>
+            <div className="h-4 bg-gray-300 rounded w-24 animate-pulse"></div>
+          </div>
+        </div>
+      </div>
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Left Column Skeleton */}
+          <div className="lg:col-span-2 space-y-6">
+            {/* Ticket Detail Skeleton */}
+            <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
+              <div className="h-8 bg-gray-300 rounded w-64 mb-6 animate-pulse"></div>
+              <div className="space-y-6">
+                <div className="flex items-start space-x-4">
+                  <div className="w-12 h-12 bg-gray-300 rounded-lg flex-shrink-0 animate-pulse"></div>
+                  <div className="flex-1">
+                    <div className="h-6 bg-gray-300 rounded w-48 mb-2 animate-pulse"></div>
+                    <div className="h-6 bg-gray-300 rounded w-32 mb-2 animate-pulse"></div>
+                    <div className="h-4 bg-gray-300 rounded w-40 animate-pulse"></div>
+                  </div>
+                </div>
+                <div className="flex items-center justify-between">
+                  <div className="text-center">
+                    <div className="h-8 bg-gray-300 rounded w-20 mb-2 animate-pulse"></div>
+                    <div className="h-4 bg-gray-300 rounded w-32 mb-1 animate-pulse"></div>
+                    <div className="h-3 bg-gray-300 rounded w-24 animate-pulse"></div>
+                  </div>
+                  <div className="flex-1 px-6 text-center">
+                    <div className="h-4 bg-gray-300 rounded w-24 mb-2 mx-auto animate-pulse"></div>
+                    <div className="h-1 bg-gray-300 rounded-full relative animate-pulse">
+                      <div className="absolute top-1/2 left-0 transform -translate-y-1/2 w-3 h-3 bg-gray-400 rounded-full"></div>
+                      <div className="absolute top-1/2 right-0 transform -translate-y-1/2 w-3 h-3 bg-gray-400 rounded-full"></div>
+                    </div>
+                  </div>
+                  <div className="text-center">
+                    <div className="h-8 bg-gray-300 rounded w-20 mb-2 animate-pulse"></div>
+                    <div className="h-4 bg-gray-300 rounded w-32 mb-1 animate-pulse"></div>
+                    <div className="h-3 bg-gray-300 rounded w-24 animate-pulse"></div>
+                  </div>
+                </div>
+                <div className="border-t pt-6">
+                  <div className="flex justify-between items-center">
+                    <div className="h-6 bg-gray-300 rounded w-40 animate-pulse"></div>
+                    <div className="h-8 bg-gray-300 rounded w-32 animate-pulse"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Passenger Counter Skeleton */}
+            <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
+              <div className="h-8 bg-gray-300 rounded w-48 mb-6 animate-pulse"></div>
+              <div className="space-y-6">
+                {[1, 2].map((item) => (
+                  <div
+                    key={item}
+                    className="flex items-center justify-between p-4 border border-gray-200 rounded-xl animate-pulse"
+                  >
+                    <div className="flex-1">
+                      <div className="h-6 bg-gray-300 rounded w-32 mb-2 animate-pulse"></div>
+                      <div className="h-4 bg-gray-300 rounded w-40 mb-2 animate-pulse"></div>
+                      <div className="h-4 bg-gray-300 rounded w-24 animate-pulse"></div>
+                    </div>
+                    <div className="flex items-center space-x-4">
+                      <div className="w-10 h-10 bg-gray-300 rounded-full animate-pulse"></div>
+                      <div className="h-6 bg-gray-300 rounded w-8 animate-pulse"></div>
+                      <div className="w-10 h-10 bg-gray-300 rounded-full animate-pulse"></div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <div className="mt-6 p-4 bg-gray-100 rounded-xl border border-gray-200 animate-pulse">
+                <div className="flex justify-between items-center">
+                  <div className="h-6 bg-gray-300 rounded w-32 animate-pulse"></div>
+                  <div className="h-8 bg-gray-300 rounded w-20 animate-pulse"></div>
+                </div>
+              </div>
+            </div>
+
+            {/* Seat Selection Skeleton */}
+            <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
+              <div className="h-8 bg-gray-300 rounded w-32 mb-6 animate-pulse"></div>
+              <div className="mb-8">
+                <div className="h-6 bg-gray-300 rounded w-48 mb-4 animate-pulse"></div>
+                <div className="flex space-x-3">
+                  {[1, 2, 3].map((coach) => (
+                    <div
+                      key={coach}
+                      className="w-12 h-12 bg-gray-300 rounded-full animate-pulse"
+                    ></div>
+                  ))}
+                </div>
+              </div>
+              <div className="bg-gray-200 rounded-lg p-6 h-64 animate-pulse"></div>
+            </div>
+          </div>
+
+          {/* Right Column Skeleton */}
+          <div className="lg:col-span-1">
+            <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 sticky top-6">
+              <div className="h-8 bg-gray-300 rounded w-48 mb-6 animate-pulse"></div>
+              <div className="space-y-4 mb-6">
+                {[1, 2, 3, 4, 5, 6].map((item) => (
+                  <div key={item} className="flex justify-between">
+                    <div className="h-4 bg-gray-300 rounded w-20 animate-pulse"></div>
+                    <div className="h-4 bg-gray-300 rounded w-24 animate-pulse"></div>
+                  </div>
+                ))}
+              </div>
+              <div className="border-t pt-4 space-y-3">
+                {[1, 2].map((item) => (
+                  <div key={item} className="flex justify-between">
+                    <div className="h-4 bg-gray-300 rounded w-32 animate-pulse"></div>
+                    <div className="h-4 bg-gray-300 rounded w-20 animate-pulse"></div>
+                  </div>
+                ))}
+              </div>
+              <div className="border-t pt-4 mt-4">
+                <div className="flex justify-between items-center">
+                  <div className="h-6 bg-gray-300 rounded w-16 animate-pulse"></div>
+                  <div className="h-8 bg-gray-300 rounded w-24 animate-pulse"></div>
+                </div>
+              </div>
+              <div className="w-full mt-6 bg-gray-300 text-gray-300 py-4 rounded-lg font-semibold flex items-center justify-center animate-pulse">
+                Memuat...
+              </div>
+              <div className="mt-4 text-center">
+                <div className="flex items-center justify-center space-x-2">
+                  <div className="w-4 h-4 bg-gray-300 rounded animate-pulse"></div>
+                  <div className="h-3 bg-gray-300 rounded w-32 animate-pulse"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 const TicketDetailPage = () => {
   const { uuid } = useParams();
@@ -599,7 +744,7 @@ const TicketDetailPage = () => {
                             }
                           `}
                           >
-                            <Car className="h-5 w-5 mb-1" />
+                            <Armchair className="h-5 w-5 mb-1" />
                             <span className="text-xs">{seat}</span>
                             {status === "selected" && (
                               <span className="absolute -top-2 -right-2 bg-white text-orange-600 text-xs font-bold w-6 h-6 rounded-full flex items-center justify-center border-2 border-orange-600 shadow-lg">
@@ -663,7 +808,7 @@ const TicketDetailPage = () => {
                             }
                           `}
                           >
-                            <Car className="h-5 w-5 mb-1" />
+                            <Armchair className="h-5 w-5 mb-1" />
                             <span className="text-xs">{seat}</span>
                             {status === "selected" && (
                               <span className="absolute -top-2 -right-2 bg-white text-orange-600 text-xs font-bold w-6 h-6 rounded-full flex items-center justify-center border-2 border-orange-600 shadow-lg">
@@ -682,96 +827,6 @@ const TicketDetailPage = () => {
           <div className="absolute bottom-0 left-0 right-0 h-4 bg-gray-600 rounded-b-lg border-t-2 border-gray-700"></div>
           <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white px-4 py-1 rounded-full text-sm font-bold border-2 border-gray-600">
             GERBONG {selectedCoach}
-          </div>
-        </div>
-
-        <div className="mt-6 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border border-blue-200">
-          <h4 className="font-bold text-gray-900 mb-3 text-lg flex items-center">
-            <Car className="h-5 w-5 mr-2 text-blue-600" />
-            Sistem Penomoran Kursi:
-          </h4>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-            {isLuxuryOrPriority ? (
-              <>
-                <div className="bg-white p-3 rounded-lg border border-blue-100">
-                  <span className="font-bold text-blue-700">
-                    Sisi Kiri Gerbong:
-                  </span>
-                  <div className="mt-2 space-y-2">
-                    <div className="flex items-center space-x-2">
-                      <div className="w-4 h-4 bg-blue-500 rounded-full"></div>
-                      <span className="text-gray-700">
-                        <strong>A1, B1, C1, D1, E1, F1</strong> : Kursi Jendela
-                        (Window)
-                      </span>
-                    </div>
-                  </div>
-                </div>
-                <div className="bg-white p-3 rounded-lg border border-green-100">
-                  <span className="font-bold text-green-700">
-                    Sisi Kanan Gerbong:
-                  </span>
-                  <div className="mt-2 space-y-2">
-                    <div className="flex items-center space-x-2">
-                      <div className="w-4 h-4 bg-blue-500 rounded-full"></div>
-                      <span className="text-gray-700">
-                        <strong>A2, B2, C2, D2, E2, F2</strong> : Kursi Jendela
-                        (Window)
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              </>
-            ) : (
-              <>
-                <div className="bg-white p-3 rounded-lg border border-blue-100">
-                  <span className="font-bold text-blue-700">
-                    Sisi Kiri Gerbong:
-                  </span>
-                  <div className="mt-2 space-y-2">
-                    <div className="flex items-center space-x-2">
-                      <div className="w-4 h-4 bg-blue-500 rounded-full"></div>
-                      <span className="text-gray-700">
-                        <strong>A1, B1, C1, D1, E1, F1, G1, H1, I1, J1</strong>{" "}
-                        : Kursi Jendela (Window)
-                      </span>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <div className="w-4 h-4 bg-green-500 rounded-full"></div>
-                      <span className="text-gray-700">
-                        <strong>A2, B2, C2, D2, E2, F2, G2, H2, I2, J2</strong>{" "}
-                        : Kursi Aisle
-                      </span>
-                    </div>
-                  </div>
-                </div>
-                <div className="bg-white p-3 rounded-lg border border-green-100">
-                  <span className="font-bold text-green-700">
-                    Sisi Kanan Gerbong:
-                  </span>
-                  <div className="mt-2 space-y-2">
-                    <div className="flex items-center space-x-2">
-                      <div className="w-4 h-4 bg-green-500 rounded-full"></div>
-                      <span className="text-gray-700">
-                        <strong>A3, B3, C3, D3, E3, F3, G3, H3, I3, J3</strong>{" "}
-                        : Kursi Aisle
-                      </span>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <div className="w-4 h-4 bg-blue-500 rounded-full"></div>
-                      <span className="text-gray-700">
-                        <strong>A4, B4, C4, D4, E4, F4, G4, H4, I4, J4</strong>{" "}
-                        : Kursi Jendela (Window)
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              </>
-            )}
-          </div>
-          <div className="mt-3 text-xs text-gray-600 bg-yellow-50 p-2 rounded border border-yellow-200">
-            <strong>Tip:</strong> Kursi jendela (W) cocok untuk menikmati
-            pemandangan, kursi aisle (A) memudahkan untuk keluar-masuk
           </div>
         </div>
 
@@ -801,7 +856,7 @@ const TicketDetailPage = () => {
     if (!showMidtransModal) return null;
 
     return (
-      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 no-scrollbar">
         <div className="bg-white rounded-2xl max-w-md w-full max-h-[90vh] overflow-y-auto">
           <div className="flex items-center justify-between p-6 border-b border-gray-200">
             <h3 className="text-xl font-bold text-gray-900">
@@ -869,14 +924,7 @@ const TicketDetailPage = () => {
   };
 
   if (loading) {
-    return (
-      <div className="min-h-screen bg-gray-50 pt-20 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Memuat detail tiket...</p>
-        </div>
-      </div>
-    );
+    return <TicketDetailSkeleton />;
   }
 
   if (error && !ticket) {
