@@ -169,11 +169,11 @@ const BookingPage = () => {
     fetchTickets();
   }, [API_URL]);
 
-  // Apply filters
+  // Apply filters - MODIFIED: Filter tidak wajib semua diisi
   useEffect(() => {
     let filtered = [...tickets];
 
-    // Filter by origin station
+    // Filter by origin station (jika dipilih)
     if (originStation) {
       const originStationData = stations.find(
         (s) => s.stationCode === originStation
@@ -192,7 +192,7 @@ const BookingPage = () => {
       }
     }
 
-    // Filter by destination station
+    // Filter by destination station (jika dipilih)
     if (destinationStation) {
       const destinationStationData = stations.find(
         (s) => s.stationCode === destinationStation
@@ -211,7 +211,7 @@ const BookingPage = () => {
       }
     }
 
-    // Filter by departure date
+    // Filter by departure date (jika dipilih)
     if (departureDate) {
       filtered = filtered.filter((ticket) => {
         const ticketDate = new Date(ticket.schedule.departureTime)
@@ -254,14 +254,14 @@ const BookingPage = () => {
     stations,
   ]);
 
-  // Handle search button click
+  // Handle search button click - MODIFIED: Selalu aktif
   const handleSearch = () => {
     // Filter logic is already handled in the useEffect above
     // This function is for explicit user action if needed
     console.log("Search triggered with:", {
-      originStation,
-      destinationStation,
-      departureDate,
+      originStation: originStation || "All stations",
+      destinationStation: destinationStation || "All stations",
+      departureDate: departureDate || "All dates",
       sortBy,
     });
   };
@@ -344,8 +344,8 @@ const BookingPage = () => {
     }
   };
 
-  // Check if search button should be enabled
-  const isSearchEnabled = originStation && destinationStation && departureDate;
+  // MODIFIED: Search is always enabled now
+  const isSearchEnabled = true;
 
   if (error) {
     return (
@@ -440,17 +440,13 @@ const BookingPage = () => {
               />
             </div>
 
-            {/* Search Button */}
+            {/* Search Button - MODIFIED: Always enabled */}
             <div className="lg:col-span-1">
               <button
                 onClick={handleSearch}
-                disabled={!isSearchEnabled}
-                className={`w-full px-6 py-3 rounded-lg transition-colors font-medium flex items-center justify-center ${
-                  isSearchEnabled
-                    ? "bg-orange-600 text-white hover:bg-orange-700"
-                    : "bg-gray-300 text-gray-500 cursor-not-allowed"
-                }`}
+                className="w-full px-6 py-3 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors font-medium flex items-center justify-center"
               >
+                <Search className="h-5 w-5 mr-2" />
                 Cari
               </button>
             </div>
@@ -541,16 +537,30 @@ const BookingPage = () => {
           </div>
         </div>
 
-        {/* Results Count */}
+        {/* Results Count - MODIFIED: Better messaging */}
         <div className="mb-6 flex justify-between items-center">
           <div className="text-gray-600">
             {loading ? (
               <div className="h-5 bg-gray-200 rounded w-40 animate-pulse"></div>
             ) : (
               <>
-                Menampilkan{" "}
-                <span className="font-semibold">{filteredTickets.length}</span>{" "}
-                tiket tersedia
+                {originStation || destinationStation || departureDate ? (
+                  <>
+                    Menampilkan{" "}
+                    <span className="font-semibold">
+                      {filteredTickets.length}
+                    </span>{" "}
+                    tiket yang sesuai filter
+                  </>
+                ) : (
+                  <>
+                    Menampilkan semua{" "}
+                    <span className="font-semibold">
+                      {filteredTickets.length}
+                    </span>{" "}
+                    tiket tersedia
+                  </>
+                )}
               </>
             )}
           </div>
@@ -667,14 +677,14 @@ const BookingPage = () => {
               ))}
         </div>
 
-        {/* Empty State */}
+        {/* Empty State - MODIFIED: Better messaging */}
         {!loading && filteredTickets.length === 0 && (
           <div className="text-center py-12">
             <Search className="h-16 w-16 text-gray-400 mx-auto mb-4" />
             <h3 className="text-lg font-semibold text-gray-900 mb-2">
               {originStation || destinationStation || departureDate
                 ? "Tidak ada tiket yang sesuai dengan filter"
-                : "Tidak ada tiket tersedia"}
+                : "Belum ada tiket tersedia"}
             </h3>
             <p className="text-gray-600 mb-4">
               {originStation || destinationStation || departureDate

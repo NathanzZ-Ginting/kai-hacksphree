@@ -161,13 +161,13 @@ const InvoiceModal = ({ isOpen, onClose, invoiceData }: InvoiceModalProps) => {
                     <div className="space-y-3">
                       <div className="flex justify-between">
                         <span className="text-gray-600">Nomor Invoice:</span>
-                        <span className="font-medium">
+                        <span className="font-medium text-gray-700">
                           {invoiceData.invoiceNumber}
                         </span>
                       </div>
                       <div className="flex justify-between">
                         <span className="text-gray-600">Jumlah Penumpang:</span>
-                        <span className="font-medium">
+                        <span className="font-medium text-gray-700">
                           {invoiceData.numberOfPassanger} orang
                         </span>
                       </div>
@@ -189,13 +189,13 @@ const InvoiceModal = ({ isOpen, onClose, invoiceData }: InvoiceModalProps) => {
                     <div className="space-y-3">
                       <div className="flex justify-between">
                         <span className="text-gray-600">Tanggal Pesan:</span>
-                        <span className="font-medium text-right">
+                        <span className="font-medium text-right text-gray-700">
                           {formatDate(invoiceData.orderDate)}
                         </span>
                       </div>
                       <div className="flex justify-between">
                         <span className="text-gray-600">Status Terakhir:</span>
-                        <span className="font-medium">
+                        <span className="font-medium text-gray-700">
                           {formatDate(invoiceData.updatedAt)}
                         </span>
                       </div>

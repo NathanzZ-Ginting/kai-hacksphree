@@ -43,9 +43,10 @@ interface TicketDetail {
 
 interface Seat {
   uuid: string;
-  trainId: string; // This will be train name from backend
+  trainId: string;
   nameSeat: string;
-  categoryTrain: string; // This will be category name from backend
+  categoryTrain: string;
+  isAvailable?: boolean;
 }
 
 interface OrderResponse {
@@ -116,10 +117,10 @@ const TicketDetailPage = () => {
   ]);
   const [selectedSeats, setSelectedSeats] = useState<string[]>([]);
   const [selectedCoach, setSelectedCoach] = useState<number>(1);
+  const [occupiedSeats, setOccupiedSeats] = useState<string[]>([]);
 
   const API_URL = import.meta.env.API_URL || "http://localhost:3000/api/v1";
 
-  // Fetch ticket detail and seats
   useEffect(() => {
     const fetchTicketDetail = async () => {
       try {
@@ -130,7 +131,6 @@ const TicketDetailPage = () => {
             location.state.ticket
           );
           setTicket(location.state.ticket);
-          // Fetch seats after getting ticket
           if (location.state.ticket.trainUuid) {
             console.log(
               "Fetching seats for trainUuid from state:",
@@ -149,11 +149,8 @@ const TicketDetailPage = () => {
           `${API_URL}/master-data/ticket/${uuid}`
         );
 
-        console.log("Ticket detail response:", response.data);
-
         if (response.data.success) {
           setTicket(response.data.data);
-          // Fetch seats after getting ticket
           if (response.data.data.trainUuid) {
             console.log(
               "Fetching seats for trainUuid from API:",
@@ -180,20 +177,21 @@ const TicketDetailPage = () => {
     const fetchSeats = async (trainUuid: string) => {
       try {
         console.log("Fetching seats for trainUuid:", trainUuid);
-        console.log(
-          "Seat API URL:",
-          `${API_URL}/master-data/train-seat/${trainUuid}`
-        );
-
         const response = await axios.get<SeatApiResponse>(
           `${API_URL}/master-data/train-seat/${trainUuid}`
         );
 
-        console.log("Seats response:", response.data);
-
         if (response.data.success) {
-          setSeats(response.data.data);
-          console.log("Seats loaded successfully:", response.data.data);
+          const seatsWithAvailability = response.data.data.map((seat) => ({
+            ...seat,
+            isAvailable: Math.random() > 0.3,
+          }));
+
+          setSeats(seatsWithAvailability);
+          const occupied = seatsWithAvailability
+            .filter((seat) => !seat.isAvailable)
+            .map((seat) => seat.nameSeat);
+          setOccupiedSeats(occupied);
         } else {
           console.error("Failed to load seats:", response.data.message);
           setError("Gagal memuat data kursi");
@@ -209,84 +207,93 @@ const TicketDetailPage = () => {
     }
   }, [uuid, location.state]);
 
-  // Get unique coaches from seat data
   const getCoaches = () => {
-    const coachNumbers = seats.map((seat) => parseInt(seat.nameSeat.charAt(0)));
-    return Array.from(new Set(coachNumbers)).sort((a, b) => a - b);
+    if (seats.length === 0) return [];
+    const coachSet = new Set<number>();
+    seats.forEach((seat) => {
+      const coachNum = parseInt(seat.nameSeat.charAt(0));
+      if (!isNaN(coachNum)) {
+        coachSet.add(coachNum);
+      }
+    });
+    return Array.from(coachSet).sort((a, b) => a - b);
   };
 
-  // Layout kursi berdasarkan kategori
-  const getSeatLayoutByCategory = (category: string): SeatLayout => {
-    const categoryLower = category.toLowerCase();
+  const getSeatLayoutForCoach = (coach: number): SeatLayout => {
+    const coachSeats = getSeatsByCoach(coach);
 
-    const createTwoTwoLayout = (rows: number) => {
-      const layout: string[][] = [];
-      const rowTypes = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J"];
-      for (let i = 0; i < rows; i++) {
-        const row: string[] = [
-          `${rowTypes[i]}1`,
-          `${rowTypes[i]}2`,
-          "",
-          `${rowTypes[i]}3`,
-          `${rowTypes[i]}4`,
-        ];
-        layout.push(row);
-      }
+    if (coachSeats.length === 0) {
       return {
-        rows: rows,
-        columns: 4,
-        seatsPerRow: 4,
-        hasAisle: true,
-        layout,
+        rows: 0,
+        columns: 0,
+        seatsPerRow: 0,
+        hasAisle: false,
+        layout: [],
       };
-    };
-
-    const createOneOneLayout = (rows: number) => {
-      const layout: string[][] = [];
-      const rowTypes = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J"];
-      for (let i = 0; i < rows; i++) {
-        const row: string[] = [`${rowTypes[i]}1`, "", `${rowTypes[i]}2`];
-        layout.push(row);
-      }
-      return {
-        rows: rows,
-        columns: 2,
-        seatsPerRow: 2,
-        hasAisle: true,
-        layout,
-      };
-    };
-
-    switch (categoryLower) {
-      case "bisnis":
-        return createTwoTwoLayout(8);
-      case "ekonomi":
-        return createTwoTwoLayout(10);
-      case "eksekutif":
-        return createTwoTwoLayout(6);
-      case "luxury":
-        return createOneOneLayout(6);
-      case "priority":
-        return createOneOneLayout(3);
-      default:
-        return createTwoTwoLayout(8);
     }
+
+    const seatsByRow: { [key: string]: string[] } = {};
+    coachSeats.forEach((seatName) => {
+      const rowMatch = seatName.match(/^\d+([A-Z])\d+$/);
+      if (rowMatch) {
+        const rowLetter = rowMatch[1];
+        if (!seatsByRow[rowLetter]) {
+          seatsByRow[rowLetter] = [];
+        }
+        seatsByRow[rowLetter].push(seatName);
+      }
+    });
+
+    const sortedRows = Object.keys(seatsByRow).sort();
+    const layout: string[][] = [];
+
+    const categoryLower = ticket?.trainCategoryName.toLowerCase() || "bisnis";
+    const isLuxuryOrPriority =
+      categoryLower === "luxury" || categoryLower === "priority";
+
+    sortedRows.forEach((rowLetter) => {
+      const rowSeats = seatsByRow[rowLetter].sort((a, b) => {
+        const aNum = parseInt(a.slice(-1));
+        const bNum = parseInt(b.slice(-1));
+        return aNum - bNum;
+      });
+
+      if (isLuxuryOrPriority) {
+        layout.push([rowSeats[0] || "", "", rowSeats[1] || ""]);
+      } else {
+        layout.push([
+          rowSeats[0] || "",
+          rowSeats[1] || "",
+          "",
+          rowSeats[2] || "",
+          rowSeats[3] || "",
+        ]);
+      }
+    });
+
+    const seatsPerRow = isLuxuryOrPriority ? 2 : 4;
+    const columns = isLuxuryOrPriority ? 3 : 5;
+
+    return {
+      rows: layout.length,
+      columns,
+      seatsPerRow,
+      hasAisle: true,
+      layout,
+    };
   };
 
-  // Filter kursi berdasarkan gerbong yang dipilih
-  const getSeatsByCoach = (coach: number) => {
+  const getSeatsByCoach = (coach: number): string[] => {
     return seats
       .filter((seat) => seat.nameSeat.startsWith(coach.toString()))
       .map((seat) => seat.nameSeat);
   };
 
-  // Hitung total passenger
   const totalPassengers = passengerCounters.reduce(
     (total, counter) => total + counter.count,
     0
   );
 
-  // Update selected seats ketika jumlah passenger berubah
   useEffect(() => {
     if (selectedSeats.length > totalPassengers) {
       setSelectedSeats(selectedSeats.slice(0, totalPassengers));
@@ -299,7 +306,6 @@ const TicketDetailPage = () => {
     }
   }, [totalPassengers]);
 
-  // Handler untuk passenger counter
   const updatePassengerCount = (type: string, newCount: number) => {
     if (newCount < 0) return;
     setPassengerCounters((prev) =>
@@ -309,20 +315,26 @@ const TicketDetailPage = () => {
     );
   };
 
-  // Handler untuk memilih kursi
-  const handleSeatSelect = (seat: string, passengerIndex: number) => {
-    if (
-      selectedSeats.includes(seat) &&
-      selectedSeats[passengerIndex] !== seat
-    ) {
-      return;
-    }
+  const handleSeatSelect = (seat: string, index: number) => {
+    const seatData = seats.find((s) => s.nameSeat === seat);
+    if (!seatData?.isAvailable) return;
+
     const updatedSeats = [...selectedSeats];
-    updatedSeats[passengerIndex] = seat;
+    if (updatedSeats[index] === seat) {
+      updatedSeats[index] = "";
+    } else {
+      updatedSeats[index] = seat;
+    }
     setSelectedSeats(updatedSeats);
   };
 
-  // Generate typePassenger array
+  const getSeatStatus = (seatName: string) => {
+    if (selectedSeats.includes(seatName)) return "selected";
+    if (occupiedSeats.includes(seatName)) return "occupied";
+    const seatData = seats.find((seat) => seat.nameSeat === seatName);
+    return seatData?.isAvailable ? "available" : "occupied";
+  };
+
   const generateTypePassengerArray = (): string[] => {
     const typeArray: string[] = [];
     passengerCounters.forEach((counter) => {
@@ -333,7 +345,6 @@ const TicketDetailPage = () => {
     return typeArray;
   };
 
-  // Calculate total price
   const calculateTotalPrice = () => {
     if (!ticket) return 0;
     let total = 0;
@@ -343,7 +354,6 @@ const TicketDetailPage = () => {
     return total;
   };
 
-  // Submit order
   const handleSubmitOrder = async () => {
     if (!ticket) return;
 
@@ -416,7 +426,6 @@ const TicketDetailPage = () => {
     }
   };
 
-  // Handler untuk modal Midtrans
   const handleCloseMidtransModal = () => {
     setShowMidtransModal(false);
     setOrderSuccess(false);
@@ -426,7 +435,6 @@ const TicketDetailPage = () => {
     window.open(snapRedirectUrl, "_blank");
   };
 
-  // Helper functions
   const formatTime = (dateString: string) => {
     return new Date(dateString).toLocaleTimeString("id-ID", {
       hour: "2-digit",
@@ -477,26 +485,39 @@ const TicketDetailPage = () => {
     }
   };
 
-  // Render seat layout
+  const getSeatType = (seatName: string): "window" | "aisle" => {
+    const seatNumber = parseInt(seatName.slice(-1));
+    const categoryLower = ticket?.trainCategoryName.toLowerCase() || "";
+    const isLuxuryOrPriority =
+      categoryLower === "luxury" || categoryLower === "priority";
+
+    if (isLuxuryOrPriority) {
+      return "window";
+    } else {
+      return seatNumber === 1 || seatNumber === 4 ? "window" : "aisle";
+    }
+  };
+
   const renderSeatLayout = () => {
     if (!ticket) return null;
 
-    const seatLayout = getSeatLayoutByCategory(ticket.trainCategoryName);
+    const seatLayout = getSeatLayoutForCoach(selectedCoach);
     const categoryLower = ticket.trainCategoryName.toLowerCase();
-    const currentCoachSeats = getSeatsByCoach(selectedCoach);
+    const isLuxuryOrPriority =
+      categoryLower === "luxury" || categoryLower === "priority";
 
-    const getSeatColor = (isSelected: boolean, isOccupied: boolean) => {
-      if (isSelected) return "bg-orange-600 text-white border-orange-800";
-      if (isOccupied) return "bg-red-500 text-white border-red-700 opacity-70";
-      switch (categoryLower) {
-        case "luxury":
-          return "bg-gradient-to-b from-yellow-400 to-yellow-600 text-white border-yellow-700 hover:from-yellow-500 hover:to-yellow-700";
-        case "eksekutif":
-          return "bg-gradient-to-b from-blue-400 to-blue-600 text-white border-blue-700 hover:from-blue-500 hover:to-blue-700";
-        case "bisnis":
-          return "bg-gradient-to-b from-green-400 to-green-600 text-white border-green-700 hover:from-green-500 hover:to-green-700";
+    const getSeatColor = (seatName: string) => {
+      const status = getSeatStatus(seatName);
+
+      switch (status) {
+        case "selected":
+          return "bg-orange-600 text-white border-orange-800";
+        case "occupied":
+          return "bg-red-500 text-white border-red-700 opacity-70 cursor-not-allowed";
+        case "available":
+          return "bg-green-500 text-white border-green-700 hover:bg-green-600 cursor-pointer";
         default:
-          return "bg-gradient-to-b from-gray-400 to-gray-600 text-white border-gray-700 hover:from-gray-500 hover:to-gray-700";
+          return "bg-gray-300 text-gray-500 border-gray-400 cursor-not-allowed";
       }
     };
 
@@ -535,75 +556,56 @@ const TicketDetailPage = () => {
                 >
                   <div className="flex space-x-3">
                     {row
-                      .slice(
-                        0,
-                        categoryLower === "luxury" ||
-                          categoryLower === "priority"
-                          ? 1
-                          : 2
-                      )
+                      .slice(0, isLuxuryOrPriority ? 1 : 2)
                       .map((seat, seatIndex) => {
-                        if (!seat) return null;
-                        const fullSeatNumber = `${selectedCoach}${seat}`;
-                        const isAvailable =
-                          currentCoachSeats.includes(fullSeatNumber);
-                        if (!isAvailable) return null;
-                        const isSelected =
-                          selectedSeats.includes(fullSeatNumber);
-                        const passengerIndex = selectedSeats.findIndex(
-                          (s) => s === fullSeatNumber
-                        );
-                        const isOccupied = Math.random() < 0.3;
+                        if (!seat)
+                          return (
+                            <div
+                              key={`empty-${seatIndex}`}
+                              className="w-14 h-14"
+                            ></div>
+                          );
+
+                        const status = getSeatStatus(seat);
+                        const isSelectable =
+                          status === "available" ||
+                          (status === "selected" &&
+                            selectedSeats.includes(seat));
+                        const passengerIndex = selectedSeats.indexOf(seat);
 
                         return (
                           <button
                             key={seat}
                             onClick={() => {
-                              if (!isOccupied) {
-                                const availableIndex = selectedSeats.findIndex(
-                                  (s, idx) =>
-                                    !s &&
-                                    !selectedSeats.includes(fullSeatNumber)
-                                );
-                                if (availableIndex !== -1) {
-                                  handleSeatSelect(
-                                    fullSeatNumber,
-                                    availableIndex
-                                  );
-                                }
+                              if (isSelectable) {
+                                const indexToUpdate =
+                                  passengerIndex !== -1
+                                    ? passengerIndex
+                                    : selectedSeats.indexOf("");
+                                handleSeatSelect(seat, indexToUpdate);
                               }
                             }}
-                            disabled={isOccupied && !isSelected}
+                            disabled={
+                              !isSelectable && !selectedSeats.includes(seat)
+                            }
                             className={`
-                              w-14 h-14 rounded-xl flex flex-col items-center justify-center text-sm font-bold transition-all
-                              relative border-2 shadow-lg transform hover:scale-110
-                              ${getSeatColor(isSelected, isOccupied)}
-                              ${
-                                isOccupied && !isSelected
-                                  ? "cursor-not-allowed"
-                                  : "cursor-pointer"
-                              }
-                            `}
+                            w-14 h-14 rounded-xl flex flex-col items-center justify-center text-sm font-bold transition-all
+                            relative border-2 shadow-lg transform hover:scale-110
+                            ${getSeatColor(seat)}
+                            ${
+                              !isSelectable && !selectedSeats.includes(seat)
+                                ? "cursor-not-allowed"
+                                : "cursor-pointer"
+                            }
+                          `}
                           >
                             <Car className="h-5 w-5 mb-1" />
                             <span className="text-xs">{seat}</span>
-                            {isSelected && (
+                            {status === "selected" && (
                               <span className="absolute -top-2 -right-2 bg-white text-orange-600 text-xs font-bold w-6 h-6 rounded-full flex items-center justify-center border-2 border-orange-600 shadow-lg">
                                 P{passengerIndex + 1}
                               </span>
                             )}
-                            <div
-                              className={`absolute -top-1 -left-1 w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold
-                              ${
-                                seat.includes("1") || seat.includes("4")
-                                  ? "bg-blue-500 text-white"
-                                  : "bg-green-500 text-white"
-                              }`}
-                            >
-                              {seat.includes("1") || seat.includes("4")
-                                ? "W"
-                                : "A"}
-                            </div>
                           </button>
                         );
                       })}
@@ -616,74 +618,58 @@ const TicketDetailPage = () => {
                   <div className="flex space-x-3">
                     {row
                       .slice(
-                        categoryLower === "luxury" ||
-                          categoryLower === "priority"
-                          ? 2
-                          : 3,
-                        5
+                        isLuxuryOrPriority ? 2 : 3,
+                        isLuxuryOrPriority ? 3 : 5
                       )
                       .map((seat, seatIndex) => {
-                        if (!seat) return null;
-                        const fullSeatNumber = `${selectedCoach}${seat}`;
-                        const isAvailable =
-                          currentCoachSeats.includes(fullSeatNumber);
-                        if (!isAvailable) return null;
-                        const isSelected =
-                          selectedSeats.includes(fullSeatNumber);
-                        const passengerIndex = selectedSeats.findIndex(
-                          (s) => s === fullSeatNumber
-                        );
-                        const isOccupied = Math.random() < 0.3;
+                        if (!seat)
+                          return (
+                            <div
+                              key={`empty-right-${seatIndex}`}
+                              className="w-14 h-14"
+                            ></div>
+                          );
+
+                        const status = getSeatStatus(seat);
+                        const isSelectable =
+                          status === "available" ||
+                          (status === "selected" &&
+                            selectedSeats.includes(seat));
+                        const passengerIndex = selectedSeats.indexOf(seat);
 
                         return (
                           <button
                             key={seat}
                             onClick={() => {
-                              if (!isOccupied) {
-                                const availableIndex = selectedSeats.findIndex(
-                                  (s, idx) =>
-                                    !s &&
-                                    !selectedSeats.includes(fullSeatNumber)
-                                );
-                                if (availableIndex !== -1) {
-                                  handleSeatSelect(
-                                    fullSeatNumber,
-                                    availableIndex
-                                  );
-                                }
+                              if (isSelectable) {
+                                const indexToUpdate =
+                                  passengerIndex !== -1
+                                    ? passengerIndex
+                                    : selectedSeats.indexOf("");
+                                handleSeatSelect(seat, indexToUpdate);
                               }
                             }}
-                            disabled={isOccupied && !isSelected}
+                            disabled={
+                              !isSelectable && !selectedSeats.includes(seat)
+                            }
                             className={`
-                              w-14 h-14 rounded-xl flex flex-col items-center justify-center text-sm font-bold transition-all
-                              relative border-2 shadow-lg transform hover:scale-110
-                              ${getSeatColor(isSelected, isOccupied)}
-                              ${
-                                isOccupied && !isSelected
-                                  ? "cursor-not-allowed"
-                                  : "cursor-pointer"
-                              }
-                            `}
+                            w-14 h-14 rounded-xl flex flex-col items-center justify-center text-sm font-bold transition-all
+                            relative border-2 shadow-lg transform hover:scale-110
+                            ${getSeatColor(seat)}
+                            ${
+                              !isSelectable && !selectedSeats.includes(seat)
+                                ? "cursor-not-allowed"
+                                : "cursor-pointer"
+                            }
+                          `}
                           >
                             <Car className="h-5 w-5 mb-1" />
                             <span className="text-xs">{seat}</span>
-                            {isSelected && (
+                            {status === "selected" && (
                               <span className="absolute -top-2 -right-2 bg-white text-orange-600 text-xs font-bold w-6 h-6 rounded-full flex items-center justify-center border-2 border-orange-600 shadow-lg">
                                 P{passengerIndex + 1}
                               </span>
                             )}
-                            <div
-                              className={`absolute -top-1 -right-1 w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold
-                              ${
-                                seat.includes("3") || seat.includes("4")
-                                  ? "bg-blue-500 text-white"
-                                  : "bg-green-500 text-white"
-                              }`}
-                            >
-                              {seat.includes("3") || seat.includes("4")
-                                ? "W"
-                                : "A"}
-                            </div>
                           </button>
                         );
                       })}
@@ -705,7 +691,7 @@ const TicketDetailPage = () => {
             Sistem Penomoran Kursi:
           </h4>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-            {categoryLower === "luxury" || categoryLower === "priority" ? (
+            {isLuxuryOrPriority ? (
               <>
                 <div className="bg-white p-3 rounded-lg border border-blue-100">
                   <span className="font-bold text-blue-700">
@@ -803,23 +789,14 @@ const TicketDetailPage = () => {
             <span className="text-gray-700">Terisi</span>
           </div>
           <div className="flex items-center space-x-2 bg-white px-3 py-2 rounded-lg border border-gray-200 shadow-sm">
-            <div className="w-4 h-4 bg-yellow-400 rounded border-2 border-yellow-500"></div>
+            <div className="w-4 h-4 bg-gray-800 rounded border-2 border-gray-800"></div>
             <span className="text-gray-700">Lorong</span>
-          </div>
-          <div className="flex items-center space-x-2 bg-white px-3 py-2 rounded-lg border border-gray-200 shadow-sm">
-            <div className="w-4 h-4 bg-blue-500 rounded-full"></div>
-            <span className="text-gray-700">Kursi Jendela</span>
-          </div>
-          <div className="flex items-center space-x-2 bg-white px-3 py-2 rounded-lg border border-gray-200 shadow-sm">
-            <div className="w-4 h-4 bg-green-500 rounded-full"></div>
-            <span className="text-gray-700">Kursi Aisle</span>
           </div>
         </div>
       </div>
     );
   };
 
-  // Modal Midtrans
   const MidtransModal = () => {
     if (!showMidtransModal) return null;
 
@@ -975,13 +952,9 @@ const TicketDetailPage = () => {
                       {ticket.trainCategoryName}
                     </span>
                     <p className="text-sm text-gray-600 mt-1">
-                      {getSeatLayoutByCategory(ticket.trainCategoryName).rows}{" "}
-                      baris ×{" "}
-                      {
-                        getSeatLayoutByCategory(ticket.trainCategoryName)
-                          .columns
-                      }{" "}
-                      kolom • Dengan garis tengah
+                      {getSeatLayoutForCoach(selectedCoach).rows} baris ×{" "}
+                      {getSeatLayoutForCoach(selectedCoach).seatsPerRow} kursi
+                      per baris
                     </p>
                   </div>
                 </div>
@@ -1147,7 +1120,7 @@ const TicketDetailPage = () => {
                                 </span>
                               </div>
                               <div className="text-xs text-gray-500 mt-2 flex items-center">
-                                {seat.includes("1") || seat.includes("4")
+                                {getSeatType(seat) === "window"
                                   ? "🪟 Kursi Jendela"
                                   : "🚶 Kursi Aisle"}
                                 <span className="mx-2">•</span>
@@ -1195,13 +1168,13 @@ const TicketDetailPage = () => {
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-600">Berangkat</span>
-                  <span className="font-medium">
+                  <span className="font-medium text-gray-700">
                     {formatTime(ticket.schedule.departureTime)}
                   </span>
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-600">Tiba</span>
-                  <span className="font-medium">
+                  <span className="font-medium text-gray-700">
                     {formatTime(ticket.schedule.arrivalTime)}
                   </span>
                 </div>
