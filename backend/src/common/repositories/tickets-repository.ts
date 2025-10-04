@@ -71,6 +71,7 @@ export const getTicketByUuid = async (uuid: string): Promise<Ticket | null> => {
         createdAt: schedules.createdAt,
         updatedAt: schedules.updatedAt,
       },
+      trainUuid: trains.uuid,
       trainName: trains.name,
       trainCategoryName: categories.name,
       originStationName: originStation.name,

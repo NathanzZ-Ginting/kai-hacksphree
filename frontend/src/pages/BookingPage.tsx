@@ -114,7 +114,8 @@ const BookingPage = () => {
   const [departureDate, setDepartureDate] = useState("");
   const [sortBy, setSortBy] = useState("price");
 
-  const API_URL = import.meta.env.API_URL || "http://localhost:3000/api/v1";
+  const API_URL =
+    import.meta.env.VITE_API_URL || "http://localhost:3000/api/v1";
 
   // Use centralized auth state from AuthContext
   const { isLoggedIn } = useAuth();
@@ -133,13 +134,14 @@ const BookingPage = () => {
         }
       } catch (err) {
         console.error("Error fetching stations:", err);
+        setError("Terjadi kesalahan saat memuat data stasiun");
       } finally {
         setStationsLoading(false);
       }
     };
 
     fetchStations();
-  }, []);
+  }, [API_URL]);
 
   // Fetch tickets from API
   useEffect(() => {
@@ -157,7 +159,7 @@ const BookingPage = () => {
           setError("Gagal memuat data tiket");
         }
       } catch (err) {
-        setError("Terjadi kesalahan saat memuat data");
+        setError("Terjadi kesalahan saat memuat data tiket");
         console.error("Error fetching tickets:", err);
       } finally {
         setLoading(false);
@@ -165,7 +167,7 @@ const BookingPage = () => {
     };
 
     fetchTickets();
-  }, []);
+  }, [API_URL]);
 
   // Apply filters
   useEffect(() => {
@@ -177,11 +179,16 @@ const BookingPage = () => {
         (s) => s.stationCode === originStation
       );
       if (originStationData) {
-        filtered = filtered.filter((ticket) =>
-          ticket.originStationName
+        filtered = filtered.filter((ticket) => {
+          // Normalize station names for comparison
+          const ticketStationName = ticket.originStationName
             .toLowerCase()
-            .includes(originStationData.name.toLowerCase())
-        );
+            .trim();
+          const selectedStationName = originStationData.name
+            .toLowerCase()
+            .trim();
+          return ticketStationName === selectedStationName;
+        });
       }
     }
 
@@ -191,11 +198,16 @@ const BookingPage = () => {
         (s) => s.stationCode === destinationStation
       );
       if (destinationStationData) {
-        filtered = filtered.filter((ticket) =>
-          ticket.destinationStationName
+        filtered = filtered.filter((ticket) => {
+          // Normalize station names for comparison
+          const ticketStationName = ticket.destinationStationName
             .toLowerCase()
-            .includes(destinationStationData.name.toLowerCase())
-        );
+            .trim();
+          const selectedStationName = destinationStationData.name
+            .toLowerCase()
+            .trim();
+          return ticketStationName === selectedStationName;
+        });
       }
     }
 
@@ -242,11 +254,31 @@ const BookingPage = () => {
     stations,
   ]);
 
+  // Handle search button click
+  const handleSearch = () => {
+    // Filter logic is already handled in the useEffect above
+    // This function is for explicit user action if needed
+    console.log("Search triggered with:", {
+      originStation,
+      destinationStation,
+      departureDate,
+      sortBy,
+    });
+  };
+
   // Swap stations function
   const swapStations = () => {
     const temp = originStation;
     setOriginStation(destinationStation);
     setDestinationStation(temp);
+  };
+
+  // Clear all filters
+  const clearFilters = () => {
+    setOriginStation("");
+    setDestinationStation("");
+    setDepartureDate("");
+    setSortBy("price");
   };
 
   const handleBookTicket = (ticket: Ticket) => {
@@ -311,6 +343,9 @@ const BookingPage = () => {
         return "bg-gray-100 text-gray-800";
     }
   };
+
+  // Check if search button should be enabled
+  const isSearchEnabled = originStation && destinationStation && departureDate;
 
   if (error) {
     return (
@@ -407,44 +442,107 @@ const BookingPage = () => {
 
             {/* Search Button */}
             <div className="lg:col-span-1">
-              <button className="w-full bg-orange-600 text-white px-6 py-3 rounded-lg hover:bg-orange-700 transition-colors font-medium flex items-center justify-center">
-                <Search className="h-8 w-8 mr-2" />
+              <button
+                onClick={handleSearch}
+                disabled={!isSearchEnabled}
+                className={`w-full px-6 py-3 rounded-lg transition-colors font-medium flex items-center justify-center ${
+                  isSearchEnabled
+                    ? "bg-orange-600 text-white hover:bg-orange-700"
+                    : "bg-gray-300 text-gray-500 cursor-not-allowed"
+                }`}
+              >
                 Cari
               </button>
             </div>
           </div>
 
-          {/* Sort Options */}
+          {/* Active Filters & Sort Options */}
           <div className="mt-6 pt-6 border-t border-gray-200 flex flex-wrap items-center justify-between gap-4">
+            {/* Active Filters */}
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="text-sm text-gray-600">Filter Aktif:</span>
+
+              {originStation && (
+                <span className="inline-flex items-center px-3 py-1 rounded-full text-xs bg-orange-100 text-orange-800">
+                  Asal:{" "}
+                  {stations.find((s) => s.stationCode === originStation)?.name}
+                  <button
+                    onClick={() => setOriginStation("")}
+                    className="ml-1 hover:text-orange-900"
+                  >
+                    ×
+                  </button>
+                </span>
+              )}
+
+              {destinationStation && (
+                <span className="inline-flex items-center px-3 py-1 rounded-full text-xs bg-orange-100 text-orange-800">
+                  Tujuan:{" "}
+                  {
+                    stations.find((s) => s.stationCode === destinationStation)
+                      ?.name
+                  }
+                  <button
+                    onClick={() => setDestinationStation("")}
+                    className="ml-1 hover:text-orange-900"
+                  >
+                    ×
+                  </button>
+                </span>
+              )}
+
+              {departureDate && (
+                <span className="inline-flex items-center px-3 py-1 rounded-full text-xs bg-orange-100 text-orange-800">
+                  Tanggal: {new Date(departureDate).toLocaleDateString("id-ID")}
+                  <button
+                    onClick={() => setDepartureDate("")}
+                    className="ml-1 hover:text-orange-900"
+                  >
+                    ×
+                  </button>
+                </span>
+              )}
+
+              {(originStation || destinationStation || departureDate) && (
+                <button
+                  onClick={clearFilters}
+                  className="text-sm text-orange-600 hover:text-orange-800 font-medium"
+                >
+                  Hapus Semua
+                </button>
+              )}
+            </div>
+
+            {/* Sort Options */}
             <div className="flex items-center space-x-2">
               <Filter className="h-5 w-5 text-gray-400" />
               <span className="text-sm text-gray-600">Urutkan:</span>
-            </div>
-            <div className="flex flex-wrap gap-2">
-              {[
-                { value: "price", label: "Harga Terendah" },
-                { value: "departure", label: "Keberangkatan Awal" },
-                { value: "duration", label: "Durasi Terpendek" },
-              ].map((option) => (
-                <button
-                  key={option.value}
-                  onClick={() => setSortBy(option.value)}
-                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center ${
-                    sortBy === option.value
-                      ? "bg-orange-600 text-white"
-                      : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                  }`}
-                >
-                  <ArrowUpDown className="h-4 w-4 mr-1" />
-                  {option.label}
-                </button>
-              ))}
+              <div className="flex flex-wrap gap-2">
+                {[
+                  { value: "price", label: "Harga Terendah" },
+                  { value: "departure", label: "Keberangkatan Awal" },
+                  { value: "duration", label: "Durasi Terpendek" },
+                ].map((option) => (
+                  <button
+                    key={option.value}
+                    onClick={() => setSortBy(option.value)}
+                    className={`px-3 py-1 rounded-lg text-xs font-medium transition-colors flex items-center ${
+                      sortBy === option.value
+                        ? "bg-orange-600 text-white"
+                        : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                    }`}
+                  >
+                    <ArrowUpDown className="h-3 w-3 mr-1" />
+                    {option.label}
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
         </div>
 
         {/* Results Count */}
-        <div className="mb-6">
+        <div className="mb-6 flex justify-between items-center">
           <div className="text-gray-600">
             {loading ? (
               <div className="h-5 bg-gray-200 rounded w-40 animate-pulse"></div>
@@ -456,6 +554,16 @@ const BookingPage = () => {
               </>
             )}
           </div>
+
+          {/* Reset Filters */}
+          {(originStation || destinationStation || departureDate) && (
+            <button
+              onClick={clearFilters}
+              className="text-sm text-orange-600 hover:text-orange-800 font-medium"
+            >
+              Reset Pencarian
+            </button>
+          )}
         </div>
 
         {/* Tickets Grid */}
@@ -564,9 +672,23 @@ const BookingPage = () => {
           <div className="text-center py-12">
             <Search className="h-16 w-16 text-gray-400 mx-auto mb-4" />
             <h3 className="text-lg font-semibold text-gray-900 mb-2">
-              Tidak ada tiket ditemukan
+              {originStation || destinationStation || departureDate
+                ? "Tidak ada tiket yang sesuai dengan filter"
+                : "Tidak ada tiket tersedia"}
             </h3>
-            <p className="text-gray-600">Coba ubah filter pencarian Anda</p>
+            <p className="text-gray-600 mb-4">
+              {originStation || destinationStation || departureDate
+                ? "Coba ubah filter pencarian Anda atau reset pencarian"
+                : "Silakan coba lagi nanti"}
+            </p>
+            {(originStation || destinationStation || departureDate) && (
+              <button
+                onClick={clearFilters}
+                className="bg-orange-600 text-white px-6 py-2 rounded-lg hover:bg-orange-700 transition-colors"
+              >
+                Reset Pencarian
+              </button>
+            )}
           </div>
         )}
       </div>

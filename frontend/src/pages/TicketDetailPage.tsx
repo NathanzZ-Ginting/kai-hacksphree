@@ -1,4 +1,3 @@
-// pages/TicketDetailPage.tsx
 import { useState, useEffect } from "react";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
@@ -12,9 +11,11 @@ import {
   Plus,
   Minus,
   X,
+  DoorOpen,
+  Car,
 } from "lucide-react";
 
-// Types (tetap sama)
+// Types
 interface Schedule {
   uuid: string;
   originStationId: string;
@@ -53,7 +54,7 @@ interface ApiResponse {
   data: TicketDetail;
 }
 
-// Interface baru untuk passenger counter
+// Interface untuk passenger counter
 interface PassengerCounter {
   type: string;
   label: string;
@@ -82,11 +83,11 @@ const TicketDetailPage = () => {
   const [orderLoading, setOrderLoading] = useState(false);
   const [orderSuccess, setOrderSuccess] = useState(false);
 
-  // State baru untuk modal Midtrans
+  // State untuk modal Midtrans
   const [showMidtransModal, setShowMidtransModal] = useState(false);
   const [snapRedirectUrl, setSnapRedirectUrl] = useState("");
 
-  // Form states baru
+  // Form states
   const [passengerCounters, setPassengerCounters] = useState<
     PassengerCounter[]
   >([
@@ -115,133 +116,86 @@ const TicketDetailPage = () => {
   const getCoachesByCategory = (category: string): number[] => {
     switch (category.toLowerCase()) {
       case "eksekutif":
-        return [1, 2, 3]; // 3 gerbong untuk eksekutif
+        return [1, 2, 3];
       case "bisnis":
-        return [1, 2, 3, 4]; // 4 gerbong untuk bisnis
+        return [1, 2, 3, 4];
       case "ekonomi":
-        return [1, 2, 3, 4, 5, 6, 7, 8]; // 8 gerbong untuk ekonomi
+        return [1, 2, 3, 4, 5, 6, 7, 8];
       case "luxury":
-        return [1, 2]; // 2 gerbong untuk luxury
+        return [1, 2];
       case "priority":
-        return [1, 2, 3]; // 3 gerbong untuk priority
+        return [1, 2, 3];
       default:
-        return [1, 2, 3, 4]; // default 4 gerbong
+        return [1, 2, 3, 4];
     }
   };
 
-  // Layout kursi berdasarkan kategori kereta
+  // Layout kursi dengan format spesifik berdasarkan kategori
   const getSeatLayoutByCategory = (category: string): SeatLayout => {
     const categoryLower = category.toLowerCase();
 
-    if (categoryLower === "eksekutif") {
+    // Fungsi untuk membuat layout 2-2 dengan jumlah baris tertentu
+    const createTwoTwoLayout = (rows: number) => {
+      const layout: string[][] = [];
+      const rowTypes = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J"];
+
+      for (let i = 0; i < rows; i++) {
+        const rowNumber = i + 1;
+        const row: string[] = [
+          `${rowTypes[i]}1`, // Kiri atas
+          `${rowTypes[i]}2`, // Kiri bawah
+          "", // Garis tengah
+          `${rowTypes[i]}3`, // Kanan atas
+          `${rowTypes[i]}4`, // Kanan bawah
+        ];
+        layout.push(row);
+      }
       return {
-        rows: 10,
+        rows: rows,
         columns: 4,
         seatsPerRow: 4,
         hasAisle: true,
-        businessClass: true,
-        layout: [
-          ["A1", "A2", "", "A3", "A4"],
-          ["B1", "B2", "", "B3", "B4"],
-          ["C1", "C2", "", "C3", "C4"],
-          ["D1", "D2", "", "D3", "D4"],
-          ["E1", "E2", "", "E3", "E4"],
-          ["F1", "F2", "", "F3", "F4"],
-          ["G1", "G2", "", "G3", "G4"],
-          ["H1", "H2", "", "H3", "H4"],
-          ["I1", "I2", "", "I3", "I4"],
-          ["J1", "J2", "", "J3", "J4"],
-        ],
+        layout,
       };
-    }
-
-    if (categoryLower === "bisnis") {
-      return {
-        rows: 12,
-        columns: 4,
-        seatsPerRow: 4,
-        hasAisle: true,
-        layout: [
-          ["A1", "A2", "", "A3", "A4"],
-          ["B1", "B2", "", "B3", "B4"],
-          ["C1", "C2", "", "C3", "C4"],
-          ["D1", "D2", "", "D3", "D4"],
-          ["E1", "E2", "", "E3", "E4"],
-          ["F1", "F2", "", "F3", "F4"],
-          ["G1", "G2", "", "G3", "G4"],
-          ["H1", "H2", "", "H3", "H4"],
-          ["I1", "I2", "", "I3", "I4"],
-          ["J1", "J2", "", "J3", "J4"],
-          ["K1", "K2", "", "K3", "K4"],
-          ["L1", "L2", "", "L3", "L4"],
-        ],
-      };
-    }
-
-    if (categoryLower === "luxury") {
-      return {
-        rows: 8,
-        columns: 3,
-        seatsPerRow: 3,
-        hasAisle: true,
-        businessClass: true,
-        layout: [
-          ["A1", "A2", "A3"],
-          ["B1", "B2", "B3"],
-          ["C1", "C2", "C3"],
-          ["D1", "D2", "D3"],
-          ["E1", "E2", "E3"],
-          ["F1", "F2", "F3"],
-          ["G1", "G2", "G3"],
-          ["H1", "H2", "H3"],
-        ],
-      };
-    }
-
-    if (categoryLower === "priority") {
-      return {
-        rows: 10,
-        columns: 3,
-        seatsPerRow: 3,
-        hasAisle: false,
-        layout: [
-          ["A1", "A2", "A3"],
-          ["B1", "B2", "B3"],
-          ["C1", "C2", "C3"],
-          ["D1", "D2", "D3"],
-          ["E1", "E2", "E3"],
-          ["F1", "F2", "F3"],
-          ["G1", "G2", "G3"],
-          ["H1", "H2", "H3"],
-          ["I1", "I2", "I3"],
-          ["J1", "J2", "J3"],
-        ],
-      };
-    }
-
-    // Default: Ekonomi
-    return {
-      rows: 14,
-      columns: 4,
-      seatsPerRow: 4,
-      hasAisle: true,
-      layout: [
-        ["A1", "A2", "", "A3", "A4"],
-        ["B1", "B2", "", "B3", "B4"],
-        ["C1", "C2", "", "C3", "C4"],
-        ["D1", "D2", "", "D3", "D4"],
-        ["E1", "E2", "", "E3", "E4"],
-        ["F1", "F2", "", "F3", "F4"],
-        ["G1", "G2", "", "G3", "G4"],
-        ["H1", "H2", "", "H3", "H4"],
-        ["I1", "I2", "", "I3", "I4"],
-        ["J1", "J2", "", "J3", "J4"],
-        ["K1", "K2", "", "K3", "K4"],
-        ["L1", "L2", "", "L3", "L4"],
-        ["M1", "M2", "", "M3", "M4"],
-        ["N1", "N2", "", "N3", "N4"],
-      ],
     };
+
+    // Fungsi untuk membuat layout 1-1 dengan jumlah baris tertentu
+    const createOneOneLayout = (rows: number) => {
+      const layout: string[][] = [];
+      const rowTypes = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J"];
+
+      for (let i = 0; i < rows; i++) {
+        const rowNumber = i + 1;
+        const row: string[] = [
+          `${rowTypes[i]}1`, // Kiri
+          "", // Garis tengah
+          `${rowTypes[i]}2`, // Kanan
+        ];
+        layout.push(row);
+      }
+      return {
+        rows: rows,
+        columns: 2,
+        seatsPerRow: 2,
+        hasAisle: true,
+        layout,
+      };
+    };
+
+    switch (categoryLower) {
+      case "bisnis":
+        return createTwoTwoLayout(8); // 8 rows × 4 seats/row × 2 coaches = 64 seats
+      case "ekonomi":
+        return createTwoTwoLayout(10); // 10 rows × 4 seats/row × 2 coaches = 80 seats
+      case "eksekutif":
+        return createTwoTwoLayout(6); // 6 rows × 4 seats/row × 2 coaches = 48 seats (adjusted to 50 with extra logic if needed)
+      case "luxury":
+        return createOneOneLayout(6); // 6 rows × 2 seats/row × 2 coaches = 24 seats
+      case "priority":
+        return createOneOneLayout(3); // 3 rows × 2 seats/row × 3 coaches = 18 seats
+      default:
+        return createTwoTwoLayout(8);
+    }
   };
 
   // Generate semua kursi berdasarkan gerbong dan kategori
@@ -453,8 +407,6 @@ const TicketDetailPage = () => {
   const handleCloseMidtransModal = () => {
     setShowMidtransModal(false);
     setOrderSuccess(false);
-    // Redirect ke halaman success atau tetap di halaman ini
-    // navigate("/booking/success");
   };
 
   // Handler untuk membuka Midtrans di tab baru
@@ -522,112 +474,356 @@ const TicketDetailPage = () => {
     }
   };
 
-  // Render seat layout berdasarkan kategori
+  // Render seat layout dengan tampilan gerbong realistis
   const renderSeatLayout = () => {
     if (!ticket) return null;
 
     const seatLayout = getSeatLayoutByCategory(ticket.trainCategoryName);
     const categoryLower = ticket.trainCategoryName.toLowerCase();
 
+    // Warna berdasarkan kategori
+    const getSeatColor = (isSelected: boolean, isOccupied: boolean) => {
+      if (isSelected) return "bg-orange-600 text-white border-orange-800";
+      if (isOccupied) return "bg-red-500 text-white border-red-700 opacity-70";
+
+      switch (categoryLower) {
+        case "luxury":
+          return "bg-gradient-to-b from-yellow-400 to-yellow-600 text-white border-yellow-700 hover:from-yellow-500 hover:to-yellow-700";
+        case "eksekutif":
+          return "bg-gradient-to-b from-blue-400 to-blue-600 text-white border-blue-700 hover:from-blue-500 hover:to-blue-700";
+        case "bisnis":
+          return "bg-gradient-to-b from-green-400 to-green-600 text-white border-green-700 hover:from-green-500 hover:to-green-700";
+        default:
+          return "bg-gradient-to-b from-gray-400 to-gray-600 text-white border-gray-700 hover:from-gray-500 hover:to-gray-700";
+      }
+    };
+
     return (
       <div className="bg-white rounded-lg p-6">
-        <div className="space-y-2">
-          {seatLayout.layout.map((row, rowIndex) => (
-            <div key={rowIndex} className="flex justify-center space-x-2">
-              {row.map((seat, seatIndex) => {
-                if (seat === "") {
-                  // Render aisle
-                  return (
-                    <div
-                      key={`aisle-${rowIndex}-${seatIndex}`}
-                      className="w-12 h-12 flex items-center justify-center"
-                    >
-                      <div className="w-1 h-8 bg-gray-300 rounded"></div>
-                    </div>
-                  );
-                }
-
-                const fullSeatNumber = `${selectedCoach}${seat}`;
-                const isSelected = selectedSeats.includes(fullSeatNumber);
-                const passengerIndex = selectedSeats.findIndex(
-                  (s) => s === fullSeatNumber
-                );
-                const isOccupied = Math.random() < 0.2; // Simulasi kursi terisi
-
-                // Tentukan ukuran kursi berdasarkan kategori
-                const seatSize =
-                  categoryLower === "luxury"
-                    ? "w-14 h-14"
-                    : categoryLower === "eksekutif"
-                    ? "w-12 h-12"
-                    : "w-10 h-10";
-
-                return (
-                  <button
-                    key={seat}
-                    onClick={() => {
-                      if (!isOccupied) {
-                        const availableIndex = selectedSeats.findIndex(
-                          (s, idx) =>
-                            !s && !selectedSeats.includes(fullSeatNumber)
-                        );
-                        if (availableIndex !== -1) {
-                          handleSeatSelect(fullSeatNumber, availableIndex);
-                        }
-                      }
-                    }}
-                    disabled={isOccupied && !isSelected}
-                    className={`${seatSize} rounded-lg flex flex-col items-center justify-center text-xs font-semibold transition-all ${
-                      isSelected
-                        ? "bg-orange-600 text-white scale-105 shadow-lg"
-                        : isOccupied
-                        ? "bg-red-500 text-white cursor-not-allowed opacity-70"
-                        : "bg-green-500 text-white hover:bg-green-600 hover:scale-105 hover:shadow-md"
-                    } ${
-                      categoryLower === "luxury"
-                        ? "border-2 border-gold"
-                        : categoryLower === "eksekutif"
-                        ? "border border-blue-300"
-                        : "border border-gray-300"
-                    }`}
-                  >
-                    <span
-                      className={
-                        categoryLower === "luxury"
-                          ? "text-xs font-bold"
-                          : "text-xs"
-                      }
-                    >
-                      {seat}
-                    </span>
-                    {isSelected && (
-                      <span className="text-[10px] mt-1">
-                        P{passengerIndex + 1}
-                      </span>
-                    )}
-                  </button>
-                );
-              })}
-            </div>
-          ))}
+        {/* Train Coach Header */}
+        <div className="bg-gradient-to-r from-gray-800 to-gray-900 text-white py-3 px-4 rounded-t-lg mb-4 flex justify-between items-center shadow-lg">
+          <div className="flex items-center space-x-3">
+            <Train className="h-6 w-6 text-orange-400" />
+            <span className="font-bold text-lg">GERBONG {selectedCoach}</span>
+          </div>
+          <div className="text-sm bg-orange-500 px-3 py-1 rounded-full font-semibold">
+            {ticket.trainCategoryName.toUpperCase()}
+          </div>
         </div>
 
-        {/* Informasi tambahan berdasarkan kategori */}
-        <div className="mt-4 text-center text-sm text-gray-600">
-          {categoryLower === "luxury" && (
-            <p>
-              ✨ Luxury Class - Lebih luas dan nyaman dengan fasilitas premium
-            </p>
-          )}
-          {categoryLower === "eksekutif" && (
-            <p>💺 Executive Class - Kenyamanan premium dengan legroom ekstra</p>
-          )}
-          {categoryLower === "bisnis" && (
-            <p>💼 Business Class - Nyaman untuk perjalanan bisnis</p>
-          )}
-          {categoryLower === "ekonomi" && (
-            <p>🚉 Economy Class - Hemat dengan kenyamanan terjamin</p>
-          )}
+        {/* Coach Visualization */}
+        <div className="relative bg-gradient-to-b from-gray-100 to-gray-300 rounded-lg p-6 border-4 border-gray-400 shadow-inner">
+          {/* Train Roof */}
+          <div className="absolute top-0 left-0 right-0 h-6 bg-gray-800 rounded-t-lg border-b-2 border-gray-600"></div>
+
+          {/* Doors */}
+          <div className="absolute top-6 left-4 transform -translate-y-1">
+            <div className="bg-gray-700 w-10 h-20 rounded-lg flex items-center justify-center shadow-lg border-2 border-gray-600">
+              <DoorOpen className="h-8 w-8 text-gray-300" />
+            </div>
+          </div>
+          <div className="absolute top-6 right-4 transform -translate-y-1">
+            <div className="bg-gray-700 w-10 h-20 rounded-lg flex items-center justify-center shadow-lg border-2 border-gray-600">
+              <DoorOpen className="h-8 w-8 text-gray-300" />
+            </div>
+          </div>
+
+          {/* Windows */}
+          <div className="absolute top-8 left-16 right-16 h-4 bg-blue-200 rounded-lg border border-blue-300 opacity-50"></div>
+
+          {/* Seat Layout Container */}
+          <div className="ml-20 mr-20 mt-8">
+            <div className="space-y-4">
+              {seatLayout.layout.map((row, rowIndex) => (
+                <div
+                  key={rowIndex}
+                  className="flex justify-between items-center"
+                >
+                  {/* Left Side Seats */}
+                  <div className="flex space-x-3">
+                    {row
+                      .slice(
+                        0,
+                        categoryLower === "luxury" ||
+                          categoryLower === "priority"
+                          ? 1
+                          : 2
+                      )
+                      .map((seat, seatIndex) => {
+                        if (!seat) return null;
+                        const fullSeatNumber = `${selectedCoach}${seat}`;
+                        const isSelected =
+                          selectedSeats.includes(fullSeatNumber);
+                        const passengerIndex = selectedSeats.findIndex(
+                          (s) => s === fullSeatNumber
+                        );
+                        const isOccupied = Math.random() < 0.3;
+
+                        return (
+                          <button
+                            key={seat}
+                            onClick={() => {
+                              if (!isOccupied) {
+                                const availableIndex = selectedSeats.findIndex(
+                                  (s, idx) =>
+                                    !s &&
+                                    !selectedSeats.includes(fullSeatNumber)
+                                );
+                                if (availableIndex !== -1) {
+                                  handleSeatSelect(
+                                    fullSeatNumber,
+                                    availableIndex
+                                  );
+                                }
+                              }
+                            }}
+                            disabled={isOccupied && !isSelected}
+                            className={`
+                            w-14 h-14 rounded-xl flex flex-col items-center justify-center text-sm font-bold transition-all
+                            relative border-2 shadow-lg transform hover:scale-110
+                            ${getSeatColor(isSelected, isOccupied)}
+                            ${
+                              isOccupied && !isSelected
+                                ? "cursor-not-allowed"
+                                : "cursor-pointer"
+                            }
+                          `}
+                          >
+                            <Car className="h-5 w-5 mb-1" />
+                            <span className="text-xs">{seat}</span>
+                            {isSelected && (
+                              <span className="absolute -top-2 -right-2 bg-white text-orange-600 text-xs font-bold w-6 h-6 rounded-full flex items-center justify-center border-2 border-orange-600 shadow-lg">
+                                P{passengerIndex + 1}
+                              </span>
+                            )}
+                            {/* Seat Type Indicator */}
+                            <div
+                              className={`absolute -top-1 -left-1 w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold
+                            ${
+                              seat.includes("1") || seat.includes("4")
+                                ? "bg-blue-500 text-white"
+                                : "bg-green-500 text-white"
+                            }`}
+                            >
+                              {seat.includes("1") || seat.includes("4")
+                                ? "W"
+                                : "A"}
+                            </div>
+                          </button>
+                        );
+                      })}
+                  </div>
+
+                  {/* Garis Tengah */}
+                  <div className="w-16 h-14 flex items-center justify-center">
+                    <div className="w-1 h-12 bg-gray-800 rounded-lg shadow-inner border-2 border-gray-900"></div>
+                  </div>
+
+                  {/* Right Side Seats */}
+                  <div className="flex space-x-3">
+                    {row
+                      .slice(
+                        categoryLower === "luxury" ||
+                          categoryLower === "priority"
+                          ? 2
+                          : 3,
+                        5
+                      )
+                      .map((seat, seatIndex) => {
+                        if (!seat) return null;
+                        const fullSeatNumber = `${selectedCoach}${seat}`;
+                        const isSelected =
+                          selectedSeats.includes(fullSeatNumber);
+                        const passengerIndex = selectedSeats.findIndex(
+                          (s) => s === fullSeatNumber
+                        );
+                        const isOccupied = Math.random() < 0.3;
+
+                        return (
+                          <button
+                            key={seat}
+                            onClick={() => {
+                              if (!isOccupied) {
+                                const availableIndex = selectedSeats.findIndex(
+                                  (s, idx) =>
+                                    !s &&
+                                    !selectedSeats.includes(fullSeatNumber)
+                                );
+                                if (availableIndex !== -1) {
+                                  handleSeatSelect(
+                                    fullSeatNumber,
+                                    availableIndex
+                                  );
+                                }
+                              }
+                            }}
+                            disabled={isOccupied && !isSelected}
+                            className={`
+                            w-14 h-14 rounded-xl flex flex-col items-center justify-center text-sm font-bold transition-all
+                            relative border-2 shadow-lg transform hover:scale-110
+                            ${getSeatColor(isSelected, isOccupied)}
+                            ${
+                              isOccupied && !isSelected
+                                ? "cursor-not-allowed"
+                                : "cursor-pointer"
+                            }
+                          `}
+                          >
+                            <Car className="h-5 w-5 mb-1" />
+                            <span className="text-xs">{seat}</span>
+                            {isSelected && (
+                              <span className="absolute -top-2 -right-2 bg-white text-orange-600 text-xs font-bold w-6 h-6 rounded-full flex items-center justify-center border-2 border-orange-600 shadow-lg">
+                                P{passengerIndex + 1}
+                              </span>
+                            )}
+                            {/* Seat Type Indicator */}
+                            <div
+                              className={`absolute -top-1 -right-1 w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold
+                            ${
+                              seat.includes("3") || seat.includes("4")
+                                ? "bg-blue-500 text-white"
+                                : "bg-green-500 text-white"
+                            }`}
+                            >
+                              {seat.includes("3") || seat.includes("4")
+                                ? "W"
+                                : "A"}
+                            </div>
+                          </button>
+                        );
+                      })}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Train Floor */}
+          <div className="absolute bottom-0 left-0 right-0 h-4 bg-gray-600 rounded-b-lg border-t-2 border-gray-700"></div>
+
+          {/* Coach Number */}
+          <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white px-4 py-1 rounded-full text-sm font-bold border-2 border-gray-600">
+            GERBONG {selectedCoach}
+          </div>
+        </div>
+
+        {/* Seat Numbering Explanation */}
+        <div className="mt-6 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border border-blue-200">
+          <h4 className="font-bold text-gray-900 mb-3 text-lg flex items-center">
+            <Car className="h-5 w-5 mr-2 text-blue-600" />
+            Sistem Penomoran Kursi:
+          </h4>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+            {categoryLower === "luxury" || categoryLower === "priority" ? (
+              <>
+                <div className="bg-white p-3 rounded-lg border border-blue-100">
+                  <span className="font-bold text-blue-700">
+                    Sisi Kiri Gerbong:
+                  </span>
+                  <div className="mt-2 space-y-2">
+                    <div className="flex items-center space-x-2">
+                      <div className="w-4 h-4 bg-blue-500 rounded-full"></div>
+                      <span className="text-gray-700">
+                        <strong>A1, B1, C1, D1, E1, F1</strong> : Kursi Jendela
+                        (Window)
+                      </span>
+                    </div>
+                  </div>
+                </div>
+                <div className="bg-white p-3 rounded-lg border border-green-100">
+                  <span className="font-bold text-green-700">
+                    Sisi Kanan Gerbong:
+                  </span>
+                  <div className="mt-2 space-y-2">
+                    <div className="flex items-center space-x-2">
+                      <div className="w-4 h-4 bg-blue-500 rounded-full"></div>
+                      <span className="text-gray-700">
+                        <strong>A2, B2, C2, D2, E2, F2</strong> : Kursi Jendela
+                        (Window)
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </>
+            ) : (
+              <>
+                <div className="bg-white p-3 rounded-lg border border-blue-100">
+                  <span className="font-bold text-blue-700">
+                    Sisi Kiri Gerbong:
+                  </span>
+                  <div className="mt-2 space-y-2">
+                    <div className="flex items-center space-x-2">
+                      <div className="w-4 h-4 bg-blue-500 rounded-full"></div>
+                      <span className="text-gray-700">
+                        <strong>A1, B1, C1, D1, E1, F1, G1, H1, I1, J1</strong>{" "}
+                        : Kursi Jendela (Window)
+                      </span>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <div className="w-4 h-4 bg-green-500 rounded-full"></div>
+                      <span className="text-gray-700">
+                        <strong>A2, B2, C2, D2, E2, F2, G2, H2, I2, J2</strong>{" "}
+                        : Kursi Aisle
+                      </span>
+                    </div>
+                  </div>
+                </div>
+                <div className="bg-white p-3 rounded-lg border border-green-100">
+                  <span className="font-bold text-green-700">
+                    Sisi Kanan Gerbong:
+                  </span>
+                  <div className="mt-2 space-y-2">
+                    <div className="flex items-center space-x-2">
+                      <div className="w-4 h-4 bg-green-500 rounded-full"></div>
+                      <span className="text-gray-700">
+                        <strong>A3, B3, C3, D3, E3, F3, G3, H3, I3, J3</strong>{" "}
+                        : Kursi Aisle
+                      </span>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <div className="w-4 h-4 bg-blue-500 rounded-full"></div>
+                      <span className="text-gray-700">
+                        <strong>A4, B4, C4, D4, E4, F4, G4, H4, I4, J4</strong>{" "}
+                        : Kursi Jendela (Window)
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </>
+            )}
+          </div>
+          <div className="mt-3 text-xs text-gray-600 bg-yellow-50 p-2 rounded border border-yellow-200">
+            <strong>Tip:</strong> Kursi jendela (W) cocok untuk menikmati
+            pemandangan, kursi aisle (A) memudahkan untuk keluar-masuk
+          </div>
+        </div>
+
+        {/* Legend */}
+        <div className="mt-6 flex flex-wrap justify-center gap-4 text-sm">
+          <div className="flex items-center space-x-2 bg-white px-3 py-2 rounded-lg border border-gray-200 shadow-sm">
+            <div className="w-4 h-4 bg-green-500 rounded border-2 border-green-700"></div>
+            <span className="text-gray-700">Tersedia</span>
+          </div>
+          <div className="flex items-center space-x-2 bg-white px-3 py-2 rounded-lg border border-gray-200 shadow-sm">
+            <div className="w-4 h-4 bg-orange-600 rounded border-2 border-orange-800"></div>
+            <span className="text-gray-700">Terpilih</span>
+          </div>
+          <div className="flex items-center space-x-2 bg-white px-3 py-2 rounded-lg border border-gray-200 shadow-sm">
+            <div className="w-4 h-4 bg-red-500 rounded border-2 border-red-700"></div>
+            <span className="text-gray-700">Terisi</span>
+          </div>
+          <div className="flex items-center space-x-2 bg-white px-3 py-2 rounded-lg border border-gray-200 shadow-sm">
+            <div className="w-4 h-4 bg-yellow-400 rounded border-2 border-yellow-500"></div>
+            <span className="text-gray-700">Lorong</span>
+          </div>
+          <div className="flex items-center space-x-2 bg-white px-3 py-2 rounded-lg border border-gray-200 shadow-sm">
+            <div className="w-4 h-4 bg-blue-500 rounded-full"></div>
+            <span className="text-gray-700">Kursi Jendela</span>
+          </div>
+          <div className="flex items-center space-x-2 bg-white px-3 py-2 rounded-lg border border-gray-200 shadow-sm">
+            <div className="w-4 h-4 bg-green-500 rounded-full"></div>
+            <span className="text-gray-700">Kursi Aisle</span>
+          </div>
         </div>
       </div>
     );
@@ -682,10 +878,9 @@ const TicketDetailPage = () => {
             <div className="space-y-3">
               <button
                 onClick={() => {
-                  // Buka Midtrans di iframe atau tab saat ini
                   window.location.href = snapRedirectUrl;
                 }}
-                className="w-full bg-orange-600 text-white py-3 rounded-lg hover:bg-orange-700 transition-colors font-semibold"
+                className="w-full bg-orange-600 text-white py-3 rounded-lg hover:bg-orange-700 transition-colors font-semibold shadow-lg"
               >
                 Bayar Sekarang
               </button>
@@ -759,7 +954,6 @@ const TicketDetailPage = () => {
   }
 
   const coaches = getCoachesByCategory(ticket.trainCategoryName);
-  const seatLayout = getSeatLayoutByCategory(ticket.trainCategoryName);
 
   return (
     <div className="min-h-screen bg-gray-50 pb-20">
@@ -804,9 +998,13 @@ const TicketDetailPage = () => {
                       {ticket.trainCategoryName}
                     </span>
                     <p className="text-sm text-gray-600 mt-1">
-                      {seatLayout.rows} baris × {seatLayout.columns} kolom
-                      {seatLayout.hasAisle && " • Dengan lorong"}
-                      {seatLayout.businessClass && " • Kelas bisnis"}
+                      {getSeatLayoutByCategory(ticket.trainCategoryName).rows}{" "}
+                      baris ×{" "}
+                      {
+                        getSeatLayoutByCategory(ticket.trainCategoryName)
+                          .columns
+                      }{" "}
+                      kolom • Dengan garis tengah
                     </p>
                   </div>
                 </div>
@@ -866,7 +1064,7 @@ const TicketDetailPage = () => {
               </div>
             </div>
 
-            {/* New Passenger Counter Form */}
+            {/* Passenger Counter Form */}
             <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
               <h2 className="text-2xl font-bold text-gray-900 mb-6">
                 Jumlah Penumpang
@@ -876,7 +1074,7 @@ const TicketDetailPage = () => {
                 {passengerCounters.map((counter, index) => (
                   <div
                     key={counter.type}
-                    className="flex items-center justify-between p-4 border border-gray-200 rounded-xl"
+                    className="flex items-center justify-between p-4 border border-gray-200 rounded-xl hover:border-orange-300 transition-colors"
                   >
                     <div className="flex-1">
                       <h3 className="text-lg font-semibold text-gray-900">
@@ -920,7 +1118,7 @@ const TicketDetailPage = () => {
               </div>
 
               {/* Total Passengers Summary */}
-              <div className="mt-6 p-4 bg-blue-50 rounded-xl">
+              <div className="mt-6 p-4 bg-blue-50 rounded-xl border border-blue-200">
                 <div className="flex justify-between items-center">
                   <span className="text-lg font-semibold text-gray-900">
                     Total Penumpang
@@ -944,15 +1142,15 @@ const TicketDetailPage = () => {
                   <h3 className="text-lg font-semibold text-gray-900 mb-4">
                     Pilih Gerbong ({coaches.length} gerbong tersedia)
                   </h3>
-                  <div className="flex space-x-2">
+                  <div className="flex space-x-3">
                     {coaches.map((coach) => (
                       <button
                         key={coach}
                         onClick={() => setSelectedCoach(coach)}
-                        className={`w-12 h-12 rounded-full flex items-center justify-center font-semibold transition-all ${
+                        className={`w-12 h-12 rounded-full flex items-center justify-center font-semibold transition-all border-2 shadow-lg ${
                           selectedCoach === coach
-                            ? "bg-orange-600 text-white scale-110 shadow-lg"
-                            : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                            ? "bg-orange-600 text-white scale-110 border-orange-800"
+                            : "bg-gray-100 text-gray-700 hover:bg-gray-200 border-gray-300"
                         }`}
                       >
                         {coach}
@@ -961,60 +1159,45 @@ const TicketDetailPage = () => {
                   </div>
                 </div>
 
-                {/* Seat Layout */}
+                {/* Updated Seat Layout */}
                 <div className="mb-6">
                   <h3 className="text-lg font-semibold text-gray-900 mb-4">
                     Gerbong {selectedCoach} - {ticket.trainCategoryName}
                   </h3>
 
-                  {/* Train Coach Visualization */}
-                  <div className="bg-gray-800 rounded-lg p-6 mb-6">
-                    <div className="text-center text-white mb-4 font-semibold">
-                      GERBONG {selectedCoach} -{" "}
-                      {ticket.trainCategoryName.toUpperCase()}
-                    </div>
-
-                    {/* Dynamic Seat Layout */}
-                    {renderSeatLayout()}
-                  </div>
-
-                  {/* Legend */}
-                  <div className="flex justify-center space-x-6 text-sm">
-                    <div className="flex items-center space-x-2">
-                      <div className="w-4 h-4 bg-green-500 rounded"></div>
-                      <span>Tersedia</span>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <div className="w-4 h-4 bg-orange-600 rounded"></div>
-                      <span>Terpilih</span>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <div className="w-4 h-4 bg-red-500 rounded"></div>
-                      <span>Terisi</span>
-                    </div>
-                  </div>
+                  {/* Realistic Train Coach */}
+                  {renderSeatLayout()}
                 </div>
 
                 {/* Selected Seats Summary */}
                 {selectedSeats.filter((seat) => seat).length > 0 && (
-                  <div className="mt-6 p-4 bg-green-50 rounded-xl">
-                    <h4 className="font-semibold text-gray-900 mb-2">
-                      Kursi Terpilih:
+                  <div className="mt-6 p-4 bg-green-50 rounded-xl border border-green-200">
+                    <h4 className="font-semibold text-gray-900 mb-3 text-lg">
+                      🎫 Kursi Terpilih:
                     </h4>
-                    <div className="flex flex-wrap gap-2">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
                       {selectedSeats.map(
                         (seat, index) =>
                           seat && (
                             <div
                               key={index}
-                              className="bg-white px-3 py-2 rounded-lg border border-green-200"
+                              className="bg-white px-4 py-3 rounded-lg border border-green-300 shadow-sm"
                             >
-                              <span className="font-semibold">
-                                Penumpang {index + 1}:{" "}
-                              </span>
-                              <span className="text-green-600 font-bold">
-                                {seat}
-                              </span>
+                              <div className="flex items-center justify-between">
+                                <span className="font-semibold text-gray-700">
+                                  Penumpang {index + 1}
+                                </span>
+                                <span className="text-green-600 font-bold text-lg">
+                                  {seat}
+                                </span>
+                              </div>
+                              <div className="text-xs text-gray-500 mt-2 flex items-center">
+                                {seat.includes("1") || seat.includes("4")
+                                  ? "🪟 Kursi Jendela"
+                                  : "🚶 Kursi Aisle"}
+                                <span className="mx-2">•</span>
+                                Gerbong {seat.charAt(0)}
+                              </div>
                             </div>
                           )
                       )}
@@ -1116,14 +1299,16 @@ const TicketDetailPage = () => {
               {/* Selected Seats */}
               {selectedSeats.filter((seat) => seat).length > 0 && (
                 <div className="border-t pt-4 mt-4">
-                  <h4 className="font-semibold text-gray-900 mb-2">Kursi:</h4>
+                  <h4 className="font-semibold text-gray-900 mb-2">
+                    Kursi Terpilih:
+                  </h4>
                   <div className="flex flex-wrap gap-1">
                     {selectedSeats.map(
                       (seat, index) =>
                         seat && (
                           <span
                             key={index}
-                            className="bg-orange-100 text-orange-800 px-2 py-1 rounded text-sm"
+                            className="bg-orange-100 text-orange-800 px-2 py-1 rounded text-sm border border-orange-200"
                           >
                             {seat}
                           </span>
@@ -1159,7 +1344,7 @@ const TicketDetailPage = () => {
                   selectedSeats.length !== totalPassengers ||
                   selectedSeats.some((seat) => !seat)
                 }
-                className="w-full mt-6 bg-orange-600 text-white py-4 rounded-lg hover:bg-orange-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors font-semibold flex items-center justify-center"
+                className="w-full mt-6 bg-orange-600 text-white py-4 rounded-lg hover:bg-orange-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors font-semibold flex items-center justify-center shadow-lg"
               >
                 {orderLoading ? (
                   <>

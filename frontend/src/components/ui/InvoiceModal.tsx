@@ -1,12 +1,6 @@
-import { useState } from "react";
-import axios from "axios";
-import {
-  X,
-  Search,
-  FileText,
-  User,
-  Calendar,
-} from "lucide-react";
+// components/ui/InvoiceModal.tsx
+import { useEffect } from "react";
+import { X, User, Calendar } from "lucide-react";
 
 // Types untuk response invoice
 interface InvoiceData {
@@ -21,64 +15,27 @@ interface InvoiceData {
   updatedAt: string;
 }
 
-interface ApiResponse {
-  success: boolean;
-  message: string;
-  data: InvoiceData[];
-}
-
 interface InvoiceModalProps {
   isOpen: boolean;
   onClose: () => void;
+  invoiceData: InvoiceData | null;
 }
 
-const InvoiceModal = ({ isOpen, onClose }: InvoiceModalProps) => {
-  const [invoiceId, setInvoiceId] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-  const [invoiceData, setInvoiceData] = useState<InvoiceData | null>(null);
-
-  const API_URL =
-    import.meta.env.API_URL || "http://localhost:3000/api/v1";
-
-  const handleCheckInvoice = async () => {
-    if (!invoiceId.trim()) {
-      setError("Masukkan kode booking / invoice number");
-      return;
+const InvoiceModal = ({ isOpen, onClose, invoiceData }: InvoiceModalProps) => {
+  // Prevent body scroll when modal is open
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "unset";
     }
 
-    setLoading(true);
-    setError("");
-    setInvoiceData(null);
-
-    try {
-      const response = await axios.get<ApiResponse>(
-        `${API_URL}/master-data/order-ticket/${invoiceId.trim()}`
-      );
-
-      if (response.data.success && response.data.data.length > 0) {
-        setInvoiceData(response.data.data[0]);
-      } else {
-        setError("Invoice tidak ditemukan");
-      }
-    } catch (err: any) {
-      console.error("Error fetching invoice:", err);
-      if (err.response?.status === 404) {
-        setError("Invoice tidak ditemukan");
-      } else if (err.response?.data?.message) {
-        setError(err.response.data.message);
-      } else {
-        setError("Terjadi kesalahan saat memeriksa invoice");
-      }
-    } finally {
-      setLoading(false);
-    }
-  };
+    return () => {
+      document.body.style.overflow = "unset";
+    };
+  }, [isOpen]);
 
   const handleClose = () => {
-    setInvoiceId("");
-    setError("");
-    setInvoiceData(null);
     onClose();
   };
 
@@ -132,32 +89,32 @@ const InvoiceModal = ({ isOpen, onClose }: InvoiceModalProps) => {
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto">
       <div className="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
-        {/* Backdrop */}
+        {/* Backdrop dengan opacity lebih rendah */}
         <div
-          className="fixed inset-0 bg-black bg-opacity-50 transition-opacity"
+          className="fixed inset-0 bg-black bg-opacity-30 transition-opacity duration-300 ease-in-out"
           onClick={handleClose}
         />
 
-        {/* Modal Panel */}
-        <div className="relative transform overflow-hidden rounded-2xl bg-white text-left shadow-xl transition-all w-full max-w-2xl">
+        {/* Modal Panel dengan animasi */}
+        <div className="relative transform overflow-hidden rounded-2xl bg-white text-left shadow-xl transition-all w-full max-w-2xl animate-in fade-in-50 zoom-in-95 duration-300">
           {/* Header */}
           <div className="flex items-center justify-between p-6 border-b border-gray-200">
             <div className="flex items-center space-x-3">
               <div className="p-2 bg-orange-100 rounded-lg">
-                <FileText className="h-6 w-6 text-orange-600" />
+                <User className="h-6 w-6 text-orange-600" />
               </div>
               <div>
                 <h3 className="text-xl font-bold text-gray-900">
-                  Cek Status Booking
+                  Detail Booking
                 </h3>
                 <p className="text-sm text-gray-500 mt-1">
-                  Masukkan kode booking atau invoice number
+                  Informasi lengkap pesanan Anda
                 </p>
               </div>
             </div>
             <button
               onClick={handleClose}
-              className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+              className="p-2 hover:bg-gray-100 rounded-lg transition-colors duration-200"
             >
               <X className="h-5 w-5 text-gray-500" />
             </button>
@@ -165,53 +122,7 @@ const InvoiceModal = ({ isOpen, onClose }: InvoiceModalProps) => {
 
           {/* Content */}
           <div className="p-6">
-            {/* Search Form */}
-            {!invoiceData && (
-              <div className="space-y-4">
-                <div className="flex space-x-3">
-                  <div className="flex-1">
-                    <input
-                      type="text"
-                      value={invoiceId}
-                      onChange={(e) => setInvoiceId(e.target.value)}
-                      placeholder="Masukkan kode booking / invoice number"
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 focus:outline-none transition-colors text-gray-700"
-                      onKeyPress={(e) => {
-                        if (e.key === "Enter") {
-                          handleCheckInvoice();
-                        }
-                      }}
-                    />
-                  </div>
-                  <button
-                    onClick={handleCheckInvoice}
-                    disabled={loading}
-                    className="bg-orange-600 text-white px-6 py-3 rounded-lg hover:bg-orange-700 transition-colors font-medium flex items-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    {loading ? (
-                      <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                    ) : (
-                      <Search className="h-5 w-5" />
-                    )}
-                    <span>{loading ? "Memeriksa..." : "Cek"}</span>
-                  </button>
-                </div>
-
-                {error && (
-                  <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
-                    <div className="flex items-center space-x-2 text-red-700">
-                      <div className="w-5 h-5 bg-red-500 rounded-full flex items-center justify-center">
-                        <span className="text-white text-sm">!</span>
-                      </div>
-                      <span className="font-medium">{error}</span>
-                    </div>
-                  </div>
-                )}
-              </div>
-            )}
-
-            {/* Invoice Data */}
-            {invoiceData && (
+            {invoiceData ? (
               <div className="space-y-6">
                 {/* Status Banner */}
                 <div
@@ -292,24 +203,27 @@ const InvoiceModal = ({ isOpen, onClose }: InvoiceModalProps) => {
                   </div>
                 </div>
 
-                {/* Action Buttons */}
-                <div className="flex space-x-3 pt-4 border-t border-gray-200">
-                  <button
-                    onClick={() => {
-                      setInvoiceData(null);
-                      setInvoiceId("");
-                    }}
-                    className="flex-1 bg-gray-100 text-gray-700 px-6 py-3 rounded-lg hover:bg-gray-200 transition-colors font-medium"
-                  >
-                    Cek Invoice Lain
-                  </button>
+                {/* Action Button */}
+                <div className="pt-4 border-t border-gray-200">
                   <button
                     onClick={handleClose}
-                    className="flex-1 bg-orange-600 text-white px-6 py-3 rounded-lg hover:bg-orange-700 transition-colors font-medium"
+                    className="w-full bg-orange-600 text-white px-6 py-3 rounded-lg hover:bg-orange-700 transition-colors font-medium duration-200"
                   >
                     Tutup
                   </button>
                 </div>
+              </div>
+            ) : (
+              <div className="text-center py-8">
+                <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <X className="h-8 w-8 text-gray-400" />
+                </div>
+                <h4 className="text-lg font-semibold text-gray-900 mb-2">
+                  Data Tidak Tersedia
+                </h4>
+                <p className="text-gray-500">
+                  Tidak dapat menampilkan informasi invoice
+                </p>
               </div>
             )}
           </div>
