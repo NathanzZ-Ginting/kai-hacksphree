@@ -3,7 +3,6 @@ import { MapPin, Clock, Train, Navigation, Calendar } from "lucide-react";
 
 const RoutesPage = () => {
   const [selectedRegion, setSelectedRegion] = useState("jawa");
-  const [selectedRoute, setSelectedRoute] = useState<string | null>(null);
 
   const regions = {
     jawa: {
@@ -165,7 +164,7 @@ const RoutesPage = () => {
                 <div
                   key={route.id}
                   className="bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition-shadow cursor-pointer"
-                  onClick={() => setSelectedRoute(route.id)}
+                  onClick={() => {}} // Removed setSelectedRoute functionality
                 >
                   <div className="p-6">
                     <div className="flex items-center justify-between mb-4">

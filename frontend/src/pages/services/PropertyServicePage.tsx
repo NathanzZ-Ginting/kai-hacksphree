@@ -37,31 +37,6 @@ const PropertyServicePage = () => {
     },
   ];
 
-  const featuredProperties = [
-    {
-      name: "Stasiun Gambir",
-      location: "Jakarta Pusat",
-      facilities: [
-        "Retail Mall",
-        "Food Court",
-        "Business Lounge",
-        "Parking Area",
-      ],
-      image: "/images/gambir-station.jpg",
-    },
-    {
-      name: "Stasiun Bandung",
-      location: "Bandung",
-      facilities: [
-        "Shopping Arcade",
-        "Restaurants",
-        "Hotel",
-        "Conference Hall",
-      ],
-      image: "/images/bandung-station.jpg",
-    },
-  ];
-
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Hero Section dengan Background Image */}
