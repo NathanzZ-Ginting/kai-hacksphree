@@ -42,3 +42,32 @@ export interface Station {
   lng?: number;
   city?: string;
 }
+
+export interface User {
+  uuid: string;
+  name: string;
+  age: number;
+  email: string;
+  password: string;
+  token: string | null;
+  phoneNumber: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface RegisterData {
+  user: User;
+  token: string;
+}
+
+export interface RegisterResponse {
+  success: boolean;
+  message: string;
+  data: RegisterData;
+}
+
+export interface ApiResponse<T = any> {
+  success: boolean;
+  message?: string;
+  data?: T;
+}

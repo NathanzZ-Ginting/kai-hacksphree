@@ -8,13 +8,14 @@ import { cors } from 'hono/cors'
 import orderRoute from './modules/ticketing/routes/orderRoutes'
 import masterDataRoute from './modules/master-data/routes/masterDataRoute'
 import paymentRoute from './modules/payment/routes/paymentRoute'
+import aiRoute from './modules/AI/routes/aiRoute'
 
 // Buat app Hono
 const app = new Hono()
 
 // Add CORS middleware
 app.use('*', cors({
-  origin: ['http://localhost:5173', '*'],  // Allow frontend origin and any other origins for testing
+  origin: ['http://localhost:5173', 'http://localhost:5175', '*'],  // Allow both frontend ports and any other origins for testing
   allowHeaders: ['Content-Type', 'Authorization'],
   allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   exposeHeaders: ['Content-Length', 'X-RateLimit-Limit', 'X-RateLimit-Remaining', 'X-RateLimit-Reset'],
@@ -56,6 +57,7 @@ app.route("/api/v1/auth", authRoute)
 app.route("/api/v1/order", orderRoute)
 app.route("/api/v1/master-data", masterDataRoute)
 app.route("/api/v1/payment", paymentRoute)
+app.route("/api/v1/ai-assistant", aiRoute)
 
 // Route default
 app.get('/', (c) => c.text('Hello from Hono + TypeScript 🚀'))

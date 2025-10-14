@@ -8,7 +8,6 @@ import { useAuth } from "../../context/AuthContext";
 import penumpangIcon from "/assets/images/services/angkutan_penumpang.jpg";
 import barangIcon from "/assets/images/services/angkutan_barang.jpg";
 import asetIcon from "/assets/images/services/pengusahaan_aset.jpg";
-import InvoiceModal from "../ui/InvoiceModal";
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -19,13 +18,6 @@ const Header = () => {
   const location = useLocation();
   const dropdownRef = useRef<HTMLDivElement>(null);
   const profileDropdownRef = useRef<HTMLDivElement>(null);
-  const [isInvoiceModalOpen, setIsInvoiceModalOpen] = useState(false);
-
-  // Fungsi untuk handle button click:
-  const handleCheckBookingCode = () => {
-    setIsInvoiceModalOpen(true);
-    setIsMenuOpen(false);
-  };
 
   // Gunakan Auth Context
   const { isLoggedIn, userData, logout } = useAuth();
@@ -338,13 +330,6 @@ const Header = () => {
                 Pesan Tiket
               </button>
 
-              <button
-                className="bg-orange-600 text-white px-6 py-2 rounded-lg hover:bg-orange-700 transition-colors text-sm font-medium"
-                onClick={handleCheckBookingCode}
-              >
-                Cek Kode Booking
-              </button>
-
               {isLoggedIn ? (
                 // Profile dropdown setelah login
                 <div className="relative" ref={profileDropdownRef}>
@@ -577,10 +562,6 @@ const Header = () => {
           )}
         </div>
       </header>
-      <InvoiceModal
-        isOpen={isInvoiceModalOpen}
-        onClose={() => setIsInvoiceModalOpen(false)}
-      />
     </div>
   );
 };

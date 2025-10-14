@@ -88,10 +88,19 @@ const LoginPage = () => {
     } catch (error) {
       console.error("Login error:", error);
       if (axios.isAxiosError(error)) {
-        throw new Error(
-          error.response?.data?.message ||
-            `HTTP error! status: ${error.response?.status}`
-        );
+        if (error.response) {
+          // Server responded with error status
+          throw new Error(
+            error.response.data?.message ||
+              `HTTP error! status: ${error.response.status}`
+          );
+        } else if (error.request) {
+          // Request was made but no response received
+          throw new Error("Tidak dapat terhubung ke server. Pastikan backend sedang berjalan.");
+        } else {
+          // Something else happened
+          throw new Error("Terjadi kesalahan saat membuat request");
+        }
       }
       throw new Error("Terjadi kesalahan saat menghubungi server");
     }

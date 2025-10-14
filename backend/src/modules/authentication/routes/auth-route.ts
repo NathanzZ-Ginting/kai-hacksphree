@@ -6,6 +6,7 @@ import LogoutController from "../controller/logout-controller";
 import UserController from "../controller/user-controller";
 import RateLimitController from "../controller/rate-limit-controller";
 import SessionController from "../controller/session-controller";
+import TransactionHistoryController from "../controller/transaction-history-controller";
 import { 
   getCSRFToken, 
   getCSRFStatistics, 
@@ -108,6 +109,7 @@ authRoute.route("/login", LoginController);
 authRoute.route("/register", RegisterController);
 authRoute.route("/logout", LogoutController);
 authRoute.route("/user", UserController);
+authRoute.route("/transactions", TransactionHistoryController);
 authRoute.route("/rate-limit", RateLimitController);
 authRoute.route("/session", SessionController);
 

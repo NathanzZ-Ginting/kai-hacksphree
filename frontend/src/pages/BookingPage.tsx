@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import axios from "axios";
@@ -102,7 +102,6 @@ const TicketSkeleton = () => {
 const BookingPage = () => {
   const navigate = useNavigate();
   const [tickets, setTickets] = useState<Ticket[]>([]);
-  const [filteredTickets, setFilteredTickets] = useState<Ticket[]>([]);
   const [stations, setStations] = useState<Station[]>([]);
   const [loading, setLoading] = useState(true);
   const [stationsLoading, setStationsLoading] = useState(true);
@@ -114,7 +113,8 @@ const BookingPage = () => {
   const [departureDate, setDepartureDate] = useState("");
   const [sortBy, setSortBy] = useState("price");
 
-  const API_URL = import.meta.env.API_URL || "http://localhost:3000/api/v1";
+  const API_URL =
+    import.meta.env.VITE_API_URL || "http://localhost:3000/api/v1";
 
   // Use centralized auth state from AuthContext
   const { isLoggedIn } = useAuth();
@@ -133,13 +133,14 @@ const BookingPage = () => {
         }
       } catch (err) {
         console.error("Error fetching stations:", err);
+        setError("Terjadi kesalahan saat memuat data stasiun");
       } finally {
         setStationsLoading(false);
       }
     };
 
     fetchStations();
-  }, []);
+  }, [API_URL]);
 
   // Fetch tickets from API
   useEffect(() => {
@@ -152,12 +153,11 @@ const BookingPage = () => {
 
         if (response.data.success) {
           setTickets(response.data.data);
-          setFilteredTickets(response.data.data);
         } else {
           setError("Gagal memuat data tiket");
         }
       } catch (err) {
-        setError("Terjadi kesalahan saat memuat data");
+        setError("Terjadi kesalahan saat memuat data tiket");
         console.error("Error fetching tickets:", err);
       } finally {
         setLoading(false);
@@ -165,41 +165,27 @@ const BookingPage = () => {
     };
 
     fetchTickets();
-  }, []);
+  }, [API_URL]);
 
-  // Apply filters
-  useEffect(() => {
+  // Apply filters using useMemo for performance
+  const filteredTickets = useMemo(() => {
     let filtered = [...tickets];
 
-    // Filter by origin station
+    // Filter by origin station (if selected)
     if (originStation) {
-      const originStationData = stations.find(
-        (s) => s.stationCode === originStation
+      filtered = filtered.filter(
+        (ticket) => ticket.schedule.originStationId === originStation
       );
-      if (originStationData) {
-        filtered = filtered.filter((ticket) =>
-          ticket.originStationName
-            .toLowerCase()
-            .includes(originStationData.name.toLowerCase())
-        );
-      }
     }
 
-    // Filter by destination station
+    // Filter by destination station (if selected)
     if (destinationStation) {
-      const destinationStationData = stations.find(
-        (s) => s.stationCode === destinationStation
+      filtered = filtered.filter(
+        (ticket) => ticket.schedule.destinationStationId === destinationStation
       );
-      if (destinationStationData) {
-        filtered = filtered.filter((ticket) =>
-          ticket.destinationStationName
-            .toLowerCase()
-            .includes(destinationStationData.name.toLowerCase())
-        );
-      }
     }
 
-    // Filter by departure date
+    // Filter by departure date (if selected)
     if (departureDate) {
       filtered = filtered.filter((ticket) => {
         const ticketDate = new Date(ticket.schedule.departureTime)
@@ -232,15 +218,18 @@ const BookingPage = () => {
       }
     });
 
-    setFilteredTickets(filtered);
-  }, [
-    originStation,
-    destinationStation,
-    departureDate,
-    sortBy,
-    tickets,
-    stations,
-  ]);
+    return filtered;
+  }, [originStation, destinationStation, departureDate, sortBy, tickets]);
+
+  // Handle search button click
+  const handleSearch = () => {
+    console.log("Search triggered with:", {
+      originStation: originStation || "All stations",
+      destinationStation: destinationStation || "All stations",
+      departureDate: departureDate || "All dates",
+      sortBy,
+    });
+  };
 
   // Swap stations function
   const swapStations = () => {
@@ -249,15 +238,19 @@ const BookingPage = () => {
     setDestinationStation(temp);
   };
 
+  // Clear all filters
+  const clearFilters = () => {
+    setOriginStation("");
+    setDestinationStation("");
+    setDepartureDate("");
+    setSortBy("price");
+  };
+
   const handleBookTicket = (ticket: Ticket) => {
-    // Cek apakah user sudah login (gunakan AuthContext)
     if (!isLoggedIn) {
-      // Jika belum login, redirect ke halaman login
       navigate("/login");
       return;
     }
-
-    // Jika sudah login, redirect ke halaman detail tiket dengan UUID
     navigate(`/booking/detail/${ticket.uuid}`, { state: { ticket } });
   };
 
@@ -332,14 +325,34 @@ const BookingPage = () => {
   return (
     <div className="min-h-screen bg-gray-50 pb-20">
       {/* Hero Section */}
-      <div className="bg-gradient-to-r from-orange-600 to-orange-800 text-white py-12">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 lg:py-20">
-          <h1 className="text-3xl md:text-4xl font-bold mb-4">
-            Pesan Tiket Kereta
-          </h1>
-          <p className="text-orange-100 text-lg">
-            Temukan dan pesan tiket kereta dengan mudah
-          </p>
+      <div className="bg-gradient-to-r from-orange-600 to-orange-800 text-white py-16 lg:py-20">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center">
+            <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold mb-6 leading-tight">
+              Jelajahi Nusantara
+              <br />
+              <span className="text-orange-200 text-3xl md:text-4xl lg:text-5xl">Dengan Kereta Api</span>
+            </h1>
+            <p className="text-xl md:text-2xl text-orange-100 mb-5 max-w-3xl mx-auto leading-relaxed">
+              <span className="block mt-2">
+                Pesan tiket kereta Anda dengan mudah, cepat, dan aman.
+              </span>
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+              <div className="flex items-center text-orange-200">
+                <div className="w-2 h-2 bg-orange-300 rounded-full mr-2"></div>
+                <span>Terjamin Keamanannya</span>
+              </div>
+              <div className="flex items-center text-orange-200">
+                <div className="w-2 h-2 bg-orange-300 rounded-full mr-2"></div>
+                <span>Terpercaya Kualitasnya</span>
+              </div>
+              <div className="flex items-center text-orange-200">
+                <div className="w-2 h-2 bg-orange-300 rounded-full mr-2"></div>
+                <span>Terjangkau Harganya</span>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -359,7 +372,9 @@ const BookingPage = () => {
                 placeholder={
                   stationsLoading ? "Memuat stasiun..." : "Pilih Stasiun Awal"
                 }
-                stations={stations}
+                stations={stations.filter(
+                  (station) => station.uuid !== destinationStation
+                )}
               />
             </div>
 
@@ -387,7 +402,9 @@ const BookingPage = () => {
                 placeholder={
                   stationsLoading ? "Memuat stasiun..." : "Pilih Stasiun Tujuan"
                 }
-                stations={stations}
+                stations={stations.filter(
+                  (station) => station.uuid !== originStation
+                )}
               />
             </div>
 
@@ -407,66 +424,141 @@ const BookingPage = () => {
 
             {/* Search Button */}
             <div className="lg:col-span-1">
-              <button className="w-full bg-orange-600 text-white px-6 py-3 rounded-lg hover:bg-orange-700 transition-colors font-medium flex items-center justify-center">
-                <Search className="h-8 w-8 mr-2" />
+              <button
+                onClick={handleSearch}
+                className="w-full px-6 py-3 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors font-medium flex items-center justify-center"
+              >
                 Cari
               </button>
             </div>
           </div>
 
-          {/* Sort Options */}
+          {/* Active Filters & Sort Options */}
           <div className="mt-6 pt-6 border-t border-gray-200 flex flex-wrap items-center justify-between gap-4">
+            {/* Active Filters */}
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="text-sm text-gray-600">Filter Aktif:</span>
+
+              {originStation && (
+                <span className="inline-flex items-center px-3 py-1 rounded-full text-xs bg-orange-100 text-orange-800">
+                  Asal: {stations.find((s) => s.uuid === originStation)?.name}
+                  <button
+                    onClick={() => setOriginStation("")}
+                    className="ml-1 hover:text-orange-900"
+                  >
+                    ×
+                  </button>
+                </span>
+              )}
+
+              {destinationStation && (
+                <span className="inline-flex items-center px-3 py-1 rounded-full text-xs bg-orange-100 text-orange-800">
+                  Tujuan:{" "}
+                  {stations.find((s) => s.uuid === destinationStation)?.name}
+                  <button
+                    onClick={() => setDestinationStation("")}
+                    className="ml-1 hover:text-orange-900"
+                  >
+                    ×
+                  </button>
+                </span>
+              )}
+
+              {departureDate && (
+                <span className="inline-flex items-center px-3 py-1 rounded-full text-xs bg-orange-100 text-orange-800">
+                  Tanggal: {new Date(departureDate).toLocaleDateString("id-ID")}
+                  <button
+                    onClick={() => setDepartureDate("")}
+                    className="ml-1 hover:text-orange-900"
+                  >
+                    ×
+                  </button>
+                </span>
+              )}
+
+              {(originStation || destinationStation || departureDate) && (
+                <button
+                  onClick={clearFilters}
+                  className="text-sm text-orange-600 hover:text-orange-800 font-medium"
+                >
+                  Hapus Semua
+                </button>
+              )}
+            </div>
+
+            {/* Sort Options */}
             <div className="flex items-center space-x-2">
               <Filter className="h-5 w-5 text-gray-400" />
               <span className="text-sm text-gray-600">Urutkan:</span>
-            </div>
-            <div className="flex flex-wrap gap-2">
-              {[
-                { value: "price", label: "Harga Terendah" },
-                { value: "departure", label: "Keberangkatan Awal" },
-                { value: "duration", label: "Durasi Terpendek" },
-              ].map((option) => (
-                <button
-                  key={option.value}
-                  onClick={() => setSortBy(option.value)}
-                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center ${
-                    sortBy === option.value
-                      ? "bg-orange-600 text-white"
-                      : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                  }`}
-                >
-                  <ArrowUpDown className="h-4 w-4 mr-1" />
-                  {option.label}
-                </button>
-              ))}
+              <div className="flex flex-wrap gap-2">
+                {[
+                  { value: "price", label: "Harga Terendah" },
+                  { value: "departure", label: "Keberangkatan Awal" },
+                  { value: "duration", label: "Durasi Terpendek" },
+                ].map((option) => (
+                  <button
+                    key={option.value}
+                    onClick={() => setSortBy(option.value)}
+                    className={`px-3 py-1 rounded-lg text-xs font-medium transition-colors flex items-center ${
+                      sortBy === option.value
+                        ? "bg-orange-600 text-white"
+                        : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                    }`}
+                  >
+                    <ArrowUpDown className="h-3 w-3 mr-1" />
+                    {option.label}
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
         </div>
 
         {/* Results Count */}
-        <div className="mb-6">
+        <div className="mb-6 flex justify-between items-center">
           <div className="text-gray-600">
             {loading ? (
               <div className="h-5 bg-gray-200 rounded w-40 animate-pulse"></div>
             ) : (
               <>
-                Menampilkan{" "}
-                <span className="font-semibold">{filteredTickets.length}</span>{" "}
-                tiket tersedia
+                {originStation || destinationStation || departureDate ? (
+                  <>
+                    Menampilkan{" "}
+                    <span className="font-semibold">
+                      {filteredTickets.length}
+                    </span>{" "}
+                    tiket yang sesuai filter
+                  </>
+                ) : (
+                  <>
+                    Menampilkan semua{" "}
+                    <span className="font-semibold">
+                      {filteredTickets.length}
+                    </span>{" "}
+                    tiket tersedia
+                  </>
+                )}
               </>
             )}
           </div>
+
+          {(originStation || destinationStation || departureDate) && (
+            <button
+              onClick={clearFilters}
+              className="text-sm text-orange-600 hover:text-orange-800 font-medium"
+            >
+              Reset Pencarian
+            </button>
+          )}
         </div>
 
         {/* Tickets Grid */}
         <div className="grid grid-cols-1 gap-6">
           {loading
-            ? // Skeleton Loaders
-              Array.from({ length: 3 }).map((_, index) => (
+            ? Array.from({ length: 3 }).map((_, index) => (
                 <TicketSkeleton key={index} />
               ))
-            : // Actual Tickets
-              filteredTickets.map((ticket) => (
+            : filteredTickets.map((ticket) => (
                 <div
                   key={ticket.uuid}
                   className="bg-white rounded-2xl shadow-sm border border-gray-200 hover:shadow-md transition-shadow"
@@ -564,9 +656,23 @@ const BookingPage = () => {
           <div className="text-center py-12">
             <Search className="h-16 w-16 text-gray-400 mx-auto mb-4" />
             <h3 className="text-lg font-semibold text-gray-900 mb-2">
-              Tidak ada tiket ditemukan
+              {originStation || destinationStation || departureDate
+                ? "Tidak ada tiket yang sesuai dengan filter"
+                : "Belum ada tiket tersedia"}
             </h3>
-            <p className="text-gray-600">Coba ubah filter pencarian Anda</p>
+            <p className="text-gray-600 mb-4">
+              {originStation || destinationStation || departureDate
+                ? "Coba ubah filter pencarian Anda atau reset pencarian"
+                : "Silakan coba lagi nanti"}
+            </p>
+            {(originStation || destinationStation || departureDate) && (
+              <button
+                onClick={clearFilters}
+                className="bg-orange-600 text-white px-6 py-2 rounded-lg hover:bg-orange-700 transition-colors"
+              >
+                Reset Pencarian
+              </button>
+            )}
           </div>
         )}
       </div>

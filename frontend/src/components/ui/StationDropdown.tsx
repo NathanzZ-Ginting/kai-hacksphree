@@ -136,8 +136,7 @@ const StationDropdown = ({
                           {station.name}
                         </div>
                         <div className="text-xs text-gray-500 mt-0.5">
-                          Kode: {station.stationCode} | Kota:{" "}
-                          {station.city || "Tidak diketahui"}
+                          Kode: {station.stationCode}
                         </div>
                       </div>
                     </div>

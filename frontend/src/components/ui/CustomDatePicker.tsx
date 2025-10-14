@@ -18,7 +18,6 @@ const CustomDatePicker = ({
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
@@ -33,31 +32,26 @@ const CustomDatePicker = ({
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // Get days in month
   const getDaysInMonth = (date: Date) => {
     return new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
   };
 
-  // Get first day of month
   const getFirstDayOfMonth = (date: Date) => {
     return new Date(date.getFullYear(), date.getMonth(), 1).getDay();
   };
 
-  // Navigate to previous month
   const prevMonth = () => {
     setCurrentMonth(
       new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1, 1)
     );
   };
 
-  // Navigate to next month
   const nextMonth = () => {
     setCurrentMonth(
       new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 1)
     );
   };
 
-  // Check if date is disabled
   const isDateDisabled = (date: Date) => {
     if (minDate) {
       const min = new Date(minDate);
@@ -67,7 +61,6 @@ const CustomDatePicker = ({
     return false;
   };
 
-  // Check if date is today
   const isToday = (date: Date) => {
     const today = new Date();
     return (
@@ -77,7 +70,6 @@ const CustomDatePicker = ({
     );
   };
 
-  // Check if date is selected
   const isSelected = (date: Date) => {
     if (!value) return false;
     const selected = new Date(value);
@@ -88,7 +80,6 @@ const CustomDatePicker = ({
     );
   };
 
-  // Handle date selection
   const handleDateSelect = (day: number) => {
     const selectedDate = new Date(
       currentMonth.getFullYear(),
@@ -97,19 +88,21 @@ const CustomDatePicker = ({
     );
 
     if (!isDateDisabled(selectedDate)) {
-      const dateString = selectedDate.toISOString().split("T")[0];
+      const dateString = new Date(
+        Date.UTC(currentMonth.getFullYear(), currentMonth.getMonth(), day)
+      )
+        .toISOString()
+        .split("T")[0];
       onChange(dateString);
       setIsOpen(false);
     }
   };
 
-  // Generate calendar days
   const generateCalendarDays = () => {
     const daysInMonth = getDaysInMonth(currentMonth);
     const firstDay = getFirstDayOfMonth(currentMonth);
     const days = [];
 
-    // Previous month days
     const prevMonth = new Date(
       currentMonth.getFullYear(),
       currentMonth.getMonth() - 1,
@@ -123,7 +116,6 @@ const CustomDatePicker = ({
       days.push({ day, isCurrentMonth: false, date });
     }
 
-    // Current month days
     for (let day = 1; day <= daysInMonth; day++) {
       const date = new Date(
         currentMonth.getFullYear(),
@@ -133,8 +125,7 @@ const CustomDatePicker = ({
       days.push({ day, isCurrentMonth: true, date });
     }
 
-    // Next month days (to fill the grid)
-    const totalCells = 42; // 6 weeks
+    const totalCells = 42;
     let nextMonthDay = 1;
     while (days.length < totalCells) {
       const date = new Date(
@@ -177,7 +168,6 @@ const CustomDatePicker = ({
 
   return (
     <div className="relative" ref={dropdownRef}>
-      {/* Input Trigger */}
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
@@ -189,10 +179,8 @@ const CustomDatePicker = ({
         <Calendar className="h-5 w-5 text-gray-400" />
       </button>
 
-      {/* Dropdown Calendar */}
       {isOpen && (
         <div className="absolute top-full left-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-50 w-80">
-          {/* Calendar Header */}
           <div className="flex items-center justify-between p-4 border-b border-gray-200">
             <button
               onClick={prevMonth}
@@ -200,11 +188,9 @@ const CustomDatePicker = ({
             >
               <ChevronLeft className="h-5 w-5 text-gray-600" />
             </button>
-
             <div className="text-lg font-semibold text-gray-800">
               {monthNames[currentMonth.getMonth()]} {currentMonth.getFullYear()}
             </div>
-
             <button
               onClick={nextMonth}
               className="p-1 hover:bg-gray-100 rounded-lg transition-colors"
@@ -212,10 +198,7 @@ const CustomDatePicker = ({
               <ChevronRight className="h-5 w-5 text-gray-600" />
             </button>
           </div>
-
-          {/* Calendar Grid */}
           <div className="p-4">
-            {/* Day Headers */}
             <div className="grid grid-cols-7 gap-1 mb-2">
               {["M", "S", "S", "R", "K", "J", "S"].map((day) => (
                 <div
@@ -226,8 +209,6 @@ const CustomDatePicker = ({
                 </div>
               ))}
             </div>
-
-            {/* Calendar Days */}
             <div className="grid grid-cols-7 gap-1">
               {generateCalendarDays().map(
                 ({ day, isCurrentMonth, date }, index) => {
@@ -261,8 +242,6 @@ const CustomDatePicker = ({
               )}
             </div>
           </div>
-
-          {/* Today Button */}
           <div className="p-3 border-t border-gray-200">
             <button
               onClick={() => {

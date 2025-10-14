@@ -4,9 +4,10 @@ export interface User {
   name?: string;
   age?: number;
   email: string;
-  token: string
+  token?: string;
   password: string;
   phoneNumber?: string;
-  createdAt: Date;
-  updatedAt: Date;
+  isVerified?: boolean;
+  createdAt?: Date;
+  updatedAt?: Date;
 }
