@@ -8,6 +8,7 @@ import { cors } from 'hono/cors'
 import orderRoute from './modules/ticketing/routes/orderRoutes'
 import masterDataRoute from './modules/master-data/routes/masterDataRoute'
 import paymentRoute from './modules/payment/routes/paymentRoute'
+import aiRoute from './modules/AI/routes/aiRoute'
 
 // Buat app Hono
 const app = new Hono()
@@ -56,6 +57,7 @@ app.route("/api/v1/auth", authRoute)
 app.route("/api/v1/order", orderRoute)
 app.route("/api/v1/master-data", masterDataRoute)
 app.route("/api/v1/payment", paymentRoute)
+app.route("/api/v1/ai-assistant", aiRoute)
 
 // Route default
 app.get('/', (c) => c.text('Hello from Hono + TypeScript 🚀'))
