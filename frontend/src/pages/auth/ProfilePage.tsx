@@ -110,12 +110,13 @@ const ProfilePage = () => {
         toast.error("Terjadi kesalahan saat mengambil data profil");
       }
     } finally {
-      setIsLoading(false);
+      setIsLoading(false);``
+      
     }
   };
 
   // Update user profile
-  const updateUserProfile = async (data: UpdateProfileData) => {
+  const updateUserProfile= async (data: UpdateProfileData) => {
     try {
       const token = sessionStorage.getItem("authToken");
       if (!token) {

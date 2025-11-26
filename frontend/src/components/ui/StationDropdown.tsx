@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { Search, ChevronDown, MapPin } from "lucide-react";
 import type { Station } from "../../types/kai";
 
+// Props untuk StationDropdown
 interface StationDropdownProps {
   value: string;
   onChange: (value: string) => void;
@@ -9,14 +10,20 @@ interface StationDropdownProps {
   stations: Station[];
 }
 
+// Station Dropdown Component
 const StationDropdown = ({
   value,
   onChange,
   placeholder = "Pilih Stasiun",
   stations,
 }: StationDropdownProps) => {
+  // State untuk mengelola dropdown open/close dan pencarian
   const [isOpen, setIsOpen] = useState(false);
+
+  // State untuk pencarian
   const [searchTerm, setSearchTerm] = useState("");
+
+  // Ref untuk dropdown menu
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   // Filter stasiun berdasarkan pencarian
@@ -41,6 +48,7 @@ const StationDropdown = ({
       }
     };
 
+    // Add event listener
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
@@ -52,6 +60,7 @@ const StationDropdown = ({
     setSearchTerm("");
   };
 
+  // Render component
   return (
     <div className="relative w-full" ref={dropdownRef}>
       {/* Trigger */}

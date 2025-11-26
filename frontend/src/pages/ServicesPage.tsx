@@ -7,6 +7,7 @@ import {
   Users,
 } from "lucide-react";
 
+// ServicesPage Component
 const ServicesPage = () => {
   const mainServices = [
     {
@@ -66,6 +67,7 @@ const ServicesPage = () => {
     },
   ];
 
+  // Define train classes data
   const trainClasses = [
     {
       class: "Eksekutif",

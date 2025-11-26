@@ -33,6 +33,7 @@ const startIcon = new L.Icon({
   shadowSize: [41, 41],
 });
 
+// Icon untuk stasiun tujuanp
 const endIcon = new L.Icon({
   iconUrl:
     "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png",
@@ -44,6 +45,7 @@ const endIcon = new L.Icon({
   shadowSize: [41, 41],
 });
 
+// Icon untuk stasiun rute
 const routeIcon = new L.Icon({
   iconUrl:
     "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-blue.png",
@@ -55,6 +57,7 @@ const routeIcon = new L.Icon({
   shadowSize: [41, 41],
 });
 
+// Tipe data untuk stasiunp
 interface Station {
   id: string;
   name: string;
@@ -62,12 +65,14 @@ interface Station {
   lng: number;
 }
 
+// Props untuk TrainMap
 interface Props {
   startStation?: Station;
   endStation?: Station;
   routeStations?: Station[];
 }
 
+// Train Map Component
 const TrainMap: React.FC<Props> = ({
   startStation,
   endStation,
@@ -79,10 +84,19 @@ const TrainMap: React.FC<Props> = ({
 
   // Determine map center based on available stations
   const getMapCenter = (): [number, number] => {
+    // Prioritaskan stasiun awal, lalu tujuan, lalu rute
     if (startStation) return [startStation.lat, startStation.lng];
+
+    // Prioritaskan stasiun tujuan jika stasiun awal tidak ada
     if (endStation) return [endStation.lat, endStation.lng];
+
+    // Jika ada stasiun rute, gunakan stasiun pertama
     if (routeStations.length > 0) {
+
+      // Gunakan stasiun rute pertama sebagai center
       return [routeStations[0].lat, routeStations[0].lng];
+
+      // Jika ada stasiun rute, gunakan stasiun tengah sebagai center
     }
     return defaultCenter;
   };
@@ -95,20 +109,27 @@ const TrainMap: React.FC<Props> = ({
       ...routeStations,
     ];
 
+    // Jika tidak ada stasiun, kembalikan undefined
     if (allStations.length === 0) return undefined;
 
+    // Hitung bounds berdasarkan semua stasiun
     const bounds = new L.LatLngBounds(
       allStations.map(
         (station) => [station.lat, station.lng] as [number, number]
       )
     );
 
+    // Tambahkan padding ke dalam bounds
     return bounds;
   };
 
+  // Render component
   const center = getMapCenter();
+
+  // Calculate bounds
   const bounds = getBounds();
 
+  // Return the map component
   return (
     <div className="relative h-96 w-full rounded-xl overflow-hidden border-2 border-gray-300 shadow-lg">
       <MapContainer

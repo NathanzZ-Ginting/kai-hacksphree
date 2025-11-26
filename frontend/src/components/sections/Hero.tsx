@@ -4,6 +4,7 @@ import banner1 from "/assets/images/banners/banner1.jpg";
 import banner2 from "/assets/images/banners/banner2.jpg";
 import banner3 from "/assets/images/banners/banner3.jpg";
 
+// Hero Section Component
 const Hero = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
 
@@ -22,6 +23,7 @@ const Hero = () => {
     },
   ];
 
+// Auto slide effect
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentSlide((prev) => (prev + 1) % bannerImages.length);
@@ -30,6 +32,7 @@ const Hero = () => {
     return () => clearInterval(interval);
   }, [bannerImages.length]);
 
+  // Render component
   return (
     <section className="relative lg:h-screen overflow-hidden h-[200px]">
       {/* Background Slides */}

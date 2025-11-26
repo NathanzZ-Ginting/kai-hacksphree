@@ -108,7 +108,7 @@ export class SecureAuthManager {
   /**
    * Secure token storage dengan encryption
    */
-  secureStoreAuth(authData: any): void {
+  secureStorageAuth(authData: any): void {
     const secureData = {
       ...authData,
       timestamp: Date.now(),

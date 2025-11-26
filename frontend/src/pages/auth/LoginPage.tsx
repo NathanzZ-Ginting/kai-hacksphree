@@ -25,17 +25,27 @@ interface LoginResponse {
   };
 }
 
+// Login Page Component
 const LoginPage = () => {
+  // State untuk form fields dan loading
   const [email, setEmail] = useState("");
+  // State untuk form fields dan loading
   const [password, setPassword] = useState("");
+  // State untuk menampilkan atau menyembunyikan password
   const [showPassword, setShowPassword] = useState(false);
+  // State untuk loading saat submit
   const [isLoading, setIsLoading] = useState(false);
+  // State untuk remember me
   const [rememberMe, setRememberMe] = useState(false);
+  // State untuk error message
   const [error, setError] = useState("");
+  // Navigate hook dari react-router-dom
   const navigate = useNavigate();
+  // Auth context
   const { login } = useAuth();
+  // Cek status login
   const { isLoggedIn } = useAuth();
-
+  
   // Load reCAPTCHA script sekali di awal (v2 checkbox)
   useEffect(() => {
     const script = document.createElement("script");
@@ -49,18 +59,27 @@ const LoginPage = () => {
     };
   }, []);
 
+  // Load remembered credentials if rememberMe is true
   useEffect(() => {
+    // Cek di localStorage
     const remembered = localStorage.getItem("rememberMe");
+    //  Jika ada, set state dan isi formp
     if (remembered === "true") {
+      // Set rememberMe true
       setRememberMe(true);
+      // Ambil saved email dan password
       const savedEmail = localStorage.getItem("rememberedEmail");
+      // Ambil saved email dan passwordp
       const savedPassword = localStorage.getItem("rememberedPassword");
 
+      // Set email
       if (savedEmail) setEmail(savedEmail);
+      // Set password
       if (savedPassword) setPassword(savedPassword);
     }
   }, []);
 
+  // Function to login to backend
   const loginToBackend = async (
     email: string,
     password: string,
@@ -68,6 +87,7 @@ const LoginPage = () => {
   ): Promise<LoginResponse> => {
     const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000/api/v1";
 
+    // Make API request to login endpoint
     try {
       const response = await axios.post(
         `${API_URL}/auth/login`,
@@ -83,6 +103,7 @@ const LoginPage = () => {
         }
       );
 
+      // Return the response data
       const data: LoginResponse = response.data;
       return data;
     } catch (error) {
@@ -102,21 +123,25 @@ const LoginPage = () => {
           throw new Error("Terjadi kesalahan saat membuat request");
         }
       }
+      // Non-axios error
       throw new Error("Terjadi kesalahan saat menghubungi server");
     }
   };
 
+  // Redirect to home if already logged in
   useEffect(() => {
     if (isLoggedIn) {
       navigate("/", { replace: true });
     }
   }, [isLoggedIn, navigate]);
 
+  // Handle form submit
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
     setIsLoading(true);
 
+    // Validasi form
     try {
       if (!email || !password) {
         throw new Error("Silakan isi email dan password");
@@ -128,10 +153,12 @@ const LoginPage = () => {
         throw new Error("Silakan centang reCAPTCHA");
       }
 
+      // Handle remember me
       if (rememberMe) {
         localStorage.setItem("rememberMe", "true");
         localStorage.setItem("rememberedEmail", email);
         localStorage.setItem("rememberedPassword", password);
+        // Simpan email dan password di localStorage
       } else {
         localStorage.removeItem("rememberMe");
         localStorage.removeItem("rememberedEmail");
@@ -141,17 +168,22 @@ const LoginPage = () => {
       // Login ke backend
       const loginResult = await loginToBackend(email, password, token);
 
+      // Cek hasil login
       if (!loginResult.success) {
         toast.error(loginResult.message || "Login gagal");
         throw new Error(loginResult.message || "Login gagal");
       }
 
+      // Simpan token dan user data di context
       const tokenJwt = loginResult.data.token;
+      // Simpan token dan user data di context
       const userData = loginResult.data.user;
 
+      // Log hasil login
       console.log("Login successful, token received:", tokenJwt);
       console.log("User data:", userData);
 
+      // Simpan user data yang diperlukan saja
       const userToStore = {
         uuid: userData.uuid,
         name: userData.name,
@@ -159,6 +191,7 @@ const LoginPage = () => {
       };
       login(tokenJwt, userToStore);
 
+      // Tampilkan notifikasi sukses
       toast.success(loginResult.message || "Login berhasil");
       navigate("/");
     } catch (error) {
@@ -167,6 +200,7 @@ const LoginPage = () => {
         error instanceof Error ? error.message : "Terjadi kesalahan saat login";
       setError(errorMessage);
 
+      //  Tampilkan toast error kecuali untuk kasus pengisian form
       if (!errorMessage.includes("Silakan isi email dan password")) {
         toast.error(errorMessage);
       }
@@ -175,14 +209,17 @@ const LoginPage = () => {
     }
   };
 
+  // Handle remember me checkbox change
   const handleRememberMeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setRememberMe(e.target.checked);
   };
 
+  // Handle register redirect
   const handleRegisterRedirect = () => {
     navigate("/register");
   };
 
+  // Render login form
   return (
     <div className="min-h-screen pt-20 bg-gradient-to-br from-orange-50 to-orange-100 flex items-center justify-center p-4">
       <div className="max-w-md w-full">

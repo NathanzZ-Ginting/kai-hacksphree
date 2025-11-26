@@ -1,11 +1,13 @@
 // contexts/AuthContext.tsx
 import React, { createContext, useContext, useState, useEffect } from "react";
 
+// Tipe data untuk user
 interface UserData {
   name: string;
   email: string;
 }
 
+// Tipe data untuk context
 interface AuthContextType {
   isLoggedIn: boolean;
   userData: UserData | null;
@@ -13,20 +15,31 @@ interface AuthContextType {
   logout: () => void;
 }
 
+// Buat context
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+// Provider component
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
+  // State untuk status login
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  // State untuk menyimpan data user
   const [userData, setUserData] = useState<UserData | null>(null);
 
   // Check token and user data on app start AND on storage changes
   useEffect(() => {
+    // Function to check auth status
     const checkAuthStatus = () => {
+
+      // Cek token dan user data di storage
       const token = sessionStorage.getItem("authToken");
+
+      // Ambil user data dari localStorage
       const storedUserData = localStorage.getItem("userData");
 
+      // Jika token dan user data ada, set status login true
       if (token && storedUserData) {
         try {
           const user = JSON.parse(storedUserData);
@@ -56,13 +69,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       }
     };
 
+    // Add event listener
     window.addEventListener("storage", handleStorageChange);
 
+    // Cleanup
     return () => {
       window.removeEventListener("storage", handleStorageChange);
     };
   }, []);
 
+  // Function to handle login
   const login = (token: string, user: UserData) => {
     sessionStorage.setItem("authToken", token);
     localStorage.setItem("userData", JSON.stringify(user));
@@ -70,6 +86,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     setUserData(user);
   };
 
+  // Function to handle logout
   const logout = () => {
     sessionStorage.removeItem("authToken");
     localStorage.removeItem("userData");
@@ -80,6 +97,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     setUserData(null);
   };
 
+  // Provide context values
   return (
     <AuthContext.Provider value={{ isLoggedIn, userData, login, logout }}>
       {children}
@@ -87,6 +105,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   );
 };
 
+// Custom hook to use auth context
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (context === undefined) {

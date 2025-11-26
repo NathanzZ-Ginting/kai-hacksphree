@@ -3,21 +3,26 @@ import { motion, AnimatePresence } from "framer-motion";
 import type { Variants } from "framer-motion";
 import { Link } from "react-router-dom";
 
+// Booking Notification Component
 const BookingNotification = () => {
   const [isVisible, setIsVisible] = useState(false);
 
+  // Show notification after 1.5 seconds
   useEffect(() => {
     const timer = setTimeout(() => {
       setIsVisible(true);
     }, 1500);
 
+    // Cleanup timer on unmount
     return () => clearTimeout(timer);
   }, []);
 
+// Handle close notification
   const handleClose = () => {
     setIsVisible(false);
   };
 
+  // Animation variants untuk desktop
   const desktopVariants: Variants = {
     hidden: {
       opacity: 0,
@@ -81,6 +86,7 @@ const BookingNotification = () => {
     },
   };
 
+  // Render component
   return (
     <AnimatePresence>
       {isVisible && (

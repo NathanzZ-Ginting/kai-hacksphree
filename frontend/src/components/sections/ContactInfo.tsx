@@ -9,6 +9,7 @@ import {
   Headphones,
 } from "lucide-react";
 
+// ContactInfo Section Component
 const ContactInfo = () => {
   return (
     <section className="py-24 bg-gradient-to-br from-white to-gray-50">

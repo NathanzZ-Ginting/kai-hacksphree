@@ -79,7 +79,7 @@ const CompanyHistory = () => {
               >
                 {/* Milestone Card */}
                 <div className={`w-full md:w-5/12 ${index % 2 === 0 ? "md:pr-20" : "md:pl-20"}`}>
-                  <div className="relative bg-white rounded-3xl p-8 shadow-xl hover:shadow-2xl transition-all duration-300 border border-gray-100 overflow-hidden group">
+                  <div className="relat ive bg-white rounded-3xl p-8 shadow-xl hover:shadow-2xl transition-all duration-300 border border-gray-100 overflow-hidden group">
                     {/* Animated background */}
                     <div className="absolute inset-0 bg-gradient-to-br from-white to-gray-50 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                     

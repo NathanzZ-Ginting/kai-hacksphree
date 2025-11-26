@@ -15,11 +15,15 @@ import {
   Star,
 } from "lucide-react";
 
+// NewsPage Component
 const NewsPage = () => {
   const [selectedCategory, setSelectedCategory] = useState("all");
+  //  Search term state
   const [searchTerm, setSearchTerm] = useState("");
+  // Mobile filter menu state
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
 
+  // Define news categories
   const categories = [
     { id: "all", name: "Semua Berita" },
     { id: "pengumuman", name: "Pengumuman" },
@@ -31,6 +35,7 @@ const NewsPage = () => {
     { id: "perjalanan", name: "Tips Perjalanan" },
   ];
 
+  // Sample news data
   const news = [
     {
       id: 1,
@@ -181,18 +186,26 @@ const NewsPage = () => {
     },
   ];
 
+  // Filter news based on selected category and search term
   const filteredNews = news.filter((item) => {
+    // Check category match
     const matchesCategory =
+    //   selectedCategory === "all"
       selectedCategory === "all" || item.category === selectedCategory;
+      // Check search term match
     const matchesSearch =
+    //     searchTerm === "" ||
       item.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
       item.excerpt.toLowerCase().includes(searchTerm.toLowerCase());
     return matchesCategory && matchesSearch;
   });
 
+  // Featured and trending news
   const featuredNews = news.filter((item) => item.featured);
+  // Sort by views for trending
   const trendingNews = news.slice(0, 4).sort((a, b) => b.views - a.views);
 
+  // Format large numbers
   const formatNumber = (num: any) => {
     if (num >= 1000) {
       return (num / 1000).toFixed(1) + "rb";
@@ -200,6 +213,7 @@ const NewsPage = () => {
     return num.toString();
   };
 
+  // Render component
   return (
     <div className="min-h-screen bg-gradient-to-br from-orange-50 via-red-50 to-amber-50">
       {/* Enhanced Hero Section */}

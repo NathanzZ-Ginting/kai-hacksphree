@@ -1,11 +1,13 @@
 import { useState } from "react";
 import { ChevronDown, ChevronUp, Search } from "lucide-react";
 
+// FAQ Section Component
 const FAQSection = () => {
   const [activeCategory, setActiveCategory] = useState("tiket");
   const [searchTerm, setSearchTerm] = useState("");
   const [openItems, setOpenItems] = useState<number[]>([]);
-
+  
+// Define categories with icons
   const categories = {
     tiket: {
       name: "Tiket & Pemesanan",
@@ -24,7 +26,7 @@ const FAQSection = () => {
       icon: "📋",
     },
   };
-
+// Sample FAQ data
   const faqs = [
     {
       id: 1,
@@ -55,19 +57,19 @@ const FAQSection = () => {
       category: "pembatalan",
     },
   ];
-
+// Toggle FAQ item
   const toggleItem = (id: number) => {
     setOpenItems((prev) =>
       prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
     );
   };
-
+// Filter FAQs based on active category and search term
   const filteredFaqs = faqs.filter(
     (faq) =>
       faq.category === activeCategory &&
       faq.question.toLowerCase().includes(searchTerm.toLowerCase())
   );
-
+// Render component
   return (
     <section className="py-20 bg-gray-50">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">

@@ -16,7 +16,7 @@ interface checkResult {
   errors?: object;
 }
 
-const apiClient = new midtransClient.CoreApi({
+const apiClient= new midtransClient.CoreApi({
   isProduction: false,
   serverKey: process.env.SERVER_KEY!,
   clientKey: process.env.CLIENT_KEY!,
@@ -52,7 +52,7 @@ export const checkStatusService = async (
       });
 
       // Check if payment already exists
-      const existingPayment = await getPaymentByInvoicePayment(res.order_id);
+    const existingPayment= await getPaymentByInvoicePayment(res.order_id);
 
       if (!existingPayment) {
         var data = {
@@ -90,7 +90,7 @@ export const checkStatusService = async (
     console.error("Error checking transaction status:", error);
 
     // Handle specific Midtrans errors
-    if (error && typeof error === "object" && "status_code" in error) {
+    if(error && typeof error === "object" && "status_code" in error) {
       return {
         success: false,
         message: `Midtrans Error: ${

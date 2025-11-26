@@ -1,5 +1,6 @@
 import { Truck, Package, Clock, MapPin } from "lucide-react";
 
+// LogisticsServicePage Component
 const LogisticsServicePage = () => {
   const services = [
     {
@@ -40,6 +41,7 @@ const LogisticsServicePage = () => {
     },
   ];
 
+  // Coverage Areas Data
   const coverageAreas = [
     {
       region: "Jawa",
@@ -56,6 +58,7 @@ const LogisticsServicePage = () => {
     { region: "Kalimantan", cities: ["Balikpapan", "Samarinda", "Pontianak"] },
   ];
 
+  // Render component
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Hero Section dengan Background Image */}

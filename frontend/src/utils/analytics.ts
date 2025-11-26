@@ -1,3 +1,4 @@
+// frontend/src/utils/analytics.ts
 export const trackEvent = (
   eventName: string,
   properties?: Record<string, any>

@@ -12,6 +12,7 @@ import StationDropdown from "../ui/StationDropdown";
 import type { Station } from "../../types/kai";
 import { useNavigate } from "react-router-dom";
 
+// ScheduleFinder Section Component
 interface Schedule {
   trainName: string;
   originStationName: string;
@@ -20,6 +21,7 @@ interface Schedule {
   arrivalTime: string;
 }
 
+// Main Component
 const ScheduleFinder = () => {
   const navigate = useNavigate();
   const [startStation, setStartStation] = useState<string>("");
@@ -43,39 +45,46 @@ const ScheduleFinder = () => {
         setLoading(true);
         const response = await axios.get(`${API_URL}/master-data/station`);
 
+        // Jika response sukses, set data stasiun
         if (response.data.success) {
           setStations(response.data.data);
         } else {
           setError("Gagal mengambil data stasiun");
         }
-      } catch (err) {
-        console.error("Error fetching stations:", err);
+
+        // Tangani error saat fetch
+      } catch (error) {
+        console.error("Error fetching stations:", error);
         setError("Terjadi kesalahan saat mengambil data stasiun");
       } finally {
         setLoading(false);
       }
     };
 
+// Panggil fungsi fetchStations saat komponen dimount
     fetchStations();
   }, []);
 
   // Fetch jadwal ketika stasiun awal dan tujuan dipilih
   useEffect(() => {
-    const fetchSchedules = async () => {
+    const fetchSchedules= async () => {
       if (!startStation || !endStation) {
         setSchedules([]);
-        setCurrentPage(1); // Reset ke halaman 1
+        setCurrentPage(1) // reset ke halaman pertama atau 1
         return;
       }
 
+      // Fetch jadwal dari API
       try {
         setScheduleLoading(true);
         setError(null);
 
+        // Panggil API untuk mendapatkan jadwal
         const response = await axios.get(
           `${API_URL}/master-data/schedules/${startStation}/${endStation}`
         );
 
+        // Jika response sukses, set data jadwal
         if (response.data.success) {
           setSchedules(response.data.data);
           setCurrentPage(1); // Reset ke halaman 1 ketika data berubah
@@ -83,6 +92,8 @@ const ScheduleFinder = () => {
           setError(response.data.message || "Gagal mengambil data jadwal");
           setSchedules([]);
         }
+
+        // Tangani error saat fetch
       } catch (err: any) {
         console.error("Error fetching schedules:", err);
         if (err.response?.status === 404) {
@@ -160,12 +171,14 @@ const ScheduleFinder = () => {
   const currentSchedules = schedules.slice(indexOfFirstItem, indexOfLastItem);
   const totalPages = Math.ceil(schedules.length / itemsPerPage);
 
+  // Handle pagination controls
   const nextPage = () => {
     if (currentPage < totalPages) {
       setCurrentPage(currentPage + 1);
     }
   };
 
+  // Handle pagination controls
   const prevPage = () => {
     if (currentPage > 1) {
       setCurrentPage(currentPage - 1);
@@ -217,6 +230,7 @@ const ScheduleFinder = () => {
     </div>
   );
 
+  // Loading state
   if (loading) {
     return (
       <section className="py-12 md:py-20 bg-gray-50">
@@ -230,6 +244,7 @@ const ScheduleFinder = () => {
     );
   }
 
+  // Error handling
   if (error && !startStation && !endStation) {
     return (
       <section className="py-12 md:py-20 bg-gray-50">
@@ -248,6 +263,7 @@ const ScheduleFinder = () => {
     );
   }
 
+  // Render component
   return (
     <section className="py-8 md:py-20 bg-gray-50 min-h-screen">
       <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-6">
@@ -360,7 +376,7 @@ const ScheduleFinder = () => {
                     schedule.departureTime,
                     schedule.arrivalTime
                   );
-
+// @ts-ignore
                   return (
                     <div
                       key={index}

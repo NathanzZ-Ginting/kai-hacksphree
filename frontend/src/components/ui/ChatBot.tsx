@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { Bot, User, Send, Clock, X } from "lucide-react";
 
+// Types
 interface Message {
   id: number;
   text: string;
@@ -8,11 +9,13 @@ interface Message {
   timestamp: Date;
 }
 
+// Quick Question type
 interface QuickQuestion {
   question: string;
   answer: string;
 }
 
+// ChatBot Props
 interface ChatBotProps {
   quickQuestions: QuickQuestion[];
   onContactSupport: () => void;
@@ -20,19 +23,32 @@ interface ChatBotProps {
   onClose: () => void;
 }
 
+// ChatBot Component
 const ChatBot = ({
   quickQuestions,
   onContactSupport,
   isOpen,
   onClose,
 }: ChatBotProps) => {
+  // State
   const [messages, setMessages] = useState<Message[]>([]);
+
+  // Ref
   const [userInput, setUserInput] = useState("");
+
+  // Typing state
   const [isTyping, setIsTyping] = useState(false);
+
+  // Mobile state
   const [isMobile, setIsMobile] = useState(false);
+
+  // Ref
   const chatContainerRef = useRef<HTMLDivElement>(null);
+
+  // ChatBot ref for click outside
   const chatBotRef = useRef<HTMLDivElement>(null);
 
+  // Initial bot message
   const initialBotMessage: Message = {
     id: 1,
     text: "Halo! Saya KAI Assistant 🤖\nSaya di sini untuk membantu menjawab pertanyaan Anda tentang layanan KAI. Silakan pilih pertanyaan cepat di bawah atau ketik pertanyaan Anda!",
@@ -46,9 +62,11 @@ const ChatBot = ({
       setIsMobile(window.innerWidth < 768);
     };
 
+    // Initial check
     checkMobile();
     window.addEventListener("resize", checkMobile);
 
+    // Cleanup
     return () => window.removeEventListener("resize", checkMobile);
   }, []);
 
@@ -75,6 +93,7 @@ const ChatBot = ({
       document.body.style.overflow = "unset";
     }
 
+    // Cleanup on unmount
     return () => {
       document.body.style.overflow = "unset";
     };
@@ -92,10 +111,12 @@ const ChatBot = ({
       }
     };
 
+    // Attach listener only when open
     if (isOpen) {
       document.addEventListener("mousedown", handleClickOutside);
     }
 
+    // Cleanup
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
@@ -109,11 +130,13 @@ const ChatBot = ({
       }
     };
 
+    // Attach listener
     document.addEventListener("keydown", handleEscapeKey);
     return () => document.removeEventListener("keydown", handleEscapeKey);
   }, [isOpen, onClose]);
 
-  const handleQuickQuestion = (question: string, answer: string) => {
+  // Handle quick question
+  const handleQuickQuestion= (question: string, answer: string) => {
     const userMessage: Message = {
       id: Date.now(),
       text: question,
@@ -121,9 +144,11 @@ const ChatBot = ({
       timestamp: new Date(),
     };
 
+    // Add user message
     setMessages((prev) => [...prev, userMessage]);
     setIsTyping(true);
 
+    // Simulate bot response delay
     setTimeout(() => {
       const botMessage: Message = {
         id: Date.now() + 1,
@@ -136,9 +161,11 @@ const ChatBot = ({
     }, 1000);
   };
 
+  // Handle send message
   const handleSendMessage = () => {
     if (!userInput.trim() || isTyping) return;
 
+    //  Add user message
     const userMessage: Message = {
       id: Date.now(),
       text: userInput,
@@ -146,6 +173,7 @@ const ChatBot = ({
       timestamp: new Date(),
     };
 
+    // Add user message to chat
     setMessages((prev) => [...prev, userMessage]);
     setUserInput("");
     setIsTyping(true);
@@ -154,6 +182,7 @@ const ChatBot = ({
     const input = userInput.toLowerCase();
     let botResponse = "";
 
+    // Simulate bot typing delay
     setTimeout(() => {
       if (input.includes("tiket") && input.includes("batal")) {
         botResponse = quickQuestions[2].answer;
@@ -171,6 +200,7 @@ const ChatBot = ({
         botResponse = `Maaf, saya belum bisa menjawab pertanyaan spesifik tentang "${userInput}".\n\nUntuk pertanyaan yang lebih detail, silakan hubungi customer service kami:\n\n📞 Call Center: 121 (24/7)\n💬 Live Chat: Tersedia 08.00-22.00 WIB\n✉️ Email: customer@kai.id\n\nAtau Anda bisa memilih pertanyaan dari daftar cepat di bawah.`;
       }
 
+      // Add bot response 
       const botMessage: Message = {
         id: Date.now() + 1,
         text: botResponse,
@@ -178,11 +208,13 @@ const ChatBot = ({
         timestamp: new Date(),
       };
 
+      // Update messages
       setMessages((prev) => [...prev, botMessage]);
       setIsTyping(false);
     }, 1500);
   };
 
+  // Handle enter key press
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
@@ -190,6 +222,7 @@ const ChatBot = ({
     }
   };
 
+  // Format time helper
   const formatTime = (date: Date) => {
     return date.toLocaleTimeString("id-ID", {
       hour: "2-digit",
@@ -197,6 +230,7 @@ const ChatBot = ({
     });
   };
 
+  // Clear chat history
   const clearChat = () => {
     setMessages([initialBotMessage]);
   };
@@ -204,6 +238,7 @@ const ChatBot = ({
   // Don't render if not open
   if (!isOpen) return null;
 
+  // Render component
   return (
     <>
       {/* Mobile Fullscreen Overlay */}

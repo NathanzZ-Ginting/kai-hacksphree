@@ -1,9 +1,11 @@
 import { Users, Clock, Shield, Star, ChevronRight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
+// PassengerServicePage Component
 const PassengerServicePage = () => {
   const navigate = useNavigate();
 
+  // Train Classes Data
   const trainClasses = [
     {
       class: "Eksekutif",
@@ -74,10 +76,12 @@ const PassengerServicePage = () => {
     },
   ];
 
+  // Handle Order Ticket
   const handleOrderTicket = () => {
     navigate("/booking");
   };
 
+  // Render component
   return (
     <div className="min-h-screen bg-gray-50">
       <section

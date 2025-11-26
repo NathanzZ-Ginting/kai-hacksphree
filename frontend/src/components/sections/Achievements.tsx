@@ -1,5 +1,5 @@
 import { Users, Map, Trophy, Star } from "lucide-react";
-
+// Achievements Section Component
 const Achievements = () => {
   const stats = [
     {
@@ -27,7 +27,7 @@ const Achievements = () => {
       description: "Rating positif dari penumpang",
     },
   ];
-
+// Render component
   return (
     <section className="py-24 bg-gradient-to-br from-gray-800 to-gray-900 text-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

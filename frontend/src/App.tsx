@@ -19,6 +19,7 @@ import { AuthProvider } from "./context/AuthContext";
 import TicketDetailPage from "./pages/TicketDetailPage";
 import SuccessOrderPage from "./pages/SuccessOrderPage";
 
+// Main App Component
 function App() {
   return (
     <AuthProvider>

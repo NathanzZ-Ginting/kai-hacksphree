@@ -1,5 +1,6 @@
 import { Calendar, MapPin, Users } from "lucide-react";
 
+// HistoryTimeline Section Component
 const HistoryTimeline = () => {
   const milestones = [
     {
@@ -31,7 +32,8 @@ const HistoryTimeline = () => {
       icon: Calendar,
     },
   ];
-
+  
+// Render component
   return (
     <section className="py-20 bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

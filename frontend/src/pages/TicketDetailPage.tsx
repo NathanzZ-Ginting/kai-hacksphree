@@ -25,6 +25,7 @@ interface Schedule {
   updatedAt: string;
 }
 
+// Types
 interface TicketDetail {
   uuid: string;
   scheduleId: string;
@@ -39,6 +40,7 @@ interface TicketDetail {
   destinationStationName: string;
 }
 
+// Types
 interface Seat {
   uuid: string;
   trainId: string;
@@ -47,6 +49,7 @@ interface Seat {
   isAvailable?: boolean;
 }
 
+// Types
 interface OrderResponse {
   success: boolean;
   message: string;
@@ -55,18 +58,21 @@ interface OrderResponse {
   };
 }
 
+// Types
 interface ApiResponse {
   success: boolean;
   message: string;
   data: TicketDetail;
 }
 
+// Types
 interface SeatApiResponse {
   success: boolean;
   message: string;
   data: Seat[];
 }
 
+// Types
 interface PassengerCounter {
   type: string;
   label: string;
@@ -75,6 +81,7 @@ interface PassengerCounter {
   priceMultiplier: number;
 }
 
+// Types
 interface SeatLayout {
   rows: number;
   columns: number;
@@ -83,6 +90,7 @@ interface SeatLayout {
   hasAisle?: boolean;
 }
 
+// Ticket Detail Skeleton Component
 const TicketDetailSkeleton = () => {
   return (
     <div className="min-h-screen bg-gray-50 pt-20">
@@ -230,19 +238,33 @@ const TicketDetailSkeleton = () => {
   );
 };
 
+// Main Ticket Detail Page Component
 const TicketDetailPage = () => {
+  // Router hooks
   const { uuid } = useParams();
+  // Navigation and location
   const navigate = useNavigate();
+  // State hooks
   const location = useLocation();
+  // Ticket detail state
   const [ticket, setTicket] = useState<TicketDetail | null>(null);
+  // Seats state
   const [seats, setSeats] = useState<Seat[]>([]);
+  // Loading and error states
   const [loading, setLoading] = useState(true);
+  // Other states
   const [error, setError] = useState("");
+  // Order states
   const [orderLoading, setOrderLoading] = useState(false);
+  // Order success state
   const [orderSuccess, setOrderSuccess] = useState(false);
+  // Midtrans modal state
   const [showMidtransModal, setShowMidtransModal] = useState(false);
+  // Snap redirect URL state
   const [snapRedirectUrl, setSnapRedirectUrl] = useState("");
+  // Passenger counters state
   const [passengerCounters, setPassengerCounters] = useState<
+  //   PassengerCounter[]
     PassengerCounter[]
   >([
     {
@@ -260,12 +282,17 @@ const TicketDetailPage = () => {
       priceMultiplier: 0.7,
     },
   ]);
+  // Selected seats state
   const [selectedSeats, setSelectedSeats] = useState<string[]>([]);
+  // Selected coach state
   const [selectedCoach, setSelectedCoach] = useState<number>(1);
+  // Occupied seats state
   const [occupiedSeats, setOccupiedSeats] = useState<string[]>([]);
 
+  // API URL dari environment variable atau default
   const API_URL = import.meta.env.API_URL || "http://localhost:3000/api/v1";
 
+  // Fetch ticket detail and seats on component mount or uuid change
   useEffect(() => {
     const fetchTicketDetail = async () => {
       try {
@@ -289,11 +316,13 @@ const TicketDetailPage = () => {
           return;
         }
 
+        // Fetch ticket detail from API
         console.log("Fetching ticket detail for UUID:", uuid);
         const response = await axios.get<ApiResponse>(
           `${API_URL}/master-data/ticket/${uuid}`
         );
 
+        // Handle API response
         if (response.data.success) {
           setTicket(response.data.data);
           if (response.data.data.trainUuid) {
@@ -311,14 +340,15 @@ const TicketDetailPage = () => {
         } else {
           setError("Gagal memuat detail tiket");
         }
-      } catch (err) {
+      } catch (error) {
         setError("Terjadi kesalahan saat memuat detail tiket");
-        console.error("Error fetching ticket detail:", err);
+        console.error("Error fetching ticket detail:", error);
       } finally {
         setLoading(false);
       }
     };
 
+    // Fetch seats function
     const fetchSeats = async (trainUuid: string) => {
       try {
         console.log("Fetching seats for trainUuid:", trainUuid);
@@ -326,12 +356,14 @@ const TicketDetailPage = () => {
           `${API_URL}/master-data/train-seat/${trainUuid}`
         );
 
+        // Handle API response
         if (response.data.success) {
           const seatsWithAvailability = response.data.data.map((seat) => ({
             ...seat,
             isAvailable: Math.random() > 0.3,
           }));
 
+          // Update seats and occupied seats state
           setSeats(seatsWithAvailability);
           const occupied = seatsWithAvailability
             .filter((seat) => !seat.isAvailable)
@@ -347,11 +379,13 @@ const TicketDetailPage = () => {
       }
     };
 
+    //  Trigger fetch if uuid is available
     if (uuid) {
       fetchTicketDetail();
     }
   }, [uuid, location.state]);
 
+  // Function to get coaches
   const getCoaches = () => {
     if (seats.length === 0) return [];
     const coachSet = new Set<number>();
@@ -364,9 +398,12 @@ const TicketDetailPage = () => {
     return Array.from(coachSet).sort((a, b) => a - b);
   };
 
+  // Function to get seat layout for selected coach
   const getSeatLayoutForCoach = (coach: number): SeatLayout => {
+    // Get seats for the specified coach
     const coachSeats = getSeatsByCoach(coach);
 
+    // Build seat layout
     if (coachSeats.length === 0) {
       return {
         rows: 0,
@@ -377,6 +414,7 @@ const TicketDetailPage = () => {
       };
     }
 
+    //  Group seats by row
     const seatsByRow: { [key: string]: string[] } = {};
     coachSeats.forEach((seatName) => {
       const rowMatch = seatName.match(/^\d+([A-Z])\d+$/);
@@ -389,13 +427,18 @@ const TicketDetailPage = () => {
       }
     });
 
+    //  Sort rows and build layout
     const sortedRows = Object.keys(seatsByRow).sort();
+    // Build layout array
     const layout: string[][] = [];
 
+    // Determine if train is Luxury or Priority for layout
     const categoryLower = ticket?.trainCategoryName.toLowerCase() || "bisnis";
+    // Luxury and Priority have 2 seats per row, others have 4
     const isLuxuryOrPriority =
       categoryLower === "luxury" || categoryLower === "priority";
 
+      // Build layout rows
     sortedRows.forEach((rowLetter) => {
       const rowSeats = seatsByRow[rowLetter].sort((a, b) => {
         const aNum = parseInt(a.slice(-1));
@@ -403,6 +446,7 @@ const TicketDetailPage = () => {
         return aNum - bNum;
       });
 
+      // Push seats into layout with aisle consideration
       if (isLuxuryOrPriority) {
         layout.push([rowSeats[0] || "", "", rowSeats[1] || ""]);
       } else {
@@ -416,9 +460,12 @@ const TicketDetailPage = () => {
       }
     });
 
+    // Determine layout properties
     const seatsPerRow = isLuxuryOrPriority ? 2 : 4;
+    // Luxury and Priority have 3 columns, others have 5
     const columns = isLuxuryOrPriority ? 3 : 5;
 
+    // Return seat layout
     return {
       rows: layout.length,
       columns,
@@ -428,17 +475,20 @@ const TicketDetailPage = () => {
     };
   };
 
+  // Function to get seats by coach
   const getSeatsByCoach = (coach: number): string[] => {
     return seats
       .filter((seat) => seat.nameSeat.startsWith(coach.toString()))
       .map((seat) => seat.nameSeat);
   };
 
+  // Calculate total passengers
   const totalPassengers = passengerCounters.reduce(
     (total, counter) => total + counter.count,
     0
   );
 
+  // Sync selected seats with total passengers
   useEffect(() => {
     if (selectedSeats.length > totalPassengers) {
       setSelectedSeats(selectedSeats.slice(0, totalPassengers));
@@ -451,6 +501,7 @@ const TicketDetailPage = () => {
     }
   }, [totalPassengers]);
 
+  // Update passenger count
   const updatePassengerCount = (type: string, newCount: number) => {
     if (newCount < 0) return;
     setPassengerCounters((prev) =>
@@ -460,10 +511,12 @@ const TicketDetailPage = () => {
     );
   };
 
+  // Handle seat selection
   const handleSeatSelect = (seat: string, index: number) => {
     const seatData = seats.find((s) => s.nameSeat === seat);
     if (!seatData?.isAvailable) return;
 
+    // Update selected seats
     const updatedSeats = [...selectedSeats];
     if (updatedSeats[index] === seat) {
       updatedSeats[index] = "";
@@ -473,13 +526,19 @@ const TicketDetailPage = () => {
     setSelectedSeats(updatedSeats);
   };
 
+  //  Get seat status
   const getSeatStatus = (seatName: string) => {
+    // Check if seat is selected or occupied
     if (selectedSeats.includes(seatName)) return "selected";
+    // Check if seat is occupied
     if (occupiedSeats.includes(seatName)) return "occupied";
+    // Check seat availability
     const seatData = seats.find((seat) => seat.nameSeat === seatName);
+    // Return seat status
     return seatData?.isAvailable ? "available" : "occupied";
   };
 
+  // Generate type passenger array
   const generateTypePassengerArray = (): string[] => {
     const typeArray: string[] = [];
     passengerCounters.forEach((counter) => {
@@ -490,6 +549,7 @@ const TicketDetailPage = () => {
     return typeArray;
   };
 
+  // Calculate total price
   const calculateTotalPrice = () => {
     if (!ticket) return 0;
     let total = 0;
@@ -499,14 +559,17 @@ const TicketDetailPage = () => {
     return total;
   };
 
+  // Handle submit order
   const handleSubmitOrder = async () => {
     if (!ticket) return;
 
+    // Validasi penumpang dan kursi
     if (totalPassengers === 0) {
       setError("Harap pilih minimal 1 penumpang");
       return;
     }
 
+    // Validasi kursi terpilih
     if (
       selectedSeats.length !== totalPassengers ||
       selectedSeats.some((seat) => !seat)
@@ -515,17 +578,21 @@ const TicketDetailPage = () => {
       return;
     }
 
+    // Ambil userUuid dari localStorage
     try {
       setOrderLoading(true);
       setError("");
 
+      // Ambil userUuid dari localStorage
       const userDataString = localStorage.getItem("userData");
 
+      // Validasi userDataString
       if (!userDataString) {
         setError("User data tidak ditemukan. Silakan login kembali.");
         return;
       }
 
+      // Parse userDataString dengan penanganan error
       let userUuid: string;
       try {
         const userData = JSON.parse(userDataString);
@@ -539,7 +606,9 @@ const TicketDetailPage = () => {
         return;
       }
 
+      //  Siapkan data order
       const typePasangger = generateTypePassengerArray();
+      // Siapkan data order
       const orderData = {
         userUuid: userUuid,
         ticketUuid: ticket.uuid,
@@ -549,11 +618,13 @@ const TicketDetailPage = () => {
         seatNumbers: selectedSeats,
       };
 
+      // Kirim data order ke API
       const response = await axios.post<OrderResponse>(
         `${API_URL}/order/order-ticket`,
         orderData
       );
 
+      // Handle API response
       if (response.data.success && response.data.data) {
         setOrderSuccess(true);
         setSnapRedirectUrl(response.data.data.snapRedirectUrl);
@@ -571,15 +642,18 @@ const TicketDetailPage = () => {
     }
   };
 
+  // Handle close Midtrans modal
   const handleCloseMidtransModal = () => {
     setShowMidtransModal(false);
     setOrderSuccess(false);
   };
 
+  // Handle open Midtrans in new tab
   const handleOpenMidtransInNewTab = () => {
     window.open(snapRedirectUrl, "_blank");
   };
 
+  // Effect to manage body overflow when modal is open
   useEffect(() => {
     if (showMidtransModal) {
       document.body.style.overflow = "hidden";
@@ -593,6 +667,7 @@ const TicketDetailPage = () => {
     };
   }, [showMidtransModal]);
 
+  // Format time
   const formatTime = (dateString: string) => {
     return new Date(dateString).toLocaleTimeString("id-ID", {
       hour: "2-digit",
@@ -600,6 +675,7 @@ const TicketDetailPage = () => {
     });
   };
 
+  // Format date
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString("id-ID", {
       weekday: "long",
@@ -609,15 +685,23 @@ const TicketDetailPage = () => {
     });
   };
 
+  // Calculate duration
   const calculateDuration = (departure: string, arrival: string) => {
+    // Calculate duration between two date strings
     const dep = new Date(departure);
+    // Calculate duration between two date strings
     const arr = new Date(arrival);
+    // Calculate difference in milliseconds
     const diff = arr.getTime() - dep.getTime();
+    // Calculate hours and minutes
     const hours = Math.floor(diff / (1000 * 60 * 60));
+    // Calculate hours and minutes
     const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+    // Return formatted duration
     return `${hours} jam ${minutes} menit`;
   };
 
+  // Format price
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat("id-ID", {
       style: "currency",
@@ -626,6 +710,7 @@ const TicketDetailPage = () => {
     }).format(price);
   };
 
+// Get category color
   const getCategoryColor = (category: string) => {
     switch (category.toLowerCase()) {
       case "eksekutif":
@@ -643,6 +728,7 @@ const TicketDetailPage = () => {
     }
   };
 
+  // Get seat type
   const getSeatType = (seatName: string): "window" | "aisle" => {
     const seatNumber = parseInt(seatName.slice(-1));
     const categoryLower = ticket?.trainCategoryName.toLowerCase() || "";
@@ -656,14 +742,19 @@ const TicketDetailPage = () => {
     }
   };
 
+  // Render seat layout
   const renderSeatLayout = () => {
     if (!ticket) return null;
 
+    // Get seat layout for selected coach
     const seatLayout = getSeatLayoutForCoach(selectedCoach);
+    // Determine if train is Luxury or Priority
     const categoryLower = ticket.trainCategoryName.toLowerCase();
+    // Determine if train is Luxury or Priority
     const isLuxuryOrPriority =
       categoryLower === "luxury" || categoryLower === "priority";
 
+      // Function to get seat color based on status
     const getSeatColor = (seatName: string) => {
       const status = getSeatStatus(seatName);
 
@@ -678,7 +769,7 @@ const TicketDetailPage = () => {
           return "bg-gray-300 text-gray-500 border-gray-400 cursor-not-allowed";
       }
     };
-
+// Render seat layout
     return (
       <div className="bg-white rounded-lg p-6">
         <div className="bg-gradient-to-r from-gray-800 to-gray-900 text-white py-3 px-4 rounded-t-lg mb-4 flex justify-between items-center shadow-lg">

@@ -6,15 +6,17 @@ import {
   Youtube,
   Mail,
 } from "lucide-react";
+// import { useLocation } from "react-router-dom";
 
+// const location = useLocation();
 const Footer = () => {
   const hiddenPaths = ["/login", "/register", "/profile", "/booking/detail" , "/order/success"];
-
+//   const location = useLocation();
   const shouldHideHeader = hiddenPaths.some(
     (path) =>
       location.pathname === path || location.pathname.startsWith(path + "/")
   );
-
+//   console.log(shouldHideHeader);
   if (shouldHideHeader) {
     return null;
   }

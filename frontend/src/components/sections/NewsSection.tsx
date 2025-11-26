@@ -2,14 +2,17 @@ import { Calendar, User, ArrowRight } from "lucide-react";
 import { useLazyLoad } from "../../hooks/useLazyLoad";
 import { useNavigate } from "react-router-dom";
 
+// NewsSection Section Component
 const NewsSection = () => {
   const { ref, isVisible } = useLazyLoad();
   const navigate = useNavigate();
 
+// Handle view all news
   const handleViewAllNews = () => {
     navigate("/news");
   };
 
+  // Sample news data
   const news = [
     {
       id: 1,
@@ -43,6 +46,7 @@ const NewsSection = () => {
     },
   ];
 
+  // Render component
   return (
     <section ref={ref} className="py-20 bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

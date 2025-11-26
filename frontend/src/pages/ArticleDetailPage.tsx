@@ -10,6 +10,7 @@ import {
   Eye,
 } from "lucide-react";
 
+// ArticleDetailPage Component
 const ArticleDetailPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -216,6 +217,7 @@ const ArticleDetailPage = () => {
     },
   ];
 
+  // Fetch artikel berdasarkan ID dari URL
   useEffect(() => {
     // Simulasi fetch data artikel berdasarkan ID
     const foundArticle = articlesData.find((art) => art.id === id);
@@ -225,6 +227,7 @@ const ArticleDetailPage = () => {
     window.scrollTo(0, 0);
   }, [id]);
 
+  // Jika artikel tidak ditemukan
   if (!article) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -243,6 +246,7 @@ const ArticleDetailPage = () => {
     );
   }
 
+  // Render artikel
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}

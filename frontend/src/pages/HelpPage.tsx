@@ -22,11 +22,16 @@ import {
 import ChatBot from "../components/ui/ChatBot";
 import { useNavigate } from "react-router-dom";
 
+// HelpPage Component
 const HelpPage = () => {
+  // State for ChatBot modal
   const [isChatBotOpen, setIsChatBotOpen] = useState(false);
+  // State for search query
   const [searchQuery, setSearchQuery] = useState("");
+  // Navigation hook
   const navigate = useNavigate();
 
+  // Define contact methods data
   const contactMethods = [
     {
       icon: Phone,
@@ -115,6 +120,7 @@ const HelpPage = () => {
     },
   ];
 
+  // Define quick questions data
   const quickQuestions = [
     {
       icon: ShoppingCart,
@@ -166,11 +172,13 @@ const HelpPage = () => {
     },
   ];
 
+  // Handle contact support action
   const handleContactSupport = () => {
     console.log("Redirect to customer service");
     setIsChatBotOpen(false);
   };
 
+  // Handle article click
   const handleArticleClick = (articleId: string) => {
     navigate(`/article/${articleId}`);
   };
@@ -187,6 +195,7 @@ const HelpPage = () => {
     article.category.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  // Render component
   return (
     <div className="min-h-screen bg-gradient-to-br from-orange-50 via-red-50 to-amber-50">
       {/* Hero Section with Search */}

@@ -1,6 +1,8 @@
 import { Context, Handler } from 'hono';
 import { SuccessRes, ErrorsRes } from '../../../common/utils/api-response.js';
 import { getCSRFTokenForSession, getCSRFStats } from '../middleware/csrf-middleware.js';
+import { ifError } from 'node:assert/strict';
+import { statSync } from 'node:fs';
 
 /**
  * Get CSRF token for current session
@@ -41,13 +43,15 @@ export const getCSRFStatistics: Handler = async (c: Context) => {
   try {
     const stats = getCSRFStats();
     
+    ifError(!statSync('./logs/csrf.log'));
+    
     return c.json(SuccessRes('CSRF statistics retrieved successfully', {
       ...stats,
       timestamp: new Date().toISOString(),
       status: 'active'
     }));
 
-  } catch (error) {
+  } catch(error) {
     console.error('❌ [CSRF Controller] Error getting stats:', error);
     return c.json(ErrorsRes('Internal server error'), 500);
   }

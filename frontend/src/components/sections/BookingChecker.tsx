@@ -16,28 +16,39 @@ interface InvoiceData {
   createdAt: string;
   updatedAt: string;
 }
-
+// Types untuk response API
 interface ApiResponse {
   success: boolean;
   message: string;
   data: InvoiceData[];
 }
-
-const BookingChecker = () => {
+// BookingChecker Section Component
+const BookingChecker= () => {
   const [invoiceId, setInvoiceId] = useState("");
+
+  // Loading state
   const [loading, setLoading] = useState(false);
+
+  // Error state
   const [error, setError] = useState("");
+
+  // Invoice data state
   const [invoiceData, setInvoiceData] = useState<InvoiceData | null>(null);
+
+  // Modal state
   const [isModalOpen, setIsModalOpen] = useState(false);
 
+// API URL dari environment variable atau default
   const API_URL = import.meta.env.API_URL || "http://localhost:3000/api/v1";
 
+// Handle check invoice
   const handleCheckInvoice = async () => {
     if (!invoiceId.trim()) {
       setError("Masukkan kode booking / invoice number");
       return;
     }
 
+// Reset error dan invoice data sebelum fetch
     try {
       setLoading(true);
       setError("");
@@ -45,13 +56,14 @@ const BookingChecker = () => {
       // Ambil userUuid dari localStorage dengan penanganan error yang konsisten
       const userDataString = localStorage.getItem("userData");
 
+// Validasi userDataString
       if (!userDataString) {
         setError("User data tidak ditemukan. Silakan login kembali.");
         return;
       }
 
       let userUuid: string;
-
+// Parse userDataString dengan penanganan error
       try {
         const userData = JSON.parse(userDataString);
         userUuid = userData.uuid;
@@ -65,6 +77,7 @@ const BookingChecker = () => {
         return;
       }
 
+// Fetch invoice dari API
       const response = await axios.get<ApiResponse>(
         `${API_URL}/master-data/order-ticket/${invoiceId.trim()}`
       );
@@ -83,6 +96,7 @@ const BookingChecker = () => {
       } else {
         setError("Invoice tidak ditemukan");
       }
+      // Catch error dari request
     } catch (err: any) {
       console.error("Error fetching invoice:", err);
       if (err.response?.status === 404) {
@@ -97,17 +111,20 @@ const BookingChecker = () => {
     }
   };
 
+  // Handle close modal
   const handleCloseModal = () => {
     setIsModalOpen(false);
     setInvoiceData(null);
   };
 
+// Handle key press (Enter)
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === "Enter") {
       handleCheckInvoice();
     }
   };
 
+  // Render component
   return (
     <section className="py-16 bg-gradient-to-br from-orange-50 to-white">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">

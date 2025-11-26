@@ -1,5 +1,6 @@
 import { Building, Store, Coffee } from "lucide-react";
 
+// PropertyServicePage Component
 const PropertyServicePage = () => {
   const services = [
     {
@@ -37,6 +38,7 @@ const PropertyServicePage = () => {
     },
   ];
 
+  // Render component
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Hero Section dengan Background Image */}

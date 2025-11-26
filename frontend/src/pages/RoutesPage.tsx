@@ -1,9 +1,11 @@
 import { useState } from "react";
 import { MapPin, Clock, Train, Navigation, Calendar } from "lucide-react";
 
+// RoutesPage Component
 const RoutesPage = () => {
   const [selectedRegion, setSelectedRegion] = useState("jawa");
 
+  // Data for regions and routes
   const regions = {
     jawa: {
       name: "Pulau Jawa",
@@ -98,6 +100,7 @@ const RoutesPage = () => {
     },
   ];
 
+  // Render component
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Hero Section */}

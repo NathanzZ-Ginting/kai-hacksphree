@@ -4,26 +4,40 @@ import { ArrowLeft, Mail, RefreshCw, CheckCircle, Timer, AlertCircle } from 'luc
 import { toast } from 'sonner';
 import axios from 'axios';
 
+// API base URL from environment variables
 const API_URL = import.meta.env.VITE_API_URL;
 
+// Location state interface
 interface LocationState {
   email?: string;
   fromRegistration?: boolean;
 }
 
+// OTP Verification Page Component
 const OTPVerificationPage: React.FC = () => {
+  // Router hooks
   const navigate = useNavigate();
+  // Get email from location state
   const location = useLocation();
+  // Get email from location state
   const state = location.state as LocationState;
   
+  // OTP and verification states
   const [otp, setOtp] = useState(['', '', '', '', '', '']);
+  // Loading states
   const [isVerifying, setIsVerifying] = useState(false);
+  // Resend states
   const [isResending, setIsResending] = useState(false);
+  // Timer states
   const [timeLeft, setTimeLeft] = useState(600); // 10 minutes
+  // Can resend OTP
   const [canResend, setCanResend] = useState(false);
+  // Email state
   const [email] = useState(state?.email || '');
+  // Verification success state
   const [isVerified, setIsVerified] = useState(false);
   
+  // Refs for OTP input fields
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
   // Countdown timer
@@ -51,12 +65,14 @@ const OTPVerificationPage: React.FC = () => {
     }
   }, [email, navigate]);
 
+  // Format time in MM:SS
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
     return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
   };
 
+  // Handle OTP input change
   const handleOtpChange = (index: number, value: string) => {
     if (value.length > 1) {
       // Handle paste
@@ -75,6 +91,7 @@ const OTPVerificationPage: React.FC = () => {
       return;
     }
 
+    // Single character input
     const newOtp = [...otp];
     newOtp[index] = value;
     setOtp(newOtp);
@@ -85,32 +102,39 @@ const OTPVerificationPage: React.FC = () => {
     }
   };
 
+  // Handle backspace key 
   const handleKeyDown = (index: number, e: React.KeyboardEvent) => {
     if (e.key === 'Backspace' && !otp[index] && index > 0) {
       inputRefs.current[index - 1]?.focus();
     }
   };
 
+  // Handle verify OTP
   const handleVerifyOTP = async () => {
     const otpCode = otp.join('');
     
+    // Basic validation
     if (otpCode.length !== 6) {
       toast.error('Silakan masukkan kode OTP 6 digit');
       return;
     }
 
+    // Set loading state
     setIsVerifying(true);
 
+    // Verify OTP API call
     try {
       const response = await axios.post(`${API_URL}/auth/otp/verify`, {
         email,
         otpCode
       });
 
+      //  Handle response
       if (response.data.success) {
         setIsVerified(true);
         toast.success('Email berhasil diverifikasi!');
         
+        // Redirect after short delay
         setTimeout(() => {
           if (state?.fromRegistration) {
             navigate('/login', { 
@@ -130,6 +154,7 @@ const OTPVerificationPage: React.FC = () => {
         inputRefs.current[0]?.focus();
       }
     } catch (error: any) {
+      // Handle error
       console.error('OTP verification error:', error);
       if (error.response?.data?.message) {
         toast.error(error.response.data.message);
@@ -144,14 +169,17 @@ const OTPVerificationPage: React.FC = () => {
     }
   };
 
+  // Handle resend OTP
   const handleResendOTP = async () => {
     setIsResending(true);
 
+    // Resend OTP API call
     try {
       const response = await axios.post(`${API_URL}/auth/otp/resend`, {
         email
       });
 
+      // Handle response
       if (response.data.success) {
         toast.success('Kode OTP baru telah dikirim ke email Anda');
         setTimeLeft(600); // Reset timer to 10 minutes
@@ -173,6 +201,7 @@ const OTPVerificationPage: React.FC = () => {
     }
   };
 
+  // Handle back navigation
   const handleBack = () => {
     if (state?.fromRegistration) {
       navigate('/register');
@@ -181,6 +210,7 @@ const OTPVerificationPage: React.FC = () => {
     }
   };
 
+  // Render component
   if (isVerified) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-emerald-50 flex items-center justify-center p-4">

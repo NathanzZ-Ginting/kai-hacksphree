@@ -8,7 +8,7 @@ import { useAuth } from "../../context/AuthContext";
 import penumpangIcon from "/assets/images/services/angkutan_penumpang.jpg";
 import barangIcon from "/assets/images/services/angkutan_barang.jpg";
 import asetIcon from "/assets/images/services/pengusahaan_aset.jpg";
-
+// Header Component
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
@@ -32,7 +32,7 @@ const Header = () => {
         setIsScrolled(false);
       }
     };
-
+// Handle click outside for dropdowns
     const handleClickOutside = (event: MouseEvent) => {
       if (
         dropdownRef.current &&
@@ -57,7 +57,7 @@ const Header = () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
-
+// Determine if header should be hidden on certain routes
   const hiddenPaths = [
     "/login",
     "/register",
@@ -74,7 +74,7 @@ const Header = () => {
   if (shouldHideHeader) {
     return null;
   }
-
+// Service items for dropdown
   const servicesItems = [
     {
       name: "Angkutan Penumpang",
@@ -98,7 +98,7 @@ const Header = () => {
       features: ["Area Kontrol", "Space Iklan", "Bangunan Dinas"],
     },
   ];
-
+// Navigation items
   const navItems = [
     { name: "Beranda", href: "/" },
     { name: "Tentang Kami", href: "/about" },
@@ -110,12 +110,12 @@ const Header = () => {
     { name: "Berita", href: "/news" },
     { name: "Bantuan", href: "/help" },
   ];
-
+// Handle navigation to booking page
   const handleOrderTicket = () => {
     navigate("/booking");
     setIsMenuOpen(false);
   };
-
+// Handle navigation clicks
   const handleNavClick = (
     href: string,
     hasDropdown = false,
@@ -131,27 +131,27 @@ const Header = () => {
       setIsServicesDropdownOpen(false);
     }
   };
-
+// Handle service item click
   const handleServiceClick = (href: string) => {
     navigate(href);
     setIsServicesDropdownOpen(false);
     setIsMenuOpen(false);
   };
-
+// Handle login navigation
   const handleLoginClick = () => {
     navigate("/login");
     setIsMenuOpen(false);
   };
-
+// Handle register navigation
   const handleRegisterClick = () => {
     navigate("/register");
     setIsMenuOpen(false);
   };
-
+// Handle profile dropdown toggle
   const handleProfileClick = () => {
     setIsProfileDropdownOpen(!isProfileDropdownOpen);
   };
-
+// Handle logout
   const handleLogout = () => {
     // Logout dari context (akan clear semua storage)
     logout();
@@ -163,19 +163,19 @@ const Header = () => {
     // Redirect to home
     navigate("/");
   };
-
+// Handle profile navigation
   const handleProfileNavigation = (path: string) => {
     navigate(path);
     setIsProfileDropdownOpen(false);
     setIsMenuOpen(false);
   };
-
+// Check if nav item is active
   const isActive = (href: string) => {
     return (
       location.pathname === href || location.pathname.startsWith(href + "/")
     );
   };
-
+// Check if services dropdown should be active
   const isServicesActive = servicesItems.some(
     (item) =>
       location.pathname === item.href || location.pathname.startsWith(item.href)
@@ -198,7 +198,7 @@ const Header = () => {
   const getUserEmail = () => {
     return userData?.email || "";
   };
-
+// Render component
   return (
     <div>
       <header
@@ -220,7 +220,7 @@ const Header = () => {
                 />
               </a>
             </div>
-
+            
             {/* Desktop Navigation */}
             <nav className="hidden md:flex space-x-8 items-center">
               {navItems.map((item) => (

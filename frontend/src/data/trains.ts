@@ -1,3 +1,4 @@
+// Train data and utilities
 export type Train = {
   id: string;
   name: string;
@@ -10,6 +11,7 @@ export type Train = {
   class: string;
 };
 
+// Sample train data
 export const SAMPLE_TRAINS: Train[] = [
   {
     id: "G101",
@@ -46,7 +48,9 @@ export const SAMPLE_TRAINS: Train[] = [
   },
 ];
 
+// Utility to format number to IDR currency
 export const fmtIDR = (value: number) =>
+  // @ts-ignore
   new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR" }).format(
     value
   );

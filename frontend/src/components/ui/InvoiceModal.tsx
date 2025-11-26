@@ -15,12 +15,14 @@ interface InvoiceData {
   updatedAt: string;
 }
 
+// Props untuk InvoiceModal
 interface InvoiceModalProps {
   isOpen: boolean;
   onClose: () => void;
   invoiceData: InvoiceData | null;
 }
 
+// Invoice Modal Component
 const InvoiceModal = ({ isOpen, onClose, invoiceData }: InvoiceModalProps) => {
   // Prevent body scroll when modal is open
   useEffect(() => {
@@ -30,15 +32,18 @@ const InvoiceModal = ({ isOpen, onClose, invoiceData }: InvoiceModalProps) => {
       document.body.style.overflow = "unset";
     }
 
+    // Cleanup on unmount
     return () => {
       document.body.style.overflow = "unset";
     };
   }, [isOpen]);
 
+  // Handle close modal
   const handleClose = () => {
     onClose();
   };
 
+  // Format date to readable string
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString("id-ID", {
       weekday: "long",
@@ -50,6 +55,7 @@ const InvoiceModal = ({ isOpen, onClose, invoiceData }: InvoiceModalProps) => {
     });
   };
 
+  // Format price to IDR currency
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat("id-ID", {
       style: "currency",
@@ -58,6 +64,7 @@ const InvoiceModal = ({ isOpen, onClose, invoiceData }: InvoiceModalProps) => {
     }).format(price);
   };
 
+  // Get status color class
   const getStatusColor = (status: string) => {
     switch (status.toLowerCase()) {
       case "paid":
@@ -71,6 +78,7 @@ const InvoiceModal = ({ isOpen, onClose, invoiceData }: InvoiceModalProps) => {
     }
   };
 
+  // Get status text
   const getStatusText = (status: string) => {
     switch (status.toLowerCase()) {
       case "paid":
@@ -84,8 +92,10 @@ const InvoiceModal = ({ isOpen, onClose, invoiceData }: InvoiceModalProps) => {
     }
   };
 
+  // Render nothing if modal is closed
   if (!isOpen) return null;
 
+  // Render component
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto">
       <div className="flex min-h-full items-center justify-center p-4 text-center sm:p-0">

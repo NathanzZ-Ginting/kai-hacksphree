@@ -23,15 +23,24 @@ interface OrderData {
   status_message: string;
 }
 
+// SuccessOrderPage Component
 const SuccessOrderPage = () => {
+  // Router and state hooks
   const navigate = useNavigate();
+  // Get order_id from URL params
   const [searchParams] = useSearchParams();
+  // State for order data, loading, error, and copy status
   const [orderData, setOrderData] = useState<OrderData | null>(null);
+  //  State for order data
   const [loading, setLoading] = useState(true);
+  // State for order data
   const [error, setError] = useState("");
+  // State for order data
   const [copied, setCopied] = useState(false);
 
+  // Extract orderId from URL parameters
   const orderId = searchParams.get("order_id");
+  // API base URL
   const API_URL = import.meta.env.API_URL || "http://localhost:3000/api/v1";
 
   // Fetch order data
@@ -43,12 +52,14 @@ const SuccessOrderPage = () => {
         return;
       }
 
+      // Fetch order status from API
       try {
         setLoading(true);
         const response = await axios.get(
           `${API_URL}/payment/check-status/${orderId}`
         );
 
+        // Handle successful response
         if (response.data.success) {
           setOrderData(response.data.data);
         } else {
@@ -65,9 +76,11 @@ const SuccessOrderPage = () => {
       }
     };
 
+    // Call the function to fetch order status
     fetchOrderStatus();
   }, [orderId]);
 
+  // Helper functions
   const formatDateTime = (dateString: string) => {
     return new Date(dateString).toLocaleDateString("id-ID", {
       weekday: "long",
@@ -79,6 +92,7 @@ const SuccessOrderPage = () => {
     });
   };
 
+  // Format price to IDR currency
   const formatPrice = (price: string) => {
     return new Intl.NumberFormat("id-ID", {
       style: "currency",
@@ -87,6 +101,7 @@ const SuccessOrderPage = () => {
     }).format(parseFloat(price));
   };
 
+  // Get status color based on transaction status
   const getStatusColor = (status: string) => {
     switch (status.toLowerCase()) {
       case "settlement":
@@ -109,6 +124,7 @@ const SuccessOrderPage = () => {
     }
   };
 
+  // Get readable status text
   const getStatusText = (status: string) => {
     switch (status.toLowerCase()) {
       case "settlement":
@@ -130,6 +146,7 @@ const SuccessOrderPage = () => {
     }
   };
 
+  // Get readable payment type text
   const getPaymentTypeText = (type: string) => {
     switch (type.toLowerCase()) {
       case "qris":
@@ -151,6 +168,7 @@ const SuccessOrderPage = () => {
   const copyOrderId = async () => {
     if (!orderData?.order_id) return;
 
+    // Gunakan Clipboard API jika tersedia
     try {
       await navigator.clipboard.writeText(orderData.order_id);
       setCopied(true);
@@ -168,6 +186,7 @@ const SuccessOrderPage = () => {
     }
   };
 
+  // Render loading, error, or order details
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -179,6 +198,7 @@ const SuccessOrderPage = () => {
     );
   }
 
+  // Render error state
   if (error) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -207,6 +227,7 @@ const SuccessOrderPage = () => {
     );
   }
 
+  // Render not found state
   if (!orderData) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -229,6 +250,7 @@ const SuccessOrderPage = () => {
     );
   }
 
+  // Render success order details
   return (
     <div className="min-h-screen bg-gray-50 pb-20">
       {/* Success Header */}

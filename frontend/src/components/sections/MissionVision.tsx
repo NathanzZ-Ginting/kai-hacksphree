@@ -1,21 +1,25 @@
 import { Eye, Target } from "lucide-react";
 import { useState } from "react";
 
+// MissionVision Section Component
 const MissionVision = () => {
   const [activeTab, setActiveTab] = useState<'vision' | 'mission'>('vision');
   
+  // Define vision and mission content
   const vision = {
     title: "Visi Kami",
     description: "Kami ingin menjadi layanan transportasi kereta api terdepan di Asia Tenggara. Bukan cuma soal perjalanan, tapi juga soal menghubungkan orang, menghadirkan pengalaman yang aman, nyaman, dan terus berinovasi agar bisa ikut mendorong pertumbuhan ekonomi Indonesia.",
     icon: <Eye className="w-10 h-10" />
   };
-  
+
+  // Define mission content
   const mission = {
     title: "Misi Kami",
     description: "Memberikan solusi transportasi yang terjangkau, ramah lingkungan, dan fokus pada kebutuhan pelanggan. Kami terus berinovasi dengan teknologi serta mengembangkan SDM yang handal untuk menghadirkan layanan terbaik.",
     icon: <Target className="w-10 h-10" />
   };
 
+  // Render component
   return (
     <section className="py-24 bg-gradient-to-br from-orange-50 via-red-50 to-amber-50">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -111,3 +115,5 @@ const MissionVision = () => {
 };
 
 export default MissionVision;
+
+//data streaming 

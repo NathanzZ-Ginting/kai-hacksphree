@@ -2,9 +2,9 @@ import { Hono } from "hono";
 import { ErrorsRes, SuccessRes } from "../../../common/utils/api-response";
 import { createOrder } from "../services/order-ticket-service";
 
-const OrderTicketController = new Hono();
+const OrderByTicketController = new Hono();
 
-OrderTicketController.post("/", async (c) => {
+OrderByTicketController.post("/", async (c) => {
   try {
     const requestBody = await c.req.json();
     console.log("Received order request:", requestBody);
@@ -36,7 +36,7 @@ OrderTicketController.post("/", async (c) => {
       );
     }
 
-    const result = await createOrder(
+      const result = await createOrder(
       userUuid,
       ticketUuid,
       totalPasangger,
@@ -56,4 +56,4 @@ OrderTicketController.post("/", async (c) => {
   }
 });
 
-export default OrderTicketController;
+export default OrderByTicketController;

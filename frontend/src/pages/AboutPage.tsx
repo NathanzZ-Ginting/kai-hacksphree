@@ -6,6 +6,7 @@ import LeadershipTeam from "../components/sections/LeadershipTeam";
 import Achievements from "../components/sections/Achievements";
 import ContactInfo from "../components/sections/ContactInfo";
 
+// pages/AboutPage.tsx
 const AboutPage = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-orange-50 via-red-50 to-amber-50">

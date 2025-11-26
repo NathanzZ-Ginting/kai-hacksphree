@@ -1,6 +1,7 @@
 import { Shield, Lightbulb, Leaf, Users } from "lucide-react";
 
-const CoreValues = () => {
+// CoreValues Section Component
+const CoreValues= () => {
   const values = [
     {
       icon: <Shield className="w-10 h-10" />,

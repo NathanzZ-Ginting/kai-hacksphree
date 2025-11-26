@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { Calendar, ChevronLeft, ChevronRight } from "lucide-react";
 
+// Props untuk CustomDatePicker
 interface CustomDatePickerProps {
   value: string;
   onChange: (date: string) => void;
@@ -8,6 +9,7 @@ interface CustomDatePickerProps {
   minDate?: string;
 }
 
+// Custom Date Picker Component
 const CustomDatePicker = ({
   value,
   onChange,
@@ -18,6 +20,7 @@ const CustomDatePicker = ({
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const dropdownRef = useRef<HTMLDivElement>(null);
 
+  // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
@@ -28,30 +31,36 @@ const CustomDatePicker = ({
       }
     };
 
+    // Add event listener
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  //  Helper functions
   const getDaysInMonth = (date: Date) => {
     return new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
   };
 
+  // Get first day of month (0 = Sunday, 1 = Monday, ...)
   const getFirstDayOfMonth = (date: Date) => {
     return new Date(date.getFullYear(), date.getMonth(), 1).getDay();
   };
 
+  // Navigate months
   const prevMonth = () => {
     setCurrentMonth(
       new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1, 1)
     );
   };
 
+  // Navigate months
   const nextMonth = () => {
     setCurrentMonth(
       new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 1)
     );
   };
 
+  // Check if date is disabled based on minDate
   const isDateDisabled = (date: Date) => {
     if (minDate) {
       const min = new Date(minDate);
@@ -61,6 +70,7 @@ const CustomDatePicker = ({
     return false;
   };
 
+  // Check if date is today
   const isToday = (date: Date) => {
     const today = new Date();
     return (
@@ -70,6 +80,7 @@ const CustomDatePicker = ({
     );
   };
 
+  // Check if date is selected
   const isSelected = (date: Date) => {
     if (!value) return false;
     const selected = new Date(value);
@@ -80,6 +91,7 @@ const CustomDatePicker = ({
     );
   };
 
+  // Handle date selection
   const handleDateSelect = (day: number) => {
     const selectedDate = new Date(
       currentMonth.getFullYear(),
@@ -87,6 +99,7 @@ const CustomDatePicker = ({
       day
     );
 
+    // Only select if not disabled
     if (!isDateDisabled(selectedDate)) {
       const dateString = new Date(
         Date.UTC(currentMonth.getFullYear(), currentMonth.getMonth(), day)
@@ -98,11 +111,13 @@ const CustomDatePicker = ({
     }
   };
 
+  // Generate calendar days
   const generateCalendarDays = () => {
     const daysInMonth = getDaysInMonth(currentMonth);
     const firstDay = getFirstDayOfMonth(currentMonth);
     const days = [];
 
+    // Previous month days
     const prevMonth = new Date(
       currentMonth.getFullYear(),
       currentMonth.getMonth() - 1,
@@ -110,12 +125,14 @@ const CustomDatePicker = ({
     );
     const daysInPrevMonth = getDaysInMonth(prevMonth);
 
+    // Fill in days from previous month
     for (let i = firstDay - 1; i >= 0; i--) {
       const day = daysInPrevMonth - i;
       const date = new Date(prevMonth.getFullYear(), prevMonth.getMonth(), day);
       days.push({ day, isCurrentMonth: false, date });
     }
 
+    // Current month days
     for (let day = 1; day <= daysInMonth; day++) {
       const date = new Date(
         currentMonth.getFullYear(),
@@ -125,6 +142,7 @@ const CustomDatePicker = ({
       days.push({ day, isCurrentMonth: true, date });
     }
 
+    // Next month days to fill the grid
     const totalCells = 42;
     let nextMonthDay = 1;
     while (days.length < totalCells) {
@@ -137,9 +155,11 @@ const CustomDatePicker = ({
       nextMonthDay++;
     }
 
+    // Check if each day is disabled
     return days;
   };
 
+  // Format date for display
   const formatDisplayDate = (dateString: string) => {
     if (!dateString) return placeholder;
     const date = new Date(dateString);
@@ -151,6 +171,7 @@ const CustomDatePicker = ({
     });
   };
 
+  // Month names in Indonesian
   const monthNames = [
     "Januari",
     "Februari",
@@ -166,6 +187,7 @@ const CustomDatePicker = ({
     "Desember",
   ];
 
+  // Render component
   return (
     <div className="relative" ref={dropdownRef}>
       <button

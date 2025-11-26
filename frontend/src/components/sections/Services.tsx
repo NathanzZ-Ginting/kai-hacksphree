@@ -5,9 +5,12 @@ import penumpangIcon from "/assets/images/services/angkutan_penumpang.jpg";
 import barangIcon from "/assets/images/services/angkutan_barang.jpg";
 import asetIcon from "/assets/images/services/pengusahaan_aset.jpg";
 
+// Services Section Component
 const Services = () => {
+  // Hooks
   const navigate = useNavigate();
 
+  // Define services data
   const services = [
     {
       icon: "image",
@@ -38,10 +41,12 @@ const Services = () => {
     },
   ];
 
+  // Handle service click
   const handleServiceClick = (href: string) => {
     navigate(href);
   };
 
+  // Render component
   return (
     <section className="py-20 bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

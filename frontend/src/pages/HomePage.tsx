@@ -5,7 +5,9 @@ import ScheduleFinder from "../components/sections/ScheduleFinder";
 import BookingNotification from "../components/ui/BookingNotification";
 import BookingChecker from "../components/sections/BookingChecker";
 
+// HomePage Component
 const HomePage = () => {
+  // Render component
   return (
     <>
       <Hero />

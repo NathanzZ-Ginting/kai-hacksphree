@@ -5,21 +5,32 @@ import { toast } from "sonner";
 import axios from "axios";
 import type { RegisterResponse } from "../../types/kai";
 
+// Extend window object for reCAPTCHA
 declare global {
   interface Window {
     grecaptcha: any;
   }
 }
 
+//  Register Form Component
 const RegisterForm = () => {
+  // Form state
   const [name, setName] = useState("");
+  // Email state
   const [email, setEmail] = useState("");
+  // Password state
   const [password, setPassword] = useState("");
+  // Confirm Password state
   const [confirmPassword, setConfirmPassword] = useState("");
+  // Show/Hide password state
   const [showPassword, setShowPassword] = useState(false);
+  // Show/Hide confirm password state
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  // Loading and error state
   const [isLoading, setIsLoading] = useState(false);
+  // Error message state
   const [error, setError] = useState("");
+  // Navigation hook
   const navigate = useNavigate();
   
   // Load reCAPTCHA script (v2 checkbox)
@@ -35,6 +46,7 @@ const RegisterForm = () => {
     };
   }, []);
 
+  // Function to register to backend
   const registerToBackend = async (
     name: string,
     email: string,
@@ -44,6 +56,7 @@ const RegisterForm = () => {
     const API_URL =
       import.meta.env.VITE_API_URL || "http://localhost:3000/api/v1";
 
+      // API call to register
     try {
       const response = await axios.post(
         `${API_URL}/auth/register`,
@@ -60,6 +73,7 @@ const RegisterForm = () => {
         }
       );
 
+      // Handle response
       const data: RegisterResponse = response.data;
       return data;
     } catch (error) {
@@ -70,25 +84,30 @@ const RegisterForm = () => {
             `HTTP error! status: ${error.response?.status}`
         );
       }
+      // Non-Axios error
       throw new Error("Terjadi kesalahan saat menghubungi server");
     }
   };
 
+  // Handle form submission
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
     setIsLoading(true);
 
+    // Form validation and registration process
     try {
       // Validasi input
       if (!name || !email || !password || !confirmPassword) {
         throw new Error("Silakan isi semua field");
       }
 
+      // Validasi password dan konfirmasi password
       if (password !== confirmPassword) {
         throw new Error("Konfirmasi password tidak sesuai");
       }
 
+      //  Validasi panjang password
       if (password.length < 8) {
         throw new Error("Password harus minimal 8 karakter dengan huruf besar, huruf kecil, dan angka");
       }
@@ -156,10 +175,12 @@ const RegisterForm = () => {
     }
   };
 
+  // Handle redirect to login page
   const handleLoginRedirect = () => {
     navigate("/login");
   };
 
+  // Render component
   return (
     <div className="min-h-screen pt-20 bg-gradient-to-br from-orange-50 to-orange-100 flex items-center justify-center p-4">
       <div className="max-w-md w-full">

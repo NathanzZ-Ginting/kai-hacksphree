@@ -37,7 +37,7 @@ const fetchTicket = async (): Promise<ticketResult> => {
   }
 };
 
-const fetchTicketByUuid = async (uuid: string): Promise<ticketResult> => {
+const fetchTicketByUuid= async (uuid: string): Promise<ticketResult> => {
   try {
     const ticket = await getTicketByUuid(uuid);
 
@@ -61,7 +61,8 @@ const fetchTicketByUuid = async (uuid: string): Promise<ticketResult> => {
     };
   }
 };
-
+    // Implementation for adding origin UUID to ticket
+    // This is a placeholder as the actual implementation depends on the database schema and requirements
 const addTicket = async (ticket: Ticket): Promise<ticketResult> => {
   try {
     const newTicket = await createTicket(ticket);
@@ -80,4 +81,4 @@ const addTicket = async (ticket: Ticket): Promise<ticketResult> => {
   }
 };
 
-export { fetchTicket, fetchTicketByUuid, addTicket };
+export {fetchTicket, fetchTicketByUuid, addTicket };
